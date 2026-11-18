@@ -29,7 +29,7 @@ body{margin:0;min-height:100vh;color:var(--cream);font-family:var(--body);font-s
 .intro{position:relative;z-index:1;overflow:hidden;height:100vh;height:100svh;--u:min(calc(100vw / 1080),calc(100svh / 1920));--u:min(calc(100vw / 1080),calc(100vh / 1920))}
 @supports (height:100svh){.intro{--u:min(calc(100vw / 1080),calc(100svh / 1920))}}
 @media (orientation:landscape){.intro{--u:min(calc(100vw / 1500),calc(100vh / 1400))}}
-.intro .blk{position:absolute;left:50%;width:min(94vw,calc(1000 * var(--u)));transform:translateX(-50%);text-align:center;opacity:0}
+.intro .blk{pointer-events:none;position:absolute;left:50%;width:min(94vw,calc(1000 * var(--u)));transform:translateX(-50%);text-align:center;opacity:0}
 .lbl{font-family:"EB Garamond",Georgia,serif;text-transform:uppercase;letter-spacing:.25em;color:#e8c98a;font-size:max(12px,calc(34 * var(--u)));margin:0;
   text-shadow:0 0 calc(40 * var(--u)) rgba(12,4,22,.78),0 0 12px rgba(12,4,22,.78)}
 .phr{font-family:var(--display);font-style:italic;font-weight:500;color:#f7f0ff;font-size:max(22px,calc(76 * var(--u)));line-height:1.2;margin:0;
@@ -63,7 +63,7 @@ body{margin:0;min-height:100vh;color:var(--cream);font-family:var(--body);font-s
 .flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:5}
 .burst{position:absolute;left:50%;top:0;width:0;height:0;z-index:7}
 .burst i{position:absolute;width:14px;height:14px;margin:-7px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 6px #f2a8e0);opacity:0}
-.logo{position:absolute;left:50%;width:calc(800 * var(--u));margin-left:calc(-400 * var(--u));text-align:center;opacity:0;z-index:2}
+.logo{pointer-events:none;position:absolute;left:50%;width:calc(800 * var(--u));margin-left:calc(-400 * var(--u));text-align:center;opacity:0;z-index:2}
 .logo .wm{display:block;font-family:var(--display);font-style:italic;color:#f7f0ff;line-height:.95;text-shadow:0 0 calc(40 * var(--u)) rgba(12,4,22,.8),0 0 30px rgba(242,168,224,.45)}
 .logo .wm small{display:block;font-size:calc(70 * var(--u));font-weight:400}
 .logo .wm b{display:block;font-size:calc(190 * var(--u));font-weight:500}
@@ -243,7 +243,8 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
       <li><span class="ic">☾</span><div><h3>Encontro do Livro do Mês</h3><p>Encontro presencial para conversar sobre a leitura oficial do mês.</p></div></li>
       <li><span class="ic">✦</span><div><h3>Quiz literário</h3><p>Nos encontros, um quiz sobre o Livro do Mês, com prêmio para quem vencer.</p></div></li>
       <li><span class="ic">❦</span><div><h3>Sorteio do mês</h3><p>Todo mês uma integrante é sorteada e ganha um livro da sua lista de desejos.</p></div></li>
-      <li><span class="ic">✧</span><div><h3>Leituras coletivas extras</h3><p>LCs de outros gêneros, além da leitura oficial, para quem quiser acompanhar.</p></div></li>
+      <li><span class="ic">✧</span><div><h3>Leituras coletivas extras</h3><p>LCs de outros gêneros, além da leitura oficial, com reuniões on-line para conversar sobre cada livro.</p></div></li>
+      <li><span class="ic">☽</span><div><h3>Encontros extras</h3><p>Encontros além do Livro do Mês, sem obrigação de participar.</p></div></li>
       <li><span class="ic">♛</span><div><h3>Arcadiana do Ano</h3><p>Premiação anual para a integrante com mais participação ao longo do ano.</p></div></li>
     </ul>
   </section>
