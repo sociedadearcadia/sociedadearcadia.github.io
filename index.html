@@ -4,38 +4,438 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sociedade Arcádia</title>
-<meta name="description" content="Sociedade Arcádia, clube de leitura.">
-<meta name="theme-color" content="#1a0b2e">
+<meta name="description" content="Clube de leitura presencial para mulheres em Campo Grande, MS. Fantasia e romantasia.">
+<meta name="theme-color" content="#170f33">
 <meta property="og:title" content="Sociedade Arcádia">
-<meta property="og:description" content="Clube de leitura">
-<meta property="og:image" content="selo-arcadia.png">
-<link rel="icon" type="image/png" href="selo-arcadia.png">
-<link rel="apple-touch-icon" href="selo-arcadia.png">
+<meta property="og:description" content="Clube de leitura presencial para mulheres em Campo Grande, MS. Fantasia e romantasia.">
+<meta property="og:image" content="https://sociedadearcadia.com.br/selo-arcadia.png">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/selo-arcadia.png">
+<link rel="preload" as="image" href="/dragao.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;1,500&family=Nunito+Sans:wght@600;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Nunito+Sans:wght@400;600;700&display=swap">
 <style>
-:root{--night:#1a0b2e;--cream:#f4e8da;--gold:#d6b46c;--lilac:#c9b6f2;--plum:#4a1f7a;color-scheme:dark}
+:root{
+  --night:#170f33;--panel:linear-gradient(180deg,rgba(43,23,72,.62),rgba(31,16,54,.72));
+  --line:rgba(200,182,240,.22);--gold:#d6b46c;--lilac:#c9b6f2;--rose:#e88bd6;--plum:#4a1f7a;--cream:#f4e8da;--muted:#b9acd6;
+  --display:"Lora",Georgia,serif;--body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}
 *{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:var(--night) url("fundo-arcadia-largo.webp") center/cover no-repeat fixed;color:var(--cream);font-family:"Nunito Sans",system-ui,sans-serif;
-  display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-@media (orientation:portrait){body{background-image:url("fundo-arcadia-alto.webp")}}
-main{max-width:420px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px 24px;border-radius:999px 999px 18px 18px/220px 220px 18px 18px;
-  background:radial-gradient(90% 60% at 50% 30%,rgba(59,31,99,.6),rgba(26,11,46,.72));border:1px solid rgba(214,180,108,.75);box-shadow:inset 0 0 0 6px rgba(26,11,46,.45),inset 0 0 0 7px rgba(214,180,108,.35),0 24px 70px rgba(8,3,18,.6);
-  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
-img{width:132px;height:132px;border-radius:50%;box-shadow:0 0 0 1px var(--gold),0 8px 30px rgba(0,0,0,.5)}
-.eyebrow{font-family:Lora,serif;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin:0}
-h1{font-family:Lora,serif;font-style:italic;font-weight:500;font-size:36px;margin:0;line-height:1.15}
-a.btn{display:inline-block;margin-top:8px;padding:14px 32px;border-radius:999px;background:linear-gradient(180deg,#e1d2ff,var(--lilac));color:var(--night);font-weight:700;font-size:16px;text-decoration:none;box-shadow:0 6px 24px rgba(201,182,242,.3)}
+html{background:var(--night);overflow-x:hidden}
+body{margin:0;min-height:100vh;color:var(--cream);font-family:var(--body);font-size:16px;line-height:1.55;overflow-x:hidden;background:#2a1240}
+
+/* ---------- abertura animada ---------- */
+.intro{position:relative;z-index:1;overflow:hidden;height:100vh;height:100svh;--u:min(calc(100vw / 1080),calc(100svh / 1920));--u:min(calc(100vw / 1080),calc(100vh / 1920))}
+@supports (height:100svh){.intro{--u:min(calc(100vw / 1080),calc(100svh / 1920))}}
+@media (orientation:landscape){.intro{--u:min(calc(100vw / 1500),calc(100vh / 1400))}}
+.intro .blk{pointer-events:none;position:absolute;left:50%;width:min(94vw,calc(1000 * var(--u)));transform:translateX(-50%);text-align:center;opacity:0}
+.lbl{font-family:"EB Garamond",Georgia,serif;text-transform:uppercase;letter-spacing:.25em;color:#e8c98a;font-size:max(12px,calc(34 * var(--u)));margin:0;
+  text-shadow:0 0 calc(40 * var(--u)) rgba(12,4,22,.78),0 0 12px rgba(12,4,22,.78)}
+.phr{font-family:var(--display);font-style:italic;font-weight:500;color:#f7f0ff;font-size:max(22px,calc(76 * var(--u)));line-height:1.2;margin:0;
+  text-shadow:0 0 calc(40 * var(--u)) rgba(12,4,22,.78),0 0 14px rgba(12,4,22,.78),0 2px 4px rgba(12,4,22,.5)}
+.phr span{display:block}.phr .hl{color:#f2a8e0}
+.uspark{position:absolute;left:0;bottom:-14px;width:26px;height:26px;margin-left:-13px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);
+  filter:drop-shadow(0 0 8px #f2a8e0);opacity:0}
+.env{position:absolute;left:50%;top:0;width:calc(900 * var(--u));height:calc(600 * var(--u));margin-left:calc(-450 * var(--u));opacity:0;z-index:2}
+.env .back,.env .front{position:absolute;inset:0;border-radius:calc(14 * var(--u))}
+.env .back{background:linear-gradient(180deg,#efe2cc,#e3d0b4);box-shadow:0 30px 80px rgba(8,3,18,.7)}
+.env .front{background:linear-gradient(160deg,#f6ecdb,#e8d7bc);clip-path:polygon(0 30%,50% 72%,100% 30%,100% 100%,0 100%);z-index:3}
+.env .flap{position:absolute;left:0;right:0;top:0;height:62%;background:linear-gradient(180deg,#f3e7d2,#e2cfb2);clip-path:polygon(0 0,100% 0,50% 100%);z-index:4;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+.seal2{position:absolute;left:50%;top:62%;width:calc(230 * var(--u));height:calc(230 * var(--u));margin:calc(-115 * var(--u)) 0 0 calc(-115 * var(--u));z-index:6}
+.seal2 .half{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8a52c4,#5a2a8e 45%,#3a1563 80%);
+  box-shadow:inset 0 0 0 calc(14 * var(--u)) rgba(58,21,99,.55),inset 0 0 calc(30 * var(--u)) rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.4);
+  display:grid;place-items:center;font-family:var(--display);font-style:italic;font-weight:600;color:#e8c98a;font-size:calc(130 * var(--u));line-height:1;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.seal2 .l{clip-path:polygon(0 0,52% 0,46% 30%,55% 55%,47% 78%,52% 100%,0 100%)}
+.seal2 .r{clip-path:polygon(52% 0,100% 0,100% 100%,52% 100%,47% 78%,55% 55%,46% 30%)}
+.seal2 .aura{position:absolute;inset:-60%;border-radius:50%;background:radial-gradient(circle,rgba(242,168,224,.8),rgba(201,182,242,.25) 40%,transparent 70%);opacity:0}
+.letter{position:absolute;left:50%;top:0;width:calc(780 * var(--u));margin-left:calc(-390 * var(--u));min-height:calc(900 * var(--u));opacity:0;z-index:1;
+  background:radial-gradient(120% 90% at 50% 40%,#fbf3e2,#efdfc2 70%,#e2cba3);color:#2a1b33;text-align:center;padding:calc(70 * var(--u)) calc(60 * var(--u));
+  clip-path:polygon(0 2%,6% 0,15% 1.5%,27% .3%,40% 1.2%,52% 0,66% 1.4%,79% .2%,90% 1.3%,100% 0,99.2% 12%,100% 26%,99% 41%,100% 57%,99.3% 72%,100% 88%,99% 100%,86% 98.8%,72% 100%,58% 98.6%,44% 100%,30% 98.9%,16% 100%,4% 98.7%,0 100%,.8% 85%,0 70%,1% 55%,0 40%,.7% 24%,0 12%);
+  display:flex;flex-direction:column;justify-content:center;gap:calc(22 * var(--u))}
+.letter .halo{position:absolute}
+.letter h3{font-family:var(--display);font-style:italic;font-weight:500;color:#4a2272;font-size:calc(80 * var(--u));margin:0;line-height:1.1}
+.letter .k{font-family:"EB Garamond",Georgia,serif;letter-spacing:.25em;color:#8e6a26;font-size:calc(32 * var(--u));margin:0}
+.letter p{margin:0;font-family:var(--display);font-size:calc(42 * var(--u))}
+.letter .v{color:#4a2272;font-weight:600;font-style:italic}
+.lhalo{position:absolute;left:50%;top:0;width:calc(1100 * var(--u));height:calc(1200 * var(--u));margin-left:calc(-550 * var(--u));border-radius:50%;opacity:0;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,214,150,.55),rgba(232,201,138,.18) 55%,transparent);z-index:0}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:5}
+.burst{position:absolute;left:50%;top:0;width:0;height:0;z-index:7}
+.burst i{position:absolute;width:14px;height:14px;margin:-7px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 6px #f2a8e0);opacity:0}
+.logo{pointer-events:none;position:absolute;left:50%;width:calc(800 * var(--u));margin-left:calc(-400 * var(--u));text-align:center;opacity:0;z-index:2}
+.logo .wm{display:block;font-family:var(--display);font-style:italic;color:#f7f0ff;line-height:.95;text-shadow:0 0 calc(40 * var(--u)) rgba(12,4,22,.8),0 0 30px rgba(242,168,224,.45)}
+.logo .wm small{display:block;font-size:calc(70 * var(--u));font-weight:400}
+.logo .wm b{display:block;font-size:calc(190 * var(--u));font-weight:500}
+.logo img{width:100%;height:auto;display:block}
+.logo .lh{position:absolute;inset:-40% -20%;border-radius:50%;background:radial-gradient(closest-side,rgba(242,168,224,.45),rgba(201,182,242,.15) 50%,transparent);z-index:-1;animation:lh 4s ease-in-out infinite}
+@keyframes lh{50%{opacity:.5;transform:scale(1.08)}}
+.logo .lr{position:absolute;left:50%;top:50%;width:calc(1400 * var(--u));height:calc(1400 * var(--u));margin:calc(-700 * var(--u)) 0 0 calc(-700 * var(--u));border-radius:50%;z-index:-1;opacity:0;
+  background:repeating-conic-gradient(rgba(255,236,250,.55) 0 3deg,transparent 3deg 15deg);-webkit-mask:radial-gradient(circle,#000 8%,transparent 62%);mask:radial-gradient(circle,#000 8%,transparent 62%)}
+.orbit{position:absolute;left:50%;top:50%;width:0;height:0}
+.orbit i{position:absolute;width:16px;height:16px;margin:-8px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 6px #f2a8e0)}
+.cta-blk .btn{display:inline-flex;margin-top:calc(26 * var(--u));pointer-events:auto}
+.skip{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:8;font:600 13px var(--body);color:var(--cream);background:rgba(23,15,51,.55);
+  border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.scroll{text-shadow:0 0 10px rgba(12,4,22,.9),0 0 4px rgba(12,4,22,.9);position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:8;color:var(--lilac);font:600 13px var(--body);text-decoration:none;opacity:0;transition:opacity 1s;
+  display:flex;flex-direction:column;align-items:center;gap:2px}
+.scroll svg{width:22px;height:22px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(5px)}}
+.intro.done .scroll{opacity:.9}.intro.done .skip{display:none}
+@media (orientation:landscape){#logo{top:20%!important}#f1{top:37%!important}#f2{top:47%!important}}
+.fade-in{position:fixed;inset:0;background:#000;z-index:9;pointer-events:none}
+
+/* ---------- conteúdo ---------- */
+.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:22px;
+  padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(48px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform .9s ease}
+.reveal.in{opacity:1;transform:none}
+
+.window{position:relative;padding:34px 20px 28px;border:1px solid rgba(214,180,108,.75);border-radius:999px 999px 18px 18px/260px 260px 18px 18px;
+  background:radial-gradient(90% 60% at 50% 30%,rgba(59,31,99,.5),rgba(38,18,63,.58) 55%,rgba(26,11,46,.68));-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  box-shadow:inset 0 0 0 6px rgba(26,11,46,.45),inset 0 0 0 7px rgba(214,180,108,.35),0 24px 70px rgba(8,3,18,.6);
+  display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;overflow:hidden}
+.seal{width:150px;height:150px;border-radius:50%;box-shadow:0 0 0 1px var(--gold),0 10px 34px rgba(0,0,0,.5),0 0 40px rgba(201,182,242,.35);animation:glow 5s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 1px var(--gold),0 10px 34px rgba(0,0,0,.5),0 0 70px rgba(232,139,214,.55)}}
+.eyebrow{font-family:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:.24em;color:var(--gold);margin:0}
+h1{font-family:var(--display);font-style:italic;font-weight:500;font-size:clamp(38px,11vw,54px);margin:0;line-height:1.08;text-shadow:0 0 22px rgba(232,170,255,.45)}
+.lead{margin:0;font-size:17px;color:#efe2f7;max-width:30ch}
+.tags{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:6px 0 0;padding:0;list-style:none}
+.tags li{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;background:rgba(23,15,51,.55);border:1px solid var(--line);color:var(--lilac)}
+
+.panel{background:var(--panel);border:1px solid rgba(214,180,108,.45);border-radius:14px;padding:22px 20px;position:relative;
+  box-shadow:inset 0 0 0 5px rgba(214,180,108,.14),0 14px 40px rgba(8,3,18,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.panel>*:first-child{margin-top:0}.panel>*:last-child{margin-bottom:0}
+h2{font-family:var(--display);font-weight:500;font-style:italic;font-size:26px;margin:4px 0 12px;line-height:1.2}
+h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
+.panel p{margin:0 0 10px}
+.muted{color:var(--muted)}
+
+/* leitura atual */
+.current{display:grid;grid-template-columns:128px 1fr;gap:18px;align-items:center}
+.cover{width:128px;height:auto;aspect-ratio:349/527;object-fit:cover;border-radius:4px;
+  box-shadow:0 12px 30px rgba(0,0,0,.55),0 0 0 1px rgba(214,180,108,.55),0 0 36px rgba(201,182,242,.3);animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px)}}
+.current .t{font-family:var(--display);font-size:26px;font-weight:600;line-height:1.1;display:block;margin-top:4px}
+.current .by{display:block;color:#e3d4f0}
+.meta{list-style:none;padding:0;margin:10px 0 0;font-size:13px;color:var(--muted)}
+.meta li::before{content:"✦ ";color:var(--gold);font-size:10px}
+.synopsis{margin-top:16px!important;padding-top:14px;border-top:1px solid var(--line)}
+.author{display:flex;gap:14px;align-items:center;margin-top:14px;padding:14px;border-radius:12px;background:rgba(23,15,51,.5);border:1px solid var(--line)}
+.author .ph{flex:none;width:68px;height:68px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 1px var(--gold),0 0 18px rgba(232,139,214,.35);
+  display:grid;place-items:center;font-family:var(--display);font-style:italic;font-size:24px;color:var(--gold);background:radial-gradient(circle at 30% 30%,#5b2d8f,#26123f)}
+.author p{margin:0;font-size:14px}
+
+/* atividades */
+.acts{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.acts li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.acts li:first-child{border-top:0;padding-top:0}
+.acts .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--gold);border:1px solid rgba(214,180,108,.55);background:rgba(23,15,51,.6);font-size:15px}
+.acts p{margin:2px 0 0;font-size:14px;color:#e2d6ef}
+
+.status{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;padding:6px 12px;border-radius:999px;background:rgba(232,139,214,.14);border:1px solid rgba(232,139,214,.45);margin-bottom:12px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--rose);box-shadow:0 0 10px var(--rose);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+
+.news{text-align:center}
+.year{font-family:var(--display);font-size:68px;line-height:1;font-weight:600;font-style:italic;margin:4px 0 10px;
+  background:linear-gradient(90deg,var(--gold),#f6b8ea,var(--lilac),var(--gold));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite;
+  filter:drop-shadow(0 0 14px rgba(232,170,255,.4))}
+@keyframes shine{to{background-position:300% 0}}
+
+.btns{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+a.btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 22px;border-radius:999px;font-weight:700;font-size:16px;text-decoration:none;transition:transform .15s}
+a.btn:active{transform:scale(.98)}
 a.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.btn.primary{background:linear-gradient(180deg,#e1d2ff,var(--lilac));color:var(--night);box-shadow:0 6px 24px rgba(201,182,242,.3)}
+.btn.cta{background:linear-gradient(180deg,#7a4bb5,#4a1f7a);color:var(--cream);border:1px solid rgba(214,180,108,.7);box-shadow:0 6px 20px rgba(74,31,122,.45)}
+.btn svg{width:20px;height:20px;flex:none}
+footer{text-align:center;font-size:13px;color:var(--muted)}
+
+@media (min-width:700px){.wrap{padding-top:56px}}
+
+/* menu */
+html{scroll-behavior:smooth}
+.wrap>section{scroll-margin-top:72px}
+.nav{position:fixed;left:0;right:0;top:0;z-index:20;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));
+  display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .5s,border-color .5s}
+.nav.solid{background:rgba(23,12,42,.72);border-bottom:1px solid rgba(214,180,108,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.nav .brand{display:flex;align-items:center;gap:8px;color:var(--cream);text-decoration:none;font:italic 500 18px var(--display);opacity:0;transition:opacity .5s}
+.nav.solid .brand{opacity:1}
+.nav .brand img{width:30px;height:30px;border-radius:50%;box-shadow:0 0 0 1px var(--gold)}
+.nav ul{list-style:none;margin:0;padding:0;display:flex;gap:4px;align-items:center}
+.nav ul a{display:block;color:#efe2f7;text-decoration:none;font:600 14px var(--body);padding:8px 12px;border-radius:999px;text-shadow:0 0 8px rgba(12,4,22,.9)}
+.nav ul a:hover,.nav ul a:focus-visible{background:rgba(201,182,242,.14);outline:none}
+.nav ul a.hl{background:linear-gradient(180deg,#e1d2ff,var(--lilac));color:var(--night);text-shadow:none}
+.nav .tg{display:none;align-items:center;gap:8px;font:600 14px var(--body);color:var(--cream);background:rgba(23,15,51,.6);border:1px solid rgba(214,180,108,.55);border-radius:999px;padding:8px 14px;cursor:pointer}
+.nav .tg span,.nav .tg span::before,.nav .tg span::after{display:block;width:16px;height:1.5px;background:var(--gold);position:relative;transition:transform .3s}
+.nav .tg span::before,.nav .tg span::after{content:"";position:absolute;left:0}
+.nav .tg span::before{top:-5px}.nav .tg span::after{top:5px}
+.nav.open .tg span{background:transparent}.nav.open .tg span::before{transform:translateY(5px) rotate(45deg)}.nav.open .tg span::after{transform:translateY(-5px) rotate(-45deg)}
+@media (max-width:860px){
+  .nav .tg{display:inline-flex}
+  .nav ul{position:absolute;right:max(12px,env(safe-area-inset-right));top:calc(100% + 6px);flex-direction:column;align-items:stretch;min-width:220px;padding:10px;border-radius:16px;
+    background:rgba(23,12,42,.92);border:1px solid rgba(214,180,108,.45);box-shadow:0 18px 50px rgba(8,3,18,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .25s,transform .25s}
+  .nav.open ul{opacity:1;transform:none;pointer-events:auto}
+  .nav ul a{padding:11px 14px;font-size:15px}
+  .nav ul a.hl{text-align:center;margin-top:6px}}
+
+/* vagas ao lado da arte, em telas largas */
+@media (min-width:1100px) and (orientation:landscape){#vagas{width:440px;align-self:center;left:min(26vw,400px)}}
+
+/* faixa panorâmica com luzes */
+.band .glow{width:5%}
+.band .moon{width:7%}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 </style>
+<link rel="stylesheet" href="/fx.css">
 </head>
-<body>
-<main>
-  <img src="selo-arcadia.png" alt="Selo da Sociedade Arcádia">
-  <p class="eyebrow">Clube de leitura</p>
-  <h1>Sociedade Arcádia</h1>
-  <a class="btn" href="sprint/">Sprint de leitura</a>
+<body id="topo">
+<nav class="nav" id="nav" aria-label="Menu">
+  <a class="brand" href="#topo"><img src="/selo-arcadia.png" alt="" width="30" height="30">Sociedade Arcádia</a>
+  <button class="tg" id="tg" type="button" aria-expanded="false" aria-controls="menu"><span></span>Menu</button>
+  <ul id="menu">
+    <li><a href="#sobre">O clube</a></li>
+    <li><a href="#leitura">Leitura atual</a></li>
+    <li><a href="#atividades">O que fazemos</a></li>
+    <li><a href="#vagas">Vagas</a></li>
+    <li><a href="/sprint/">Sprint de leitura</a></li>
+    <li><a class="hl" href="lista-de-espera/">Lista de espera</a></li>
+  </ul>
+</nav>
+<div class="scene" id="scene" aria-hidden="true"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="dim" id="dim" aria-hidden="true"></div>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="fade-in" id="fadein" aria-hidden="true"></div>
+
+<section class="intro" id="intro" aria-label="Sociedade Arcádia">
+  <div class="blk" id="s1l" style="top:calc(470 / 1920 * 100%)"><p class="lbl">Clube do livro para mulheres</p></div>
+  <div class="blk" id="s1p" style="top:calc(550 / 1920 * 100%)"><p class="phr"><span>Para quem ama</span><span class="hl">fantasia e romantasia</span><span>e quer viver isso junto.</span></p><i class="uspark"></i></div>
+  <div class="blk" id="s2l" style="top:calc(400 / 1920 * 100%)"><p class="lbl">Como funciona</p></div>
+  <div class="blk" id="s2p" style="top:calc(480 / 1920 * 100%)"><p class="phr"><span>Todo mês, um livro</span><span class="hl">escolhido em votação</span><span>e um encontro presencial</span><span>para conversar sobre ele.</span></p><i class="uspark"></i></div>
+  <div class="blk" id="s3l" style="top:calc(380 / 1920 * 100%)"><p class="lbl">E tem mais</p></div>
+  <div class="blk" id="s3p" style="top:calc(460 / 1920 * 100%)"><p class="phr"><span class="hl">Leituras coletivas extras,</span><span>sorteios, premiações</span><span>e dinâmicas literárias.</span></p><i class="uspark"></i></div>
+  <div class="blk" id="s4l" style="top:calc(330 / 1920 * 100%)"><p class="lbl">Novidade para 2027</p></div>
+
+  <div class="lhalo" id="lhalo" aria-hidden="true"></div>
+  <div class="letter" id="letter">
+    <h3>Vagas para 2027</h3>
+    <p class="k">SOCIEDADE ARCÁDIA</p>
+    <p>Lista de espera aberta</p>
+    <p>Ingresso em janeiro</p>
+    <p>Encontros em Campo Grande/MS</p>
+    <p>Para mulheres a partir de 18 anos</p>
+    <p class="v">Vagas limitadas</p>
+  </div>
+  <div class="env" id="env" aria-hidden="true">
+    <div class="back"></div><div class="front"></div><div class="flap"></div>
+    <div class="seal2" id="seal"><div class="aura" id="aura"></div><div class="half l" id="hl">A</div><div class="half r" id="hr">A</div></div>
+  </div>
+  <div class="burst" id="burst" aria-hidden="true"></div>
+
+  <div class="logo" id="logo" style="top:calc(560 / 1920 * 100%)">
+    <div class="lr" id="lr"></div><div class="lh"></div>
+    <h1 class="wm"><small>Sociedade</small><b>Arcádia</b></h1>
+    <div class="orbit" id="orbit" aria-hidden="true"></div>
+  </div>
+  <div class="blk" id="f1" style="top:calc(790 / 1920 * 100%)"><p class="phr" style="font-size:max(19px,calc(62 * var(--u)))"><span class="hl">Lista de espera aberta</span><span style="font-size:.72em">Ingresso de novas integrantes em janeiro</span></p></div>
+  <div class="blk cta-blk" id="f2" style="top:calc(1040 / 1920 * 100%)"><p class="lbl">Preencha o formulário de interesse</p>
+    <a class="btn primary" href="lista-de-espera/">Quero entrar na lista de espera</a></div>
+
+  <button class="skip" id="skip" type="button">Pular</button>
+  <a class="scroll" href="#sobre">Conheça o clube<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
+</section>
+
+<main class="wrap">
+  <section class="panel reveal" id="sobre">
+    <p class="eyebrow">Sobre</p>
+    <h2>O clube</h2>
+    <p>A Sociedade Arcádia é um clube de leitura presencial para mulheres em Campo Grande, MS. Todo mês um livro de fantasia ou romantasia é escolhido em votação e discutido no encontro presencial. Além dele, há leituras coletivas extras de outros gêneros para quem quiser participar.</p>
+  </section>
+
+  <section class="panel reveal" id="leitura">
+    <p class="eyebrow">Leitura oficial de novembro</p>
+    <h2>Leitura atual</h2>
+    <div class="current">
+      <img class="cover" src="/capa-leitura-atual.webp" alt="Capa de Academia Arcana, de Elise Kova" width="349" height="527">
+      <div>
+        <strong class="t">Academia Arcana</strong>
+        <span class="by">Elise Kova</span>
+        <ul class="meta">
+          <li>Livro 1 da série</li>
+          <li>Editora Arqueiro</li>
+          <li>544 páginas</li>
+        </ul>
+      </div>
+    </div>
+    <p class="synopsis">Clara cresceu no submundo da Cidade do Eclipse e acaba presa por desenhar cartas de tarô, algo proibido no reino. O príncipe Kaelis, diretor da Academia Arcana, oferece uma saída: ela entra na academia fingindo ser noiva dele e o ajuda a roubar uma carta do rei. Magia de tarô, academia, intrigas na corte e romance.</p>
+    <div class="author">
+      <img class="ph" src="/autora.webp" alt="Foto de Elise Kova" width="68" height="68">
+      <div>
+        <h3>Sobre a autora</h3>
+        <p class="muted">Elise Kova é uma autora norte-americana de fantasia e romantasia, best-seller do USA Today. Também escreveu as séries Air Awakens e Married to Magic.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel reveal" id="atividades">
+    <p class="eyebrow">No clube</p>
+    <h2>O que fazemos</h2>
+    <ul class="acts">
+      <li><span class="ic">☾</span><div><h3>Encontro do Livro do Mês</h3><p>Encontro presencial para conversar sobre a leitura oficial do mês.</p></div></li>
+      <li><span class="ic">✦</span><div><h3>Quiz literário</h3><p>Nos encontros, um quiz sobre o Livro do Mês, com prêmio para quem vencer.</p></div></li>
+      <li><span class="ic">❦</span><div><h3>Sorteio do mês</h3><p>Todo mês uma integrante é sorteada e ganha um livro da sua lista de desejos.</p></div></li>
+      <li><span class="ic">✧</span><div><h3>Leituras coletivas extras</h3><p>LCs de outros gêneros, além da leitura oficial, com reuniões on-line para conversar sobre cada livro.</p></div></li>
+      <li><span class="ic">☽</span><div><h3>Encontros extras</h3><p>Encontros além do Livro do Mês, sem obrigação de participar.</p></div></li>
+      <li><span class="ic">♛</span><div><h3>Arcadiana do Ano</h3><p>Premiação anual para a integrante com mais participação ao longo do ano.</p></div></li>
+    </ul>
+  </section>
+
+  <section class="panel reveal" id="vagas">
+    <p class="eyebrow">Ingresso</p>
+    <h2>Vagas para 2027</h2>
+    <div class="status"><i></i>Lista de espera aberta</div>
+    <ul class="acts">
+      <li><span class="ic">✦</span><div><h3>Ingresso em janeiro</h3><p>As novas integrantes entram em janeiro de 2027.</p></div></li>
+      <li><span class="ic">☾</span><div><h3>Encontros em Campo Grande, MS</h3><p>Os encontros são presenciais.</p></div></li>
+      <li><span class="ic">❦</span><div><h3>Para mulheres a partir de 18 anos</h3><p>Vagas limitadas.</p></div></li>
+    </ul>
+    <div class="btns"><a class="btn primary" href="lista-de-espera/">Quero entrar na lista de espera</a></div>
+  </section>
+
+  <div class="band reveal" aria-hidden="true">
+    <div class="moon" style="left:82.3%;top:11.2%;margin:-3.5% 0 0 -3.5%"></div>
+    <div class="glow" style="left:9.8%;top:36%;margin:-2.5% 0 0 -2.5%"></div>
+    <div class="glow small" style="left:14%;top:21%;margin:-2.5% 0 0 -2.5%;animation-delay:-.7s"></div>
+    <div class="glow" style="left:96.9%;top:36%;margin:-2.5% 0 0 -2.5%;animation-delay:-1.4s"></div>
+    <div class="falls" style="left:87.6%;top:42%;width:1.2%;height:14%"></div>
+  </div>
+
+  <section class="panel reveal" id="links">
+    <p class="eyebrow">Links</p>
+    <h2>Acompanhe</h2>
+    <div class="btns">
+      <a class="btn cta" href="https://www.instagram.com/sociedadearcadia/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        @sociedadearcadia
+      </a>
+      <a class="btn cta" href="/sprint/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+        Sprint de leitura
+      </a>
+    </div>
+  </section>
+
+  <footer>Sociedade Arcádia · Campo Grande, MS</footer>
 </main>
+
+<script src="/fx.js"></script>
+<script>
+/* ---------- abertura (34 s) ---------- */
+(function(){
+  const $=id=>document.getElementById(id),intro=$('intro'),scene=$('scene'),dim=$('dim'),fadein=$('fadein');
+  const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ss=x=>{x=Math.min(1,Math.max(0,x));return x*x*(3-2*x)};
+  const CAM=[[0,1.30,740],[2,1.22,740],[5,1.05,900],[7,1.02,940],[11,1.04,980],[14.6,1.22,1200],[15.4,1.24,1230],[22.4,1.14,1080],[23.6,1,960],[34,1.07,960]];
+  function cam(t){let i=0;while(i<CAM.length-2&&t>CAM[i+1][0])i++;const a=CAM[i],b=CAM[i+1],k=ss((t-a[0])/(b[0]-a[0]));
+    window.ARC_CAM(a[1]+(b[1]-a[1])*k,(a[2]+(b[2]-a[2])*k)/1920)}
+  let U=1,H=1;function units(){H=intro.clientHeight;const W=intro.clientWidth;U=innerHeight>innerWidth?Math.min(W/1080,H/1920):Math.min(W/1500,H/1400)}
+  addEventListener('resize',units);units();
+  const Y=y=>y/1920*H;
+  function txt(id,a,b){const e=$(id),k=ss((t-a)/.8),o=k*(b?1-ss((t-(b-.6))/.6):1);e.style.opacity=o;e.style.transform='translate(-50%,'+(30*U*(1-k))+'px)';e.style.visibility=o>0?'visible':'hidden'}
+  function spark(id,at){const e=$(id).querySelector('.uspark');if(!e)return;const k=(t-at)/1.2;if(k<0||k>1){e.style.opacity=0;return}
+    e.style.left=(k*100)+'%';e.style.opacity=Math.sin(Math.PI*k);e.style.transform='rotate('+(k*180)+'deg)'}
+  // faíscas da explosão e da órbita
+  const burst=$('burst'),orbit=$('orbit'),B=[],O=[];
+  for(let i=0;i<60;i++){const s=document.createElement('i');burst.appendChild(s);B.push({e:s,a:i/60*6.283+Math.random()*.1,r:.6+Math.random()*.6})}
+  for(let i=0;i<20;i++){const s=document.createElement('i');orbit.appendChild(s);O.push({e:s,a:i/20*6.283,z:.6+Math.random()*.6})}
+  const env=$('env'),seal=$('seal'),aura=$('aura'),hl=$('hl'),hr=$('hr'),letter=$('letter'),lhalo=$('lhalo'),logo=$('logo'),lr=$('lr');
+  const flash=document.createElement('div');flash.className='flash';document.body.appendChild(flash);
+  let t=0,start=null,done=false;
+  function frame(now){
+    if(start===null)start=now;if(!done)t=Math.min(34,(now-start)/1000);
+    if(!done)cam(t);
+    fadein.style.opacity=calm?0:1-ss(t/.8);
+    txt('s1l',1.2,6.4);txt('s1p',1.6,6.4);spark('s1p',2.0);
+    txt('s2l',6.6,11);txt('s2p',6.9,11);spark('s2p',7.3);
+    txt('s3l',11.2,14.6);txt('s3p',11.4,14.6);spark('s3p',11.8);
+    txt('s4l',15,17);
+    // fundo escurece
+    const dk=ss((t-14.6)/1)*(1-ss((t-21.8)/1.2));dim.style.opacity=.59*dk;scene.style.filter=dk>.01?'blur('+(10*dk)+'px)':'';
+    // envelope
+    const eh=600*U,cy=Y(1150);let ey=cy-eh/2+900*U*(1-ss((t-14.8)/1))+560*U*ss((t-17.6)/1.2)+300*U*ss((t-21.8)/1);
+    const eo=ss((t-14.8)/.5)*(1-ss((t-21.8)/1));env.style.opacity=eo;env.style.visibility=eo>0?'visible':'hidden';
+    env.style.transform='translateY('+ey+'px) rotate('+(3*Math.sin(t*2.2)*(t<17.6?1:0))+'deg)';
+    // selo vibra, parte e cai
+    const vib=t>15.9&&t<16.87?ss((t-15.9)/.97):0;seal.style.transform='rotate('+(vib*4*Math.sin(t*60))+'deg)';
+    aura.style.opacity=t<16.87?vib:Math.max(0,1-(t-16.87)/.4);
+    const br=ss((t-16.87)/.5),fall=ss((t-17.2)/1.3);
+    hl.style.transform='translate('+(-130*U*br)+'px,'+(700*U*fall)+'px) rotate('+(-22*br)+'deg)';
+    hr.style.transform='translate('+(130*U*br)+'px,'+(700*U*fall)+'px) rotate('+(22*br)+'deg)';
+    hl.style.opacity=hr.style.opacity=1-fall;
+    flash.style.opacity=t>16.87&&t<17.03?.85*(1-(t-16.87)/.16):0;
+    const bk=(t-16.87)/1.4;burst.style.transform='translateY('+(ey+eh*.62)+'px)';
+    for(const s of B){if(bk<0||bk>1){s.e.style.opacity=0;continue}const r=(80+360*s.r*ss(bk))*U;
+      s.e.style.opacity=1-bk;s.e.style.transform='translate('+(Math.cos(s.a)*r)+'px,'+(Math.sin(s.a)*r)+'px) scale('+(1-bk*.5)+')'}
+    // carta
+    const lh=letter.offsetHeight,up=Math.min(640*U,Y(1200)-lh/2-16),ly=Y(1200)-lh/2-up*ss((t-17.7)/1.5)+400*U*ss((t-21.8)/1);
+    const lo=(t>17.7?1:0)*(1-ss((t-21.8)/1));letter.style.opacity=lo;letter.style.visibility=lo>0?'visible':'hidden';letter.style.transform='translateY('+ly+'px)';
+    letter.style.zIndex=t>18.3?3:1;
+    lhalo.style.opacity=lo*ss((t-18)/1);lhalo.style.transform='translateY('+(ly+lh/2-600*U)+'px)';
+    // logo
+    const gk=ss((t-23.1)/.9);logo.style.opacity=gk;logo.style.transform='translateY('+(40*U*(1-gk)-logo.offsetHeight/2)+'px)';logo.style.visibility=gk>0?'visible':'hidden';
+    const rk=(t-23.55)/1.2;lr.style.opacity=rk>0&&rk<1?Math.sin(Math.PI*rk):0;lr.style.transform='scale('+(.5+rk*.8)+') rotate('+(rk*20)+'deg)';
+    const ot=now/1000;for(const s of O){const a=s.a+ot*.35;s.e.style.transform='translate('+(Math.cos(a)*460*U)+'px,'+(Math.sin(a)*190*U)+'px) scale('+(s.z*(.7+.3*Math.sin(ot*3+s.a*5)))+')';s.e.style.opacity=gk*(.5+.5*Math.sin(ot*2+s.a*3))}
+    txt('f1',24.4,0);txt('f2',26.4,0);
+    if(t>=34&&!done)finish();
+    if(!calm)requestAnimationFrame(frame)}
+  function finish(){done=true;t=34;intro.classList.add('done')}
+  $('skip').onclick=()=>{finish();fadein.style.opacity=0};
+  if(calm){finish();requestAnimationFrame(frame)}else requestAnimationFrame(frame);
+  addEventListener('resize',()=>{if(calm)requestAnimationFrame(frame)});
+})();
+
+/* ---------- câmera acompanha a rolagem ---------- */
+(function(){
+  const calm=matchMedia('(prefers-reduced-motion: reduce)').matches,art=document.getElementById('art'),intro=document.getElementById('intro');
+  // [zoom, centro vertical, centro horizontal, matiz, saturação, brilho]
+  const SHOTS={
+    alto:{home:[1.07,.5,.5,0,1,1],sobre:[1.9,.07,.77,-12,1.1,1.05],leitura:[1.7,.2,.82,18,1,.95],atividades:[1.7,.82,.48,-6,1.15,1.05],vagas:[1.2,.7,.5,0,1.05,1],links:[1.9,.16,.2,10,1.1,1]},
+    largo:{home:[1.07,.5,.5,0,1,1],sobre:[1.8,.08,.74,-12,1.1,1.05],leitura:[1.6,.28,.8,18,1,.95],atividades:[1.7,.75,.45,-6,1.15,1.05],vagas:[1.15,.55,.5,0,1.05,1],links:[1.8,.15,.12,10,1.1,1]}};
+  const secs=['sobre','leitura','atividades','vagas','links'].map(id=>document.getElementById(id));
+  let cur=null;
+  function target(){const o=window.ARC_ORIENT?ARC_ORIENT():'alto',S=SHOTS[o]||SHOTS.alto;
+    if(scrollY<innerHeight*.45){alt(o,'home');return S.home}let best='home',bd=1e9;const mid=innerHeight/2;
+    secs.forEach(e=>{const r=e.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-mid);if(d<bd){bd=d;best=e.id}});alt(o,best);return S[best]}
+  // outras artes da Bia entram em algumas seções: [arte, centro horizontal]
+  const ALT={alto:{atividades:['banner',.3],vagas:['frame'],links:['estampa']},largo:{vagas:['banner'],links:['estampa']}};
+  let altKey=null;
+  function alt(o,sec){const a=(ALT[o]||{})[sec],k=a?o+a.join():null;if(k===altKey)return;altKey=k;if(window.ARC_ALT)a?ARC_ALT(a[0],a[1]):ARC_ALT(null)}
+  function loop(){if(intro.classList.contains('done')){const tg=target();
+      if(!cur)cur=[1.07,.5,.5,0,1,1].slice();const k=calm?1:.035;for(let i=0;i<6;i++)cur[i]+=(tg[i]-cur[i])*k;
+      window.ARC_CAM(cur[0],cur[1],cur[2]);art.style.filter='hue-rotate('+cur[3]+'deg) saturate('+cur[4]+') brightness('+cur[5]+')'}
+    requestAnimationFrame(loop)}
+  requestAnimationFrame(loop);
+  // ao rolar durante a abertura, ela termina
+  addEventListener('scroll',()=>{if(scrollY>innerHeight*.3&&!intro.classList.contains('done'))document.getElementById('skip').click()},{passive:true});
+})();
+
+/* ---------- menu ---------- */
+(function(){const nav=document.getElementById('nav'),tg=document.getElementById('tg');
+  const set=o=>{nav.classList.toggle('open',o);tg.setAttribute('aria-expanded',o)};
+  tg.onclick=e=>{e.stopPropagation();set(!nav.classList.contains('open'))};
+  nav.querySelectorAll('ul a').forEach(a=>a.addEventListener('click',()=>set(false)));
+  document.addEventListener('click',e=>{if(!nav.contains(e.target))set(false)});
+  const solid=()=>nav.classList.toggle('solid',scrollY>innerHeight*.5);addEventListener('scroll',solid,{passive:true});solid()})();
+
+/* ---------- painéis aparecem ao rolar ---------- */
+(function(){const els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){els.forEach(e=>e.classList.add('in'));return}
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+  els.forEach(e=>io.observe(e))})();
+</script>
 </body>
 </html>
