@@ -158,11 +158,12 @@
         '<p class="muted small" style="margin-top:4px">Elas abrem a cada 3 meses.'+(cfg&&cfg.proxima&&cfg.proxima>=L.hojeISO()?' Próxima abertura: <b style="color:var(--cream)">'+esc(L.dataLonga(cfg.proxima))+'</b>.':' O aviso sai no grupo quando abrir.')+'</p></div></div>';
       return}
     $('sugBox').innerHTML=(cfg.ate?'<span class="aberto-ate">Abertas até '+esc(L.dataLonga(cfg.ate))+'</span>':'<span class="aberto-ate">Sugestões abertas</span>')+
+      '<p class="repetido" style="margin:0 0 12px"><b>Antes de sugerir, procure o livro na lista acima</b> para ver se ele já não está lá.</p>'+
       '<p class="muted small" style="margin:0 0 14px">Sua sugestão vai para a administração, que olha e decide se entra na lista. Livros de outros gêneros ficam para as LCs extras.</p>'+
       '<form class="form" id="sugF">'+
         '<label>Seu nome<select id="sNome" required><option value="">Escolha seu nome</option>'+MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label>'+
-        '<label>Título do livro<input type="text" id="sTitulo" maxlength="120" required autocomplete="off"></label>'+
-        '<label>Autora ou autor<input type="text" id="sAutor" maxlength="120" autocomplete="off"></label>'+
+        '<label>Nome do livro<input type="text" id="sTitulo" maxlength="120" required autocomplete="off"></label>'+
+        '<label>Autora ou autor<input type="text" id="sAutor" maxlength="120" required autocomplete="off"></label>'+
         '<div class="field">Gênero<div class="radios" id="sGen">'+
           '<label class="g-romantasia"><input type="radio" name="gen" value="romantasia" required>Romantasia</label>'+
           '<label class="g-fantasia"><input type="radio" name="gen" value="fantasia">Fantasia</label></div></div>'+
@@ -182,7 +183,8 @@
     const g=(document.querySelector('input[name=gen]:checked')||{}).value;
     const v={titulo:$('sTitulo').value.trim(),autor:$('sAutor').value.trim(),genero:g,obs:$('sObs').value.trim(),nome:$('sNome').value};
     if(!v.nome){toast('Escolha seu nome');$('sNome').focus();return}
-    if(!v.titulo){toast('Escreva o título');$('sTitulo').focus();return}
+    if(!v.titulo){toast('Escreva o nome do livro');$('sTitulo').focus();return}
+    if(!v.autor){toast('Escreva a autora ou o autor');$('sAutor').focus();return}
     if(!L.GEN[v.genero]){toast('Marque se é romantasia ou fantasia');return}
     if(repetido(v.titulo)){toast('Esse livro já está na lista');return}
     const b=$('sBtn');b.disabled=true;
