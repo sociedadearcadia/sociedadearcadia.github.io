@@ -2,14 +2,15 @@
 .scene{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#2a1240 url("fundo-home-largo.webp") center/cover no-repeat}
 @media (orientation:portrait){.scene{background-image:url("fundo-home-alto.webp")}}
 .scene.ready{background:#2a1240}
-.scene.alt{background:#2a1240;opacity:0;transition:opacity 1.4s ease}
+.scene.alt{background:#2a1240;opacity:0;transition:opacity 1.4s ease;display:none}
+.scene.alt.show{display:block}
 .scene.alt.on{opacity:1}
-.scene.alt .art{animation:breathe 26s ease-in-out infinite alternate}
-@keyframes breathe{to{filter:brightness(1.06) saturate(1.08)}}
+/* tom de cada seção: camada de cor por cima da arte (leve para o celular, sem filtro na arte inteira) */
+.tint{position:absolute;inset:0;pointer-events:none;opacity:0}
 .scene.pattern{background:#1d0c2c url("estampa.webp") 0 0/520px repeat;animation:pattern 90s linear infinite}
 .scene.pattern::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(23,10,38,.72),rgba(23,10,38,.5) 70%,rgba(23,10,38,.35))}
 @keyframes pattern{to{background-position:520px 520px}}
-@media (prefers-reduced-motion:reduce){.scene.pattern,.scene.alt .art{animation:none}}
+@media (prefers-reduced-motion:reduce){.scene.pattern{animation:none}}
 /* faixa panorâmica */
 .band{position:relative;width:100vw;margin-left:calc(50% - 50vw);aspect-ratio:3/1;max-height:62vh;background:url("faixa-panoramica.webp") center/cover no-repeat;
   -webkit-mask:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent);overflow:hidden}
@@ -28,7 +29,7 @@
 .steam i:nth-child(3){animation-delay:3.6s;left:-30px}
 @keyframes steam{0%{opacity:0;transform:translate(0,10px) scale(.5,.6)}20%{opacity:.8}60%{opacity:.45}100%{opacity:0;transform:translate(14px,-150px) scale(1.4,1.5) rotate(10deg)}}
 .wings{border-radius:50%;mix-blend-mode:screen;background:radial-gradient(circle,rgba(255,200,240,.55),rgba(220,170,255,.25) 45%,rgba(200,160,255,0) 70%);animation:wings 4s ease-in-out infinite}
-@keyframes wings{0%,100%{opacity:.35;transform:scale(.95);filter:hue-rotate(0deg)}50%{opacity:.9;transform:scale(1.05);filter:hue-rotate(-25deg)}}
+@keyframes wings{0%,100%{opacity:.35;transform:scale(.95)}50%{opacity:.9;transform:scale(1.05)}}
 .spark{width:22px;height:22px;margin:-11px 0 0 -11px;background:#fff3fb;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);
   filter:drop-shadow(0 0 6px #ffb8ec);opacity:0;animation:spark 3s ease-in-out infinite}
 .spark.gold{background:#ffe7a8;filter:drop-shadow(0 0 6px #ffd27a)}
@@ -59,7 +60,7 @@
 @keyframes drift{0%{opacity:0;transform:translate(0,0) scale(.4)}15%{opacity:1}100%{opacity:0;transform:translate(-160px,140px) scale(.9) rotate(90deg)}}
 .dim{position:fixed;inset:0;z-index:0;pointer-events:none;background:#0e061a;opacity:0}
 .vignette{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(18,4,20,0) 55%,rgba(18,4,20,.6) 100%)}
-.grain{position:fixed;inset:-50%;z-index:0;pointer-events:none;opacity:.04;
+.grain{position:fixed;inset:-6%;z-index:0;pointer-events:none;opacity:.04;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .8s steps(4) infinite}
 @keyframes grain{25%{transform:translate(3%,-2%)}50%{transform:translate(-2%,3%)}75%{transform:translate(2%,2%)}}
 
