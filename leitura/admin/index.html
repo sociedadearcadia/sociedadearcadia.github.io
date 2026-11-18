@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Administração · Livro do mês</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="../leitura.css">
+<style>
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:14.5px;padding:9px 14px}
+.chip .x{font-size:11px;opacity:.75;margin-left:4px}
+.draw{position:relative;text-align:center;padding:26px 10px;margin:4px 0 14px;border:1px dashed rgba(214,180,108,.5);border-radius:16px;background:rgba(23,15,51,.5);overflow:hidden}
+.draw .nm{font:italic 500 38px/1.15 var(--display);min-height:44px;color:#fff;text-shadow:0 0 22px rgba(232,170,255,.6)}
+.draw.spin .nm{color:#d9cdf0}
+.draw.win .nm{color:#f6d38d;text-shadow:0 0 26px rgba(246,211,141,.75);animation:win .7s ease}
+@keyframes win{0%{transform:scale(.7);opacity:.3}60%{transform:scale(1.12)}100%{transform:none}}
+.draw i.s{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 6px #f2a8e0);animation:pop 1.3s ease-out forwards;pointer-events:none}
+@keyframes pop{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(120deg)}}
+.preview{display:flex;gap:12px;align-items:center}
+.preview img{width:64px;aspect-ratio:2/3;object-fit:cover;border-radius:5px;box-shadow:0 0 0 1px rgba(214,180,108,.6)}
+input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
+.mini{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.mini li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(200,182,240,.12);padding-bottom:6px}
+.del{font:600 12.5px var(--body);color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline;padding:0}
+</style>
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="../">← Atualização de leitura</a>
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+      <p class="lbl">Sociedade Arcádia</p>
+      <h1>Administração</h1>
+    </div>
+    <div id="state" style="margin-top:14px;text-align:center"><p class="muted">Carregando…</p></div>
+  </section>
+
+  <div id="area" hidden style="display:flex;flex-direction:column;gap:16px">
+    <!-- livro do mês -->
+    <section class="panel">
+      <p class="lbl">Livro do mês</p>
+      <h2 id="atualT">Nenhum livro definido</h2>
+      <div class="book" id="atual" hidden style="margin-top:0">
+        <img class="cover" id="atualCapa" alt="" hidden>
+        <div><p style="margin:0;font-weight:700" id="atualTitulo"></p><p class="muted" id="atualAutor"></p>
+          <button class="btn ghost" type="button" id="editar" style="margin-top:8px;padding:8px 14px;font-size:14px">Corrigir dados</button></div>
+      </div>
+      <form class="form" id="livroF" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
+        <p style="margin:0;font-weight:700" id="formT">Começar um novo livro do mês</p>
+        <p class="muted small" style="margin:-8px 0 0" id="formD">As porcentagens começam do zero e o livro atual vai para os meses anteriores, com as porcentagens guardadas.</p>
+        <label>Título<input type="text" id="titulo" maxlength="120" required></label>
+        <label>Autora ou autor<input type="text" id="autor" maxlength="120"></label>
+        <label>Mês<input type="text" id="mes" maxlength="40" placeholder="dezembro de 2026"></label>
+        <div class="field">Capa <small class="muted" style="font-weight:400">Opcional. Uma foto ou imagem da capa.</small>
+          <div class="preview"><img id="capaPrev" alt="" hidden><input type="file" id="capa" accept="image/*"></div>
+          <button type="button" class="del" id="tiraCapa" hidden style="align-self:flex-start">Tirar a capa</button>
+        </div>
+        <div class="row">
+          <button class="btn" type="submit" id="salvarLivro">Começar novo livro do mês</button>
+          <button class="btn ghost" type="button" id="cancelar" hidden>Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- sorteio -->
+    <section class="panel">
+      <p class="lbl">Sorteio</p>
+      <h2>Sorteio do livro do mês</h2>
+      <p class="muted small" style="margin:-6px 0 12px">Toque nos nomes para marcar quem participa.</p>
+      <div class="row" style="margin-bottom:10px">
+        <button class="chip" type="button" id="todas">Marcar todas</button>
+        <button class="chip" type="button" id="nenhuma">Desmarcar todas</button>
+        <span class="muted small" id="cnt"></span>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="draw" id="draw" style="margin-top:16px"><div class="nm" id="nm">?</div><p class="muted small" id="drawInfo" style="margin:6px 0 0">O nome sorteado aparece aqui</p></div>
+      <button class="btn wide" type="button" id="sortear">Sortear</button>
+      <details style="margin-top:16px"><summary>Sorteios anteriores</summary><ul class="mini" id="sorteios" style="margin-top:10px"></ul></details>
+    </section>
+
+    <!-- histórico -->
+    <section class="panel">
+      <p class="lbl">Histórico</p>
+      <h2>Livros dos meses anteriores</h2>
+      <div id="hist"><p class="muted small">Nenhum ainda.</p></div>
+    </section>
+
+    <div class="row" style="justify-content:center"><button class="btn ghost" type="button" id="sair">Sair da conta</button></div>
+  </div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/config.js"></script>
+<script src="/sprint/config.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id),st=$('state');
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadia:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadia:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{},MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const mesAgora=()=>{const d=new Date();return MESES[d.getMonth()]+' de '+d.getFullYear()};
+  const data=ts=>ts&&ts.toDate?ts.toDate().toLocaleDateString('pt-BR'):'';
+
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  const V='10.12.2';
+  try{await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`)}
+  catch(e){st.innerHTML='<p class="muted">Sem conexão agora. Recarregue a página.</p>';return}
+  // app separado: o login de administração não mexe no acesso de integrante deste aparelho
+  const app=firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase,'admin');const auth=app.auth(),db=app.firestore();
+  const FV=firebase.firestore.FieldValue;
+  try{await auth.getRedirectResult()}catch(e){console.warn(e)}
+
+  function login(){$('area').hidden=true;
+    st.innerHTML='<p>Esta parte é só para a administração do clube.</p><button class="btn" id="g">Entrar com Google</button>';
+    $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}
+      catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);
+        else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request')st.insertAdjacentHTML('beforeend','<p class="muted small">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
+  $('sair').onclick=()=>auth.signOut();
+
+  let iniciou=false;
+  auth.onAuthStateChanged(async u=>{
+    if(!u||u.isAnonymous)return login();
+    let admin=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+    if(!admin){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted small">Para liberar, no console do Firebase crie em Firestore, na coleção <code>admins</code>, um documento cujo ID é:</p><p><code style="word-break:break-all">'+esc(u.uid)+'</code></p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
+    st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+'</p>';$('area').hidden=false;
+    if(!iniciou){iniciou=true;iniciar()}
+  });
+
+  function iniciar(){
+    /* ---------- livro do mês ---------- */
+    let atual=null,hist=[],editando=false,capa=null;
+    $('mes').value=mesAgora();
+    db.collection('leituras').orderBy('inicio','desc').onSnapshot(s=>{
+      const docs=s.docs.map(d=>Object.assign({_id:d.id},d.data()));atual=docs[0]||null;hist=docs.slice(1);
+      $('atualT').textContent=atual?(atual.mes?'Livro de '+atual.mes:'Livro atual'):'Nenhum livro definido';
+      $('atual').hidden=!atual;
+      if(atual){$('atualTitulo').textContent=atual.titulo||'';$('atualAutor').textContent=atual.autor||'';
+        if(atual.capa){$('atualCapa').src=atual.capa;$('atualCapa').hidden=false}else $('atualCapa').hidden=true}
+      renderHist()},e=>{console.warn(e);toast('Erro ao ler os livros: '+e.code)});
+
+    function modo(ed){editando=ed;
+      $('formT').textContent=ed?'Corrigir o livro atual':'Começar um novo livro do mês';
+      $('formD').textContent=ed?'Só muda os dados do livro. As porcentagens continuam como estão.':'As porcentagens começam do zero e o livro atual vai para os meses anteriores, com as porcentagens guardadas.';
+      $('salvarLivro').textContent=ed?'Salvar correção':'Começar novo livro do mês';$('cancelar').hidden=!ed;
+      if(ed&&atual){$('titulo').value=atual.titulo||'';$('autor').value=atual.autor||'';$('mes').value=atual.mes||'';setCapa(atual.capa||null)}
+      else{$('livroF').reset();$('mes').value=mesAgora();setCapa(null)}}
+    function setCapa(d){capa=d;$('capaPrev').hidden=!d;if(d)$('capaPrev').src=d;$('tiraCapa').hidden=!d;if(!d)$('capa').value=''}
+    $('editar').onclick=()=>{modo(true);$('livroF').scrollIntoView({behavior:'smooth',block:'start'})};
+    $('cancelar').onclick=()=>modo(false);
+    $('tiraCapa').onclick=()=>setCapa(null);
+    $('capa').onchange=async()=>{const f=$('capa').files[0];if(!f)return;
+      try{const url=URL.createObjectURL(f);const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});
+        const k=Math.min(1,480/img.naturalHeight,320/img.naturalWidth);const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);setCapa(c.toDataURL('image/jpeg',.82))}
+      catch(e){toast('Não consegui abrir essa imagem. Tente outra.');setCapa(null)}};
+
+    $('livroF').onsubmit=async ev=>{ev.preventDefault();
+      const v={titulo:$('titulo').value.trim(),autor:$('autor').value.trim(),mes:$('mes').value.trim(),capa:capa||''};
+      if(!v.titulo){toast('Escreva o título');return}
+      if(!editando&&atual&&!confirm('Começar "'+v.titulo+'" como novo livro do mês? As porcentagens de "'+(atual.titulo||'')+'" ficam guardadas no histórico.'))return;
+      const b=$('salvarLivro');b.disabled=true;
+      try{if(editando&&atual){await db.collection('leituras').doc(atual._id).update(v);toast('Livro corrigido')}
+        else{v.inicio=FV.serverTimestamp();await db.collection('leituras').add(v);toast('Novo livro do mês salvo')}
+        modo(false)}
+      catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}
+      b.disabled=false};
+
+    /* ---------- histórico ---------- */
+    const cache={};
+    function renderHist(){
+      if(!hist.length){$('hist').innerHTML='<p class="muted small">Nenhum ainda. Quando você começar um livro novo, o anterior aparece aqui.</p>';return}
+      $('hist').innerHTML=hist.map(h=>'<details data-id="'+esc(h._id)+'"><summary>'+esc(h.mes||data(h.inicio))+' · '+esc(h.titulo||'')+'</summary><div class="hist" id="h-'+esc(h._id)+'"><p class="muted small">Carregando…</p></div></details>').join('');
+      $('hist').querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)abrir(d.dataset.id)}))}
+    async function abrir(id){const box=$('h-'+id);
+      try{if(!cache[id]){const s=await db.collection('leituras').doc(id).collection('progresso').get();cache[id]=s.docs.map(x=>Object.assign({_id:x.id},x.data()))}
+        const ls=cache[id].slice().sort((a,b)=>b.pct-a.pct);const m=ls.length?Math.round(ls.reduce((a,x)=>a+x.pct,0)/ls.length):0;
+        const h=hist.find(x=>x._id===id)||{};
+        box.innerHTML=(h.autor?'<p class="muted small" style="margin:0">'+esc(h.autor)+'</p>':'')+'<p class="small" style="margin:0">Média final <b>'+m+'%</b> · '+ls.length+' atualizaram · '+ls.filter(x=>x.pct>=100).length+' terminaram</p>'+
+          '<ul class="people">'+ls.map(x=>'<li><span class="n">'+esc(x.nome)+'</span><span class="v">'+x.pct+'%</span><div class="bar"><i style="width:'+x.pct+'%"></i></div></li>').join('')+'</ul>'+
+          '<button class="del" type="button" data-del="'+esc(id)+'" style="align-self:flex-start">Apagar este livro do histórico</button>';
+        box.querySelector('[data-del]').onclick=async()=>{if(!confirm('Apagar "'+(h.titulo||'')+'" e as porcentagens dele para sempre?'))return;
+          try{const b=db.batch();cache[id].forEach(x=>b.delete(db.collection('leituras').doc(id).collection('progresso').doc(x._id)));b.delete(db.collection('leituras').doc(id));await b.commit();toast('Apagado')}
+          catch(e){toast('Não foi possível apagar: '+e.code)}}}
+      catch(e){box.innerHTML='<p class="muted small">Não foi possível carregar.</p>'}}
+
+    /* ---------- sorteio ---------- */
+    const salvo=LS.get('sorteioSel',null);
+    let marc=new Set(Array.isArray(salvo)?salvo.filter(n=>MEMBROS.includes(n)):MEMBROS);
+    let ultimas={};
+    function chips(){$('chips').innerHTML=MEMBROS.map(n=>'<button type="button" class="chip" aria-pressed="'+marc.has(n)+'" data-n="'+esc(n)+'">'+esc(n)+(ultimas[n]?'<span class="x" title="Já sorteada">★ '+esc(ultimas[n])+'</span>':'')+'</button>').join('');
+      $('cnt').textContent=marc.size+' participando';LS.set('sorteioSel',[...marc])}
+    $('chips').onclick=e=>{const c=e.target.closest('.chip');if(!c||girando)return;const n=c.dataset.n;marc.has(n)?marc.delete(n):marc.add(n);chips()};
+    $('todas').onclick=()=>{if(girando)return;marc=new Set(MEMBROS);chips()};
+    $('nenhuma').onclick=()=>{if(girando)return;marc=new Set();chips()};
+    chips();
+    db.collection('sorteios').orderBy('em','desc').limit(30).onSnapshot(s=>{
+      const rows=s.docs.map(d=>d.data());ultimas={};
+      rows.slice().reverse().forEach(r=>{if(r.sorteada&&r.em)ultimas[r.sorteada]=r.em.toDate().toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).replace('.','').replace(' de ','/')});
+      $('sorteios').innerHTML=rows.length?rows.map(r=>'<li><span><b>'+esc(r.sorteada)+'</b> <span class="muted">entre '+(r.participantes||[]).length+'</span></span><span class="muted">'+data(r.em)+'</span></li>').join(''):'<li class="muted">Nenhum ainda.</li>';
+      chips()},e=>console.warn(e));
+
+    let girando=false;
+    const rnd=n=>{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n};
+    $('sortear').onclick=async()=>{if(girando)return;const lista=MEMBROS.filter(n=>marc.has(n));
+      if(lista.length<2){toast('Marque pelo menos duas pessoas');return}
+      girando=true;$('sortear').disabled=true;const box=$('draw'),nm=$('nm');box.classList.remove('win');box.classList.add('spin');$('drawInfo').textContent='Sorteando entre '+lista.length+'…';
+      const vence=lista[rnd(lista.length)];const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let i=rnd(lista.length),dl=50;const passos=calm?0:22;
+      for(let k=0;k<passos;k++){i=(i+1)%lista.length;nm.textContent=lista[i];await new Promise(ok=>setTimeout(ok,dl));dl*=1.1}
+      nm.textContent=vence;box.classList.remove('spin');box.classList.add('win');$('drawInfo').textContent='Sorteada entre '+lista.length+' participantes';
+      if(!calm)for(let k=0;k<22;k++){const s=document.createElement('i');s.className='s';const a=Math.random()*6.28,r=60+Math.random()*120;s.style.setProperty('--x',Math.cos(a)*r+'px');s.style.setProperty('--y',Math.sin(a)*r*.6+'px');s.style.animationDelay=Math.random()*.2+'s';box.appendChild(s);setTimeout(()=>s.remove(),1700)}
+      try{await db.collection('sorteios').add({sorteada:vence,participantes:lista,em:FV.serverTimestamp()})}catch(e){console.warn(e);toast('O sorteio não ficou salvo no histórico: '+e.code)}
+      girando=false;$('sortear').disabled=false;$('sortear').textContent='Sortear de novo'};
+  }
+})();
+</script>
+</body>
+</html>
