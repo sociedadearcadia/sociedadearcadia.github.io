@@ -38,6 +38,15 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
 .sorteados .ac{display:flex;gap:14px;margin-top:6px;flex-wrap:wrap}
 .lnk{font:600 12.5px var(--body);color:var(--lilac);background:none;border:0;cursor:pointer;text-decoration:underline;padding:0}
 .del{font:600 12.5px var(--body);color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline;padding:0}
+.qres li{flex-direction:column;gap:2px}
+.qres .top2{display:flex;justify-content:space-between;gap:10px;width:100%}
+.qres .ok{color:#a8e6c1;font-weight:700}.qres .no{color:#ffb3c7;font-weight:700}.qres .nada{color:#8f81b6}
+.qres details{border:0;padding:4px 0 0}.qres summary{font-size:13px}
+.qres ol{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.qres ol .c{color:#a8e6c1}.qres ol .e{color:#ffb3c7}.qres ol .m{color:var(--muted)}
+.qprev{margin-top:10px;font-size:14px}
+.qprev ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:8px}
+.qprev .cert{color:#a8e6c1;font-weight:700}
 </style>
 </head>
 <body>
@@ -83,6 +92,37 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
           <button class="btn ghost" type="button" id="cancelar" hidden>Cancelar</button>
         </div>
       </form>
+    </section>
+
+    <!-- questionário de leitura -->
+    <section class="panel" id="quizSec">
+      <p class="lbl">Questionário de leitura</p>
+      <h2 id="qT">Questionário do livro do mês</h2>
+      <p class="muted small" id="qInfo" style="margin:-6px 0 12px">Carregando…</p>
+      <div id="qCtl" hidden>
+        <div class="row" style="margin-bottom:12px">
+          <button class="btn" type="button" id="qAbrir" style="padding:10px 16px;font-size:14px"></button>
+          <button class="btn ghost" type="button" id="qLib" style="padding:10px 16px;font-size:14px"></button>
+        </div>
+        <label style="flex-direction:row;align-items:center;gap:10px;font-weight:600">Nota mínima para contar como lido
+          <input type="number" id="qMin" min="0" max="100" step="5" style="width:90px">%</label>
+        <p class="lbl" style="margin-top:18px" id="qRespT">Respostas</p>
+        <p class="small" id="qResumo" style="margin:4px 0 10px"></p>
+        <ul class="mini qres" id="qResp"></ul>
+        <div class="row" style="margin-top:12px">
+          <button class="btn ghost" type="button" id="qCopiar" style="padding:10px 16px;font-size:14px">Copiar listinha</button>
+          <a class="btn ghost" id="qZap" target="_blank" rel="noopener" style="padding:10px 16px;font-size:14px">Mandar no WhatsApp</a>
+        </div>
+      </div>
+      <details id="qEdit" style="margin-top:16px"><summary id="qEditT">Colar as perguntas</summary>
+        <p class="muted small" style="margin:10px 0">Cole aqui o questionário que a Claude mandar. Cada pergunta começa com o número ("1. ") e cada opção com a letra ("a) "). A opção certa termina com <b>*</b>. Pergunta sem opções vira resposta escrita e não conta na nota.</p>
+        <textarea id="qTxt" rows="14" placeholder="1. Qual é o número da cela da Clara?&#10;a) 105&#10;b) 205 *&#10;c) 215"></textarea>
+        <p class="err" id="qErr" hidden style="margin-top:8px"></p>
+        <div id="qPrev" class="qprev"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" type="button" id="qSalvar">Salvar questionário</button>
+        </div>
+      </details>
     </section>
 
     <!-- sorteio do livro -->
@@ -136,6 +176,7 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
 <script src="/fx.js"></script>
 <script src="/config.js"></script>
 <script src="/sprint/config.js"></script>
+<script src="../questionario/quiz.js"></script>
 <script>
 (async function(){
   const $=id=>document.getElementById(id),st=$('state');
@@ -183,7 +224,7 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
       $('atual').hidden=!atual;
       if(atual){$('atualTitulo').textContent=atual.titulo||'';$('atualAutor').textContent=atual.autor||'';
         if(atual.capa){$('atualCapa').src=atual.capa;$('atualCapa').hidden=false}else $('atualCapa').hidden=true}
-      renderHist()},e=>{console.warn(e);toast('Erro ao ler os livros: '+e.code)});
+      renderHist();quizLivro(atual)},e=>{console.warn(e);toast('Erro ao ler os livros: '+e.code)});
 
     function modo(ed){editando=ed;
       $('formT').textContent=ed?'Corrigir o livro atual':'Começar um novo livro do mês';
@@ -209,6 +250,79 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
       try{if(editando&&atual){await db.collection('leituras').doc(atual._id).update(v);toast('Livro corrigido')}
         else{v.inicio=FV.serverTimestamp();await db.collection('leituras').add(v);toast('Novo livro do mês salvo')}
         modo(false)}
+      catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}
+      b.disabled=false};
+
+    /* ---------- questionário de leitura ---------- */
+    const Q=window.QUIZ;
+    let qLivro=null,qDoc=null,qCertas=null,qResp={},qOff=[];
+    function quizLivro(l){
+      if((l&&l._id)===(qLivro&&qLivro._id)){qLivro=l;qRender();return}
+      qOff.forEach(f=>f());qOff=[];qLivro=l;qDoc=null;qCertas=null;qResp={};$('qTxt').value='';$('qPrev').innerHTML='';$('qErr').hidden=true;
+      if(!l){qRender();return}
+      const ref=db.collection('questionarios').doc(l._id);
+      qOff.push(ref.onSnapshot(d=>{qDoc=d.exists?d.data():null;qRender()},e=>{console.warn(e);$('qInfo').textContent='Não foi possível ler o questionário: '+e.code}));
+      qOff.push(ref.collection('gabarito').doc('certas').onSnapshot(d=>{qCertas=d.exists?(d.data().c||[]):null;
+        if(!$('qTxt').value&&qDoc&&qCertas)$('qTxt').value=Q.texto(qDoc.perguntas,qCertas);qRender()},e=>console.warn(e)));
+      qOff.push(ref.collection('respostas').onSnapshot(s=>{qResp={};s.docs.forEach(d=>qResp[d.id]=Object.assign({_id:d.id},d.data()));qRender()},e=>console.warn(e)));
+    }
+    const qMin=()=>qDoc&&typeof qDoc.minimo==='number'?qDoc.minimo:70;
+    function qLinhas(){
+      return MEMBROS.map(n=>{const r=qResp[slug(n)];if(!r)return {n};const nt=Q.nota(qDoc.perguntas,qCertas||[],r.r);return {n,r,nt,leu:nt.pct>=qMin()}})}
+    function qRender(){
+      const l=qLivro;
+      $('qT').textContent=l?'Questionário de '+(l.titulo||'livro do mês'):'Questionário do livro do mês';
+      $('quizSec').hidden=false;
+      if(!l){$('qInfo').textContent='Defina o livro do mês primeiro.';$('qCtl').hidden=true;$('qEdit').hidden=true;return}
+      $('qEdit').hidden=false;
+      const tem=!!(qDoc&&(qDoc.perguntas||[]).length);
+      $('qEditT').textContent=tem?'Corrigir ou trocar as perguntas':'Colar as perguntas';
+      if(!tem){$('qInfo').textContent='Ainda não tem questionário para este livro. Cole as perguntas abaixo.';$('qCtl').hidden=true;$('qEdit').open=true;return}
+      $('qCtl').hidden=false;
+      const lib=Array.isArray(qDoc.liberado)&&qDoc.liberado.length>0;
+      $('qInfo').innerHTML=qDoc.perguntas.length+' perguntas · '+(qDoc.aberto?'<b style="color:#a8e6c1">aberto para respostas</b>':'<b>fechado</b>')+(lib?' · gabarito liberado':'')+
+        '<br>Link para o grupo: <a href="/leitura/questionario/" style="color:var(--lilac)">sociedadearcadia.com.br/leitura/questionario</a>';
+      $('qAbrir').textContent=qDoc.aberto?'Fechar o questionário':'Abrir para respostas';
+      $('qLib').textContent=lib?'Esconder o gabarito':'Liberar o gabarito';
+      if(document.activeElement!==$('qMin'))$('qMin').value=qMin();
+      const ls=qLinhas(),feitas=ls.filter(x=>x.r);
+      $('qResumo').textContent=feitas.length+' de '+MEMBROS.length+' responderam · '+feitas.filter(x=>x.leu).length+' com '+qMin()+'% ou mais';
+      const ord=ls.slice().sort((a,b)=>(b.r?b.nt.pct:-1)-(a.r?a.nt.pct:-1));
+      $('qResp').innerHTML=ord.map(x=>{
+        if(!x.r)return '<li><div class="top2"><span class="nada">'+esc(x.n)+'</span><span class="nada">não respondeu</span></div></li>';
+        const det=qDoc.perguntas.map((q,i)=>{const v=x.r.r[i];
+          if(!(q.o||[]).length)return '<li><span class="m">'+esc(q.p)+'</span><br>'+esc(v)+'</li>';
+          const ok=qCertas&&v===qCertas[i];
+          return '<li><span class="m">'+esc(q.p)+'</span><br><span class="'+(ok?'c':'e')+'">'+(ok?'✓ ':'✗ ')+esc((q.o||[])[v]||'—')+'</span>'+(ok||!qCertas?'':' <span class="m">(certa: '+esc(q.o[qCertas[i]]||'')+')</span>')+'</li>'}).join('');
+        return '<li><div class="top2"><b>'+esc(x.n)+'</b><span class="'+(x.leu?'ok':'no')+'">'+x.nt.acertos+'/'+x.nt.total+(x.leu?' ✓ leu':' ✗')+'</span></div>'+
+          '<details><summary>Ver respostas · '+data(x.r.em)+'</summary><ol>'+det+'</ol><button class="del" type="button" data-qdel="'+esc(x.r._id)+'" style="margin-top:8px">Apagar e deixar responder de novo</button></details></li>'}).join('');
+      $('qZap').href='https://wa.me/?text='+encodeURIComponent(qTexto());
+    }
+    function qTexto(){return ['📚 Questionário de leitura · '+((qLivro&&qLivro.titulo)||''),''].concat(qLinhas().map(x=>x.n+': '+(x.r?(x.leu?'✅':'❌'):'—'))).join('\n')}
+    $('qCopiar').onclick=async()=>{const t=qTexto();try{await navigator.clipboard.writeText(t);toast('Listinha copiada')}catch(e){prompt('Copie a listinha:',t)}};
+    $('qResp').onclick=async e=>{const b=e.target.closest('[data-qdel]');if(!b)return;const r=qResp[b.dataset.qdel];
+      if(!confirm('Apagar as respostas de '+(r&&r.nome)+'? Ela vai poder responder de novo.'))return;
+      try{await db.collection('questionarios').doc(qLivro._id).collection('respostas').doc(b.dataset.qdel).delete();toast('Respostas apagadas')}catch(er){toast('Não foi possível apagar: '+er.code)}};
+    async function qMuda(v){try{await db.collection('questionarios').doc(qLivro._id).update(v)}catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}}
+    $('qAbrir').onclick=()=>qMuda({aberto:!(qDoc&&qDoc.aberto)});
+    $('qLib').onclick=()=>{const lib=Array.isArray(qDoc.liberado)&&qDoc.liberado.length>0;
+      if(!lib&&!confirm('Liberar o gabarito? Quem já respondeu passa a ver o próprio resultado. Se o questionário ainda estiver aberto, quem não respondeu pode ver as respostas certas com quem já respondeu, então o melhor é fechar antes.'))return;
+      qMuda({liberado:lib?[]:(qCertas||[])})};
+    $('qMin').onchange=()=>{const v=Math.max(0,Math.min(100,Math.round(+$('qMin').value||0)));qMuda({minimo:v})};
+    function qLer(){const r=Q.ler($('qTxt').value);
+      $('qErr').hidden=!r.erros.length;$('qErr').innerHTML=r.erros.map(esc).join('<br>');
+      $('qPrev').innerHTML=r.perguntas.length?'<p class="muted small" style="margin:0 0 8px">Prévia: '+r.perguntas.length+' perguntas</p><ol>'+r.perguntas.map((q,i)=>'<li><b>'+esc(q.p)+'</b>'+(q.o.length?'<br>'+q.o.map((o,j)=>j===r.certas[i]?'<span class="cert">'+esc(o)+' ✓</span>':esc(o)).join(' · '):'<br><span class="muted">(resposta escrita)</span>')+'</li>').join('')+'</ol>':'';
+      return r}
+    $('qTxt').addEventListener('input',qLer);
+    $('qSalvar').onclick=async()=>{if(!qLivro)return;const r=qLer();if(r.erros.length){toast('Confira os avisos em vermelho');return}
+      const nResp=Object.keys(qResp).length;
+      if(nResp&&!confirm(nResp+' pessoa(s) já responderam. Se você mudar a ordem ou a quantidade de perguntas, as respostas delas deixam de bater. Salvar mesmo assim?'))return;
+      const b=$('qSalvar');b.disabled=true;
+      try{const ref=db.collection('questionarios').doc(qLivro._id),bt=db.batch();
+        const lib=qDoc&&Array.isArray(qDoc.liberado)&&qDoc.liberado.length>0;
+        bt.set(ref,{perguntas:r.perguntas,aberto:qDoc?!!qDoc.aberto:true,minimo:qMin(),liberado:lib?r.certas:[],em:FV.serverTimestamp()});
+        bt.set(ref.collection('gabarito').doc('certas'),{c:r.certas});
+        await bt.commit();toast(qDoc?'Questionário atualizado':'Questionário salvo e aberto para respostas');$('qEdit').open=false}
       catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}
       b.disabled=false};
 
