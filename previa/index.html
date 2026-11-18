@@ -211,7 +211,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     <p>A Sociedade Arcádia é um clube de leitura presencial para mulheres em Campo Grande, MS. Todo mês um livro de fantasia ou romantasia é escolhido em votação e discutido no encontro presencial. Além dele, há leituras coletivas extras de outros gêneros para quem quiser participar.</p>
   </section>
 
-  <section class="panel reveal">
+  <section class="panel reveal" id="leitura">
     <p class="eyebrow">Leitura oficial de novembro</p>
     <h2>Leitura atual</h2>
     <div class="current">
@@ -236,7 +236,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     </div>
   </section>
 
-  <section class="panel reveal">
+  <section class="panel reveal" id="atividades">
     <p class="eyebrow">No clube</p>
     <h2>O que fazemos</h2>
     <ul class="acts">
@@ -248,7 +248,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     </ul>
   </section>
 
-  <section class="panel reveal">
+  <section class="panel reveal" id="vagas">
     <p class="eyebrow">Ingresso</p>
     <h2>Vagas para 2027</h2>
     <div class="status"><i></i>Lista de espera aberta</div>
@@ -260,7 +260,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     <div class="btns"><a class="btn primary" href="lista-de-espera/">Quero entrar na lista de espera</a></div>
   </section>
 
-  <section class="panel reveal">
+  <section class="panel reveal" id="links">
     <p class="eyebrow">Links</p>
     <h2>Acompanhe</h2>
     <div class="btns">
@@ -303,7 +303,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   let t=0,start=null,done=false;
   function frame(now){
     if(start===null)start=now;if(!done)t=Math.min(34,(now-start)/1000);
-    cam(t);
+    if(!done)cam(t);
     fadein.style.opacity=calm?0:1-ss(t/.8);
     txt('s1l',1.2,6.4);txt('s1p',1.6,6.4);spark('s1p',2.0);
     txt('s2l',6.6,11);txt('s2p',6.9,11);spark('s2p',7.3);
@@ -342,6 +342,27 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   $('skip').onclick=()=>{finish();fadein.style.opacity=0};
   if(calm){finish();requestAnimationFrame(frame)}else requestAnimationFrame(frame);
   addEventListener('resize',()=>{if(calm)requestAnimationFrame(frame)});
+})();
+
+/* ---------- câmera acompanha a rolagem ---------- */
+(function(){
+  const calm=matchMedia('(prefers-reduced-motion: reduce)').matches,art=document.getElementById('art'),intro=document.getElementById('intro');
+  // [zoom, centro vertical, centro horizontal, matiz, saturação, brilho]
+  const SHOTS={
+    alto:{home:[1.07,.5,.5,0,1,1],sobre:[1.9,.07,.77,-12,1.1,1.05],leitura:[1.7,.2,.82,18,1,.95],atividades:[1.7,.82,.48,-6,1.15,1.05],vagas:[1.2,.7,.5,0,1.05,1],links:[1.9,.16,.2,10,1.1,1]},
+    largo:{home:[1.07,.5,.5,0,1,1],sobre:[1.8,.08,.74,-12,1.1,1.05],leitura:[1.6,.28,.8,18,1,.95],atividades:[1.7,.75,.45,-6,1.15,1.05],vagas:[1.15,.55,.5,0,1.05,1],links:[1.8,.15,.12,10,1.1,1]}};
+  const secs=['sobre','leitura','atividades','vagas','links'].map(id=>document.getElementById(id));
+  let cur=null;
+  function target(){const o=window.ARC_ORIENT?ARC_ORIENT():'alto',S=SHOTS[o]||SHOTS.alto;
+    if(scrollY<innerHeight*.45)return S.home;let best='home',bd=1e9;const mid=innerHeight/2;
+    secs.forEach(e=>{const r=e.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-mid);if(d<bd){bd=d;best=e.id}});return S[best]}
+  function loop(){if(intro.classList.contains('done')){const tg=target();
+      if(!cur)cur=[1.07,.5,.5,0,1,1].slice();const k=calm?1:.035;for(let i=0;i<6;i++)cur[i]+=(tg[i]-cur[i])*k;
+      window.ARC_CAM(cur[0],cur[1],cur[2]);art.style.filter='hue-rotate('+cur[3]+'deg) saturate('+cur[4]+') brightness('+cur[5]+')'}
+    requestAnimationFrame(loop)}
+  requestAnimationFrame(loop);
+  // ao rolar durante a abertura, ela termina
+  addEventListener('scroll',()=>{if(scrollY>innerHeight*.3&&!intro.classList.contains('done'))document.getElementById('skip').click()},{passive:true});
 })();
 
 /* ---------- painéis aparecem ao rolar ---------- */

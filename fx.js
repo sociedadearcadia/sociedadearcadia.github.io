@@ -28,12 +28,14 @@
     const[dx,dy,dw,dh]=S.dragon;const d=el('dragon',dx,dy,dw,dh,'<img src="/dragao.webp" alt="">');d.style.setProperty('--outR',S.outR+'px');d.style.setProperty('--inL',S.inL+'px');
     scene.classList.add('ready');fit()}
   /* câmera: zoom e centro vertical (fração da altura da ilustração) */
-  const cam={zoom:1.07,cy:.5};
+  const cam={zoom:1.07,cy:.5,cx:.5};
   function fit(){const k=innerHeight>innerWidth?'alto':'largo';if(k!==cur)return build(k);const S=SCENES[k];
     const W=scene.clientWidth,H=scene.clientHeight,s=Math.max(W/S.w,H/S.h)*cam.zoom;
     let ty=H/2-cam.cy*S.h*s;ty=Math.min(0,Math.max(H-S.h*s,ty));
-    art.style.transform='translate('+((W-S.w*s)/2)+'px,'+ty+'px) scale('+s+')'}
-  window.ARC_CAM=(z,cy)=>{cam.zoom=z;cam.cy=cy;fit()};
+    let tx=W/2-cam.cx*S.w*s;tx=Math.min(0,Math.max(W-S.w*s,tx));
+    art.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')'}
+  window.ARC_CAM=(z,cy,cx)=>{cam.zoom=z;cam.cy=cy;cam.cx=cx==null?.5:cx;fit()};
+  window.ARC_ORIENT=()=>cur;
   addEventListener('resize',fit);fit();
 })();
 
