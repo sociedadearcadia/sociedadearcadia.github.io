@@ -12,30 +12,52 @@
       moon:[1120,179,200],
       lamps:[[211,445,75],[343,338,60],[662,2032,95],[771,2122,42,1],[845,2180,36,1]],
       steam:[872,1722],wings:[1357,1434,210],wbox:[1300,1287,1437,1773],falls:[1284,515,40,130],
-      sparks:[[1300,1300],[1410,1360],[1330,1560],[1420,1520],[1260,1440],[1180,1240],[700,2180,1],[230,560,1],[1000,300]]}};
+      sparks:[[1300,1300],[1410,1360],[1330,1560],[1420,1520],[1260,1440],[1180,1240],[700,2180,1],[230,560,1],[1000,300]]},
+    banner:{src:'/fundo-banner.webp',w:2560,h:1440,
+      moon:[1246,90,115],
+      lamps:[[510,170,70],[140,264,55],[836,1064,95],[734,1180,30,1],[790,1210,28,1]],
+      wings:[1280,560,150],wbox:[1160,400,1400,720],falls:[880,370,36,120],
+      sparks:[[940,280,1],[1010,300,1],[860,330,1],[1200,430],[1350,500],[1300,660],[300,1180,1],[2300,1300],[1700,1340]]},
+    frame:{src:'/fundo-moldura.webp',w:1440,h:2560,
+      moon:[1061,261,100],
+      lamps:[[213,459,70],[331,331,52]],
+      falls:[1205,490,30,110],
+      sparks:[[1150,420,1],[1250,400,1],[140,2120],[1320,2120],[650,2200,1],[60,900],[1380,1200],[40,1600],[1390,700]]}};
+  const SET=window.ARC_SET||{largo:'largo',alto:'alto'};
   const scene=document.getElementById('scene'),art=document.getElementById('art');let cur=null;
-  const el=(cls,x,y,w,h,html)=>{const d=document.createElement('div');d.className=cls;d.style.left=x+'px';d.style.top=y+'px';if(w!=null){d.style.width=w+'px';d.style.height=h+'px'}if(html)d.innerHTML=html;art.appendChild(d);return d};
-  function build(k){const S=SCENES[k];cur=k;art.innerHTML='';art.style.width=S.w+'px';art.style.height=S.h+'px';art.style.backgroundImage='url("'+S.src+'")';
+  function populate(A,S){
+    const el=(cls,x,y,w,h,html)=>{const d=document.createElement('div');d.className=cls;d.style.left=x+'px';d.style.top=y+'px';if(w!=null){d.style.width=w+'px';d.style.height=h+'px'}if(html)d.innerHTML=html;A.appendChild(d);return d};
+    A.innerHTML='';A.style.width=S.w+'px';A.style.height=S.h+'px';A.style.backgroundImage='url("'+S.src+'")';
     const[mx,my,mr]=S.moon;el('rays',mx-mr*2.6,my-mr*2.6,mr*5.2,mr*5.2);el('moon',mx-mr,my-mr,mr*2,mr*2);
-    const[a0,b0,a1,b1]=S.wbox;for(let i=0;i<26;i++){const s=el('spark',a0+Math.random()*(a1-a0),b0+Math.random()*(b1-b0));s.style.width=s.style.height='14px';s.style.margin='-7px 0 0 -7px';
+    if(S.wbox){const[a0,b0,a1,b1]=S.wbox;for(let i=0;i<26;i++){const s=el('spark',a0+Math.random()*(a1-a0),b0+Math.random()*(b1-b0));s.style.width=s.style.height='14px';s.style.margin='-7px 0 0 -7px';
       s.style.animationDelay=(Math.random()*3)+'s';s.style.animationDuration=(1.6+Math.random()*2)+'s'}
-    for(let i=0;i<18;i++){const s=el('drift',a0+Math.random()*(a1-a0),b0+Math.random()*(b1-b0));s.style.animationDelay=(Math.random()*6)+'s';s.style.animationDuration=(4+Math.random()*4)+'s'}
-    const[fx,fy,fw,fh]=S.falls;el('falls',fx-fw/2,fy,fw,fh);
+    for(let i=0;i<18;i++){const s=el('drift',a0+Math.random()*(a1-a0),b0+Math.random()*(b1-b0));s.style.animationDelay=(Math.random()*6)+'s';s.style.animationDuration=(4+Math.random()*4)+'s'}}
+    if(S.falls){const[fx,fy,fw,fh]=S.falls;el('falls',fx-fw/2,fy,fw,fh)}
     S.lamps.forEach(([x,y,r,sm],i)=>{const g=el('glow'+(sm?' small':''),x-r,y-r,r*2,r*2);g.style.animationDelay=(-i*0.7)+'s'});
-    const[wx,wy,wr]=S.wings;el('wings',wx-wr,wy-wr,wr*2,wr*2);
+    if(S.wings){const[wx,wy,wr]=S.wings;el('wings',wx-wr,wy-wr,wr*2,wr*2)}
     S.sparks.forEach(([x,y,g],i)=>{const s=el('spark'+(g?' gold':''),x,y);s.style.animationDelay=(i*0.45)+'s';s.style.animationDuration=(2.4+(i%4)*.6)+'s'});
-    el('steam',S.steam[0],S.steam[1],null,null,'<i></i><i></i><i></i>');
-    const[dx,dy,dw,dh]=S.dragon;const d=el('dragon',dx,dy,dw,dh,'<img src="/dragao.webp" alt="">');d.style.setProperty('--outR',S.outR+'px');d.style.setProperty('--inL',S.inL+'px');
-    scene.classList.add('ready');fit()}
+    if(S.steam)el('steam',S.steam[0],S.steam[1],null,null,'<i></i><i></i><i></i>');
+    if(S.dragon){const[dx,dy,dw,dh]=S.dragon;const d=el('dragon',dx,dy,dw,dh,'<img src="/dragao.webp" alt="">');d.style.setProperty('--outR',S.outR+'px');d.style.setProperty('--inL',S.inL+'px')}}
+  function place(box,A,S,c){const W=box.clientWidth,H=box.clientHeight,s=Math.max(W/S.w,H/S.h)*c.zoom;
+    let ty=H/2-c.cy*S.h*s;ty=Math.min(0,Math.max(H-S.h*s,ty));
+    let tx=W/2-c.cx*S.w*s;tx=Math.min(0,Math.max(W-S.w*s,tx));
+    A.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')'}
   /* câmera: zoom e centro vertical (fração da altura da ilustração) */
   const cam={zoom:1.07,cy:.5,cx:.5};
-  function fit(){const k=innerHeight>innerWidth?'alto':'largo';if(k!==cur)return build(k);const S=SCENES[k];
-    const W=scene.clientWidth,H=scene.clientHeight,s=Math.max(W/S.w,H/S.h)*cam.zoom;
-    let ty=H/2-cam.cy*S.h*s;ty=Math.min(0,Math.max(H-S.h*s,ty));
-    let tx=W/2-cam.cx*S.w*s;tx=Math.min(0,Math.max(W-S.w*s,tx));
-    art.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')'}
+  const orient=()=>innerHeight>innerWidth?'alto':'largo';
+  function fit(){const k=orient();if(k!==cur){cur=k;populate(art,SCENES[SET[k]]);scene.classList.add('ready')}place(scene,art,SCENES[SET[k]],cam);fitAlt()}
   window.ARC_CAM=(z,cy,cx)=>{cam.zoom=z;cam.cy=cy;cam.cx=cx==null?.5:cx;fit()};
   window.ARC_ORIENT=()=>cur;
+  /* artes alternativas que entram por cima da principal (troca suave por seção) */
+  const alts={};let altOn=null;
+  function altLayer(name){if(alts[name])return alts[name];const box=document.createElement('div');box.className='scene alt'+(name==='estampa'?' pattern':'');box.setAttribute('aria-hidden','true');
+    let A=null;if(name!=='estampa'){A=document.createElement('div');A.className='art';box.appendChild(A);populate(A,SCENES[name])}
+    let last=scene;Object.values(alts).forEach(a=>last=a.box);last.after(box);return alts[name]={box,A,S:SCENES[name]}}
+  const altCam={zoom:1.04,cy:.5,cx:.5};
+  function fitAlt(){Object.values(alts).forEach(a=>{if(a.A)place(a.box,a.A,a.S,altCam)})}
+  window.ARC_ALT=(name,cx,cy)=>{if(name===altOn&&cx==null)return;altOn=name;altCam.cx=cx==null?.5:cx;altCam.cy=cy==null?.5:cy;
+    if(name){const a=altLayer(name);if(a.A)place(a.box,a.A,a.S,altCam);requestAnimationFrame(()=>a.box.classList.add('on'))}
+    Object.entries(alts).forEach(([n,a])=>{if(n!==name)a.box.classList.remove('on')})};
   addEventListener('resize',fit);fit();
 })();
 

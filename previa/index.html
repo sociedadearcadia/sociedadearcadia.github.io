@@ -153,11 +153,57 @@ a.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 footer{text-align:center;font-size:13px;color:var(--muted)}
 
 @media (min-width:700px){.wrap{padding-top:56px}}
+
+/* menu */
+html{scroll-behavior:smooth}
+.wrap>section{scroll-margin-top:72px}
+.nav{position:fixed;left:0;right:0;top:0;z-index:20;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));
+  display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .5s,border-color .5s}
+.nav.solid{background:rgba(23,12,42,.72);border-bottom:1px solid rgba(214,180,108,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.nav .brand{display:flex;align-items:center;gap:8px;color:var(--cream);text-decoration:none;font:italic 500 18px var(--display);opacity:0;transition:opacity .5s}
+.nav.solid .brand{opacity:1}
+.nav .brand img{width:30px;height:30px;border-radius:50%;box-shadow:0 0 0 1px var(--gold)}
+.nav ul{list-style:none;margin:0;padding:0;display:flex;gap:4px;align-items:center}
+.nav ul a{display:block;color:#efe2f7;text-decoration:none;font:600 14px var(--body);padding:8px 12px;border-radius:999px;text-shadow:0 0 8px rgba(12,4,22,.9)}
+.nav ul a:hover,.nav ul a:focus-visible{background:rgba(201,182,242,.14);outline:none}
+.nav ul a.hl{background:linear-gradient(180deg,#e1d2ff,var(--lilac));color:var(--night);text-shadow:none}
+.nav .tg{display:none;align-items:center;gap:8px;font:600 14px var(--body);color:var(--cream);background:rgba(23,15,51,.6);border:1px solid rgba(214,180,108,.55);border-radius:999px;padding:8px 14px;cursor:pointer}
+.nav .tg span,.nav .tg span::before,.nav .tg span::after{display:block;width:16px;height:1.5px;background:var(--gold);position:relative;transition:transform .3s}
+.nav .tg span::before,.nav .tg span::after{content:"";position:absolute;left:0}
+.nav .tg span::before{top:-5px}.nav .tg span::after{top:5px}
+.nav.open .tg span{background:transparent}.nav.open .tg span::before{transform:translateY(5px) rotate(45deg)}.nav.open .tg span::after{transform:translateY(-5px) rotate(-45deg)}
+@media (max-width:860px){
+  .nav .tg{display:inline-flex}
+  .nav ul{position:absolute;right:max(12px,env(safe-area-inset-right));top:calc(100% + 6px);flex-direction:column;align-items:stretch;min-width:220px;padding:10px;border-radius:16px;
+    background:rgba(23,12,42,.92);border:1px solid rgba(214,180,108,.45);box-shadow:0 18px 50px rgba(8,3,18,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .25s,transform .25s}
+  .nav.open ul{opacity:1;transform:none;pointer-events:auto}
+  .nav ul a{padding:11px 14px;font-size:15px}
+  .nav ul a.hl{text-align:center;margin-top:6px}}
+
+/* vagas ao lado da arte, em telas largas */
+@media (min-width:1100px) and (orientation:landscape){#vagas{width:440px;align-self:center;left:min(26vw,400px)}}
+
+/* faixa panorâmica com luzes */
+.band .glow{width:5%}
+.band .moon{width:7%}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 </style>
 <link rel="stylesheet" href="/fx.css">
 </head>
-<body>
+<body id="topo">
+<nav class="nav" id="nav" aria-label="Menu">
+  <a class="brand" href="#topo"><img src="/selo-arcadia.png" alt="" width="30" height="30">Sociedade Arcádia</a>
+  <button class="tg" id="tg" type="button" aria-expanded="false" aria-controls="menu"><span></span>Menu</button>
+  <ul id="menu">
+    <li><a href="#sobre">O clube</a></li>
+    <li><a href="#leitura">Leitura atual</a></li>
+    <li><a href="#atividades">O que fazemos</a></li>
+    <li><a href="#vagas">Vagas</a></li>
+    <li><a href="/sprint/">Sprint de leitura</a></li>
+    <li><a class="hl" href="lista-de-espera/">Lista de espera</a></li>
+  </ul>
+</nav>
 <div class="scene" id="scene" aria-hidden="true"><div class="art" id="art"></div></div>
 <canvas id="sky" aria-hidden="true"></canvas>
 <div class="dim" id="dim" aria-hidden="true"></div>
@@ -261,6 +307,14 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
     <div class="btns"><a class="btn primary" href="lista-de-espera/">Quero entrar na lista de espera</a></div>
   </section>
 
+  <div class="band reveal" aria-hidden="true">
+    <div class="moon" style="left:82.3%;top:11.2%;margin:-3.5% 0 0 -3.5%"></div>
+    <div class="glow" style="left:9.8%;top:36%;margin:-2.5% 0 0 -2.5%"></div>
+    <div class="glow small" style="left:14%;top:21%;margin:-2.5% 0 0 -2.5%;animation-delay:-.7s"></div>
+    <div class="glow" style="left:96.9%;top:36%;margin:-2.5% 0 0 -2.5%;animation-delay:-1.4s"></div>
+    <div class="falls" style="left:87.6%;top:42%;width:1.2%;height:14%"></div>
+  </div>
+
   <section class="panel reveal" id="links">
     <p class="eyebrow">Links</p>
     <h2>Acompanhe</h2>
@@ -269,7 +323,7 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
         @sociedadearcadia
       </a>
-      <a class="btn cta" href="sprint/">
+      <a class="btn cta" href="/sprint/">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
         Sprint de leitura
       </a>
@@ -355,8 +409,12 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   const secs=['sobre','leitura','atividades','vagas','links'].map(id=>document.getElementById(id));
   let cur=null;
   function target(){const o=window.ARC_ORIENT?ARC_ORIENT():'alto',S=SHOTS[o]||SHOTS.alto;
-    if(scrollY<innerHeight*.45)return S.home;let best='home',bd=1e9;const mid=innerHeight/2;
-    secs.forEach(e=>{const r=e.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-mid);if(d<bd){bd=d;best=e.id}});return S[best]}
+    if(scrollY<innerHeight*.45){alt(o,'home');return S.home}let best='home',bd=1e9;const mid=innerHeight/2;
+    secs.forEach(e=>{const r=e.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-mid);if(d<bd){bd=d;best=e.id}});alt(o,best);return S[best]}
+  // outras artes da Bia entram em algumas seções: [arte, centro horizontal]
+  const ALT={alto:{atividades:['banner',.3],vagas:['frame'],links:['estampa']},largo:{vagas:['banner'],links:['estampa']}};
+  let altKey=null;
+  function alt(o,sec){const a=(ALT[o]||{})[sec],k=a?o+a.join():null;if(k===altKey)return;altKey=k;if(window.ARC_ALT)a?ARC_ALT(a[0],a[1]):ARC_ALT(null)}
   function loop(){if(intro.classList.contains('done')){const tg=target();
       if(!cur)cur=[1.07,.5,.5,0,1,1].slice();const k=calm?1:.035;for(let i=0;i<6;i++)cur[i]+=(tg[i]-cur[i])*k;
       window.ARC_CAM(cur[0],cur[1],cur[2]);art.style.filter='hue-rotate('+cur[3]+'deg) saturate('+cur[4]+') brightness('+cur[5]+')'}
@@ -365,6 +423,14 @@ footer{text-align:center;font-size:13px;color:var(--muted)}
   // ao rolar durante a abertura, ela termina
   addEventListener('scroll',()=>{if(scrollY>innerHeight*.3&&!intro.classList.contains('done'))document.getElementById('skip').click()},{passive:true});
 })();
+
+/* ---------- menu ---------- */
+(function(){const nav=document.getElementById('nav'),tg=document.getElementById('tg');
+  const set=o=>{nav.classList.toggle('open',o);tg.setAttribute('aria-expanded',o)};
+  tg.onclick=e=>{e.stopPropagation();set(!nav.classList.contains('open'))};
+  nav.querySelectorAll('ul a').forEach(a=>a.addEventListener('click',()=>set(false)));
+  document.addEventListener('click',e=>{if(!nav.contains(e.target))set(false)});
+  const solid=()=>nav.classList.toggle('solid',scrollY>innerHeight*.5);addEventListener('scroll',solid,{passive:true});solid()})();
 
 /* ---------- painéis aparecem ao rolar ---------- */
 (function(){const els=document.querySelectorAll('.reveal');

@@ -2,6 +2,19 @@
 .scene{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#2a1240 url("fundo-home-largo.webp") center/cover no-repeat}
 @media (orientation:portrait){.scene{background-image:url("fundo-home-alto.webp")}}
 .scene.ready{background:#2a1240}
+.scene.alt{background:#2a1240;opacity:0;transition:opacity 1.4s ease}
+.scene.alt.on{opacity:1}
+.scene.alt .art{animation:breathe 26s ease-in-out infinite alternate}
+@keyframes breathe{to{filter:brightness(1.06) saturate(1.08)}}
+.scene.pattern{background:#1d0c2c url("estampa.webp") 0 0/520px repeat;animation:pattern 90s linear infinite}
+.scene.pattern::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(23,10,38,.72),rgba(23,10,38,.5) 70%,rgba(23,10,38,.35))}
+@keyframes pattern{to{background-position:520px 520px}}
+@media (prefers-reduced-motion:reduce){.scene.pattern,.scene.alt .art{animation:none}}
+/* faixa panorâmica */
+.band{position:relative;width:100vw;margin-left:calc(50% - 50vw);aspect-ratio:3/1;max-height:62vh;background:url("faixa-panoramica.webp") center/cover no-repeat;
+  -webkit-mask:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent);overflow:hidden}
+.band>*{position:absolute}
+.band .glow,.band .moon{aspect-ratio:1}
 .art{position:absolute;left:0;top:0;transform-origin:0 0;background-size:100% 100%}
 .art>*{position:absolute}
 .glow{border-radius:50%;mix-blend-mode:screen;background:radial-gradient(circle,rgba(255,214,140,.75) 0%,rgba(255,170,90,.35) 35%,rgba(255,150,80,0) 70%);animation:flicker 3.2s ease-in-out infinite}
