@@ -54,10 +54,20 @@
     let A=null;if(name!=='estampa'){A=document.createElement('div');A.className='art';box.appendChild(A);populate(A,SCENES[name])}
     let last=scene;Object.values(alts).forEach(a=>last=a.box);last.after(box);return alts[name]={box,A,S:SCENES[name]}}
   const altCam={zoom:1.04,cy:.5,cx:.5};
-  function fitAlt(){Object.values(alts).forEach(a=>{if(a.A)place(a.box,a.A,a.S,altCam)})}
+  function fitAlt(){Object.values(alts).forEach(a=>{if(a.A&&a.box.classList.contains('show'))place(a.box,a.A,a.S,altCam)})}
   window.ARC_ALT=(name,cx,cy)=>{if(name===altOn&&cx==null)return;altOn=name;altCam.cx=cx==null?.5:cx;altCam.cy=cy==null?.5:cy;
-    if(name){const a=altLayer(name);if(a.A)place(a.box,a.A,a.S,altCam);requestAnimationFrame(()=>a.box.classList.add('on'))}
-    Object.entries(alts).forEach(([n,a])=>{if(n!==name)a.box.classList.remove('on')})};
+    if(name){const a=altLayer(name);clearTimeout(a.hide);a.box.classList.add('show');if(a.A)place(a.box,a.A,a.S,altCam);requestAnimationFrame(()=>requestAnimationFrame(()=>a.box.classList.add('on')))}
+    /* a arte que sai some de vez depois do esmaecer, para não pesar na memória do celular */
+    Object.entries(alts).forEach(([n,a])=>{if(n!==name&&a.box.classList.contains('show')){a.box.classList.remove('on');clearTimeout(a.hide);a.hide=setTimeout(()=>a.box.classList.remove('show'),1500)}})};
+  /* tom da seção: cor translúcida por cima da arte, no lugar de filtro (filtro na arte inteira derrubava o Safari/Chrome do iPhone) */
+  const tint=document.createElement('div');tint.className='tint';scene.appendChild(tint);let lastTint='';
+  window.ARC_TINT=(h,sat,br)=>{const w=Math.min(1,Math.abs(h)/18),c=h>=0?[255,120,205]:[120,140,255];
+    const dark=Math.max(0,1-br)*2.2,light=Math.max(0,br-1)*1.4+Math.max(0,sat-1)*.5;
+    let r=c[0]*w,g=c[1]*w,b=c[2]*w,a=.13*w;
+    if(light>0){r=r+(250-r)*Math.min(1,light/(a+light));g=g+(220-g)*Math.min(1,light/(a+light));b=b+(255-b)*Math.min(1,light/(a+light));a+=light*.5}
+    if(dark>0){r*=1-dark;g*=1-dark;b*=1-dark;a+=dark*.6}
+    const v='rgb('+(r|0)+','+(g|0)+','+(b|0)+')',o=Math.min(.3,a).toFixed(3);if(v+o===lastTint)return;lastTint=v+o;
+    tint.style.background=v;tint.style.opacity=o};
   addEventListener('resize',fit);fit();
 })();
 
