@@ -20,8 +20,9 @@ textarea{min-height:90px;resize:vertical}
 .adm-ev{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
 .adm-ev:first-child{border-top:0;margin-top:0;padding-top:0}
 .adm-ev .ev{cursor:default}
-.adm-ev .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.adm-ev .acts .btn{padding:8px 14px;font-size:13.5px}
+.adm-ev .acts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.adm-ev .acts .btn{padding:8px 4px;font-size:13px;white-space:nowrap}
+.adm-ev .acts .apaga{color:#f2a0b8;border-color:rgba(242,160,184,.45)}
 .del{font:600 12.5px var(--body);color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline;padding:0}
 .lst{margin:10px 0 0;font-size:13.5px;display:none}
 .lst.on{display:block}
@@ -148,11 +149,11 @@ textarea{min-height:90px;resize:vertical}
       return '<div class="adm-ev"><div class="ev t-'+esc(e.tema||'especial')+(e.data<hoje?' past':'')+'"><span class="dt"><b>'+A.dia(e.data).getDate()+'</b><span>'+A.dia(e.data).toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+'</span></span>'+
         '<span class="bd"><span class="tp">'+esc(e.tipo||'Encontro')+'</span><h3>'+esc(e.titulo)+'</h3><span class="mt">'+esc([e.hora?A.hora(e.hora):'Horário a confirmar',e.local||'Local a confirmar',e.endereco||'Endereço a confirmar'].join(' · '))+'</span>'+
         '<span class="ct"><span class="pill vou">✓ '+vou.length+' vão</span><span class="pill talvez">'+tal.length+' talvez</span><span class="pill nao">'+nao.length+' não</span><span class="pill">'+nr.length+' sem resposta</span></span></span>'+icon(e.tema)+'</div>'+
-        '<div class="acts"><button class="btn ghost" type="button" data-ver="'+esc(e._id)+'">'+(abertos.has(e._id)?'Esconder nomes':'Ver nomes')+'</button><button class="btn ghost" type="button" data-copiar="'+esc(e._id)+'">Copiar lista</button><button class="btn" type="button" data-editar="'+esc(e._id)+'">Editar</button></div>'+
+        '<div class="acts"><button class="btn ghost" type="button" data-ver="'+esc(e._id)+'">'+(abertos.has(e._id)?'Esconder':'Ver nomes')+'</button><button class="btn ghost" type="button" data-copiar="'+esc(e._id)+'">Copiar</button><button class="btn" type="button" data-editar="'+esc(e._id)+'">Editar</button><button class="btn ghost apaga" type="button" data-apagar="'+esc(e._id)+'">Apagar</button></div>'+
         '<div class="lst'+(abertos.has(e._id)?' on':'')+'" id="l-'+esc(e._id)+'">'+
           '<p><b>Vão:</b> '+(esc(vou.join(', '))||'—')+'</p><p><b>Talvez:</b> '+(esc(tal.join(', '))||'—')+'</p><p><b>Não vão:</b> '+(esc(nao.join(', '))||'—')+'</p><p class="muted"><b>Sem resposta:</b> '+(esc(nr.join(', '))||'—')+'</p>'+
           (fora.length?'<p class="muted">Outros nomes: '+esc(fora.join(', '))+'</p>':'')+
-          '<button class="del" type="button" data-apagar="'+esc(e._id)+'">Apagar este encontro</button></div></div>'}
+          '</div></div>'}
     function lista(){const hoje=A.hojeISO(),fut=eventos.filter(e=>e.data>=hoje),pas=eventos.filter(e=>e.data<hoje).reverse();
       $('futuros').innerHTML=fut.length?fut.map(cartao).join(''):'<p class="muted small">Nenhum encontro marcado. Use o formulário acima para adicionar.</p>';
       $('passadosP').hidden=!pas.length;$('passados').innerHTML=pas.map(cartao).join('')}
