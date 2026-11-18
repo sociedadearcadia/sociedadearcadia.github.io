@@ -1,0 +1,82 @@
+/* Livros sugeridos (usa a base de /leitura/leitura.css) */
+.g-romantasia{--ac:#f2a8e0;--acr:242,168,224}
+.g-fantasia{--ac:#9cc4ff;--acr:156,196,255}
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* aviso do topo */
+.aviso{margin:16px 0 0;padding:14px 14px 12px;border-radius:14px;border:1px dashed rgba(214,180,108,.55);background:rgba(15,8,32,.5);font-size:14.5px;text-align:left}
+.aviso p{margin:0}
+.aviso p+p{margin-top:8px}
+.aviso b{color:#fff}
+.aviso .nao{color:#f6d38d}
+.generos{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.tag{display:inline-flex;align-items:center;gap:5px;font:700 11.5px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--ac);
+  padding:4px 10px;border-radius:999px;border:1px solid rgba(var(--acr),.55);background:rgba(var(--acr),.10);white-space:nowrap}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
+.generos .tag{font-size:13px;padding:6px 14px}
+
+/* filtro e busca */
+.filtro{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filtro .chip b{font-weight:700;opacity:.75;margin-left:3px}
+.busca{position:relative;margin-bottom:14px}
+.busca input{padding-left:40px}
+.busca .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);width:18px;height:18px}
+
+/* lista de livros */
+.livros{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.livro{position:relative;display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(var(--acr),.35);background:linear-gradient(110deg,rgba(var(--acr),.12),rgba(23,15,51,.55) 55%)}
+.livro .lombada{flex:none;width:6px;align-self:stretch;border-radius:4px;background:linear-gradient(180deg,var(--ac),rgba(var(--acr),.25))}
+.livro .bd{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.livro h3{margin:0;font:500 18px/1.25 var(--display);color:#fff;overflow-wrap:anywhere}
+.livro .au{margin:0;font-size:14px;color:var(--muted)}
+.livro .por{margin:4px 0 0;font-size:12.5px;color:#a99bd0}
+.livro .obs{margin:6px 0 0;font-size:13.5px;font-style:italic;color:#ded2f2}
+.livro .tag{align-self:flex-start;margin-top:6px}
+.vazio{margin:4px 0 0;text-align:center}
+
+/* formulário de sugestão */
+.radios{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.radios label{position:relative;cursor:pointer;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:12px 10px;border-radius:12px;
+  border:1px solid var(--line);background:rgba(23,15,51,.6);font-size:15px;color:var(--cream);text-align:center}
+.radios input{position:absolute;opacity:0;pointer-events:none}
+.radios label:has(input:checked){border-color:var(--ac);background:rgba(var(--acr),.18);color:#fff;box-shadow:0 0 14px rgba(var(--acr),.35)}
+.radios label.on{border-color:var(--ac);background:rgba(var(--acr),.18);color:#fff;box-shadow:0 0 14px rgba(var(--acr),.35)}
+.radios label:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+textarea{resize:vertical;min-height:80px;line-height:1.45}
+.fechado{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;background:rgba(15,8,32,.5);border:1px solid var(--line)}
+.fechado .ico{width:26px;height:26px;color:#f6d38d;margin-top:2px}
+.fechado p{margin:0}
+.aberto-ate{display:inline-block;margin:0 0 12px;font:700 12.5px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--night);background:#bff0d2;border-radius:999px;padding:4px 12px}
+.repetido{margin:0;padding:10px 12px;border-radius:12px;background:rgba(246,211,141,.12);border:1px solid rgba(246,211,141,.45);font-size:13.5px;color:#f6d38d}
+
+/* minhas sugestões / status */
+.st{display:inline-block;font:700 11.5px var(--body);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 10px;border:1px solid var(--line)}
+.st.pendente{color:#f6d38d;border-color:rgba(246,211,141,.5)}
+.st.lista{color:#bff0d2;border-color:rgba(160,230,190,.55)}
+.st.recusada{color:#c9a9bd}
+.minhas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+.minhas li{display:flex;justify-content:space-between;gap:10px;align-items:baseline;border-bottom:1px solid rgba(200,182,240,.12);padding-bottom:8px}
+.minhas li small{display:block;color:var(--muted);font-size:12.5px}
+
+/* administração */
+.sw{display:flex;align-items:center;gap:14px;cursor:pointer;flex-direction:row;font-size:16px}
+.sw input{position:absolute;opacity:0;pointer-events:none}
+.sw .tr{position:relative;flex:none;width:58px;height:32px;border-radius:99px;background:rgba(23,15,51,.85);border:1px solid var(--line);transition:background .2s}
+.sw .tr::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#c3b6de;transition:transform .2s,background .2s}
+.sw input:checked+.tr{background:#3f8f68;border-color:#bff0d2}
+.sw input:checked+.tr::after{transform:translateX(26px);background:#fff}
+.sw input:focus-visible+.tr{outline:2px solid var(--gold);outline-offset:3px}
+.datas{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=date]{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.75);border:1px solid var(--line);border-radius:12px;padding:11px 12px;width:100%;min-width:0;min-height:48px;-webkit-appearance:none;appearance:none;color-scheme:dark}
+.acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.acoes .btn{padding:9px 16px;font-size:14px}
+.btn.ok{background:linear-gradient(180deg,#d5f5e3,#9fe0bd)}
+.btn.no{background:rgba(23,15,51,.55);color:#f2a0b8;border:1px solid rgba(242,160,184,.5);box-shadow:none}
+.del{font:600 12.5px var(--body);color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline;padding:0}
+.lnk{font:600 12.5px var(--body);color:var(--lilac);background:none;border:0;cursor:pointer;text-decoration:underline;padding:0}
+.livro .ed{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.livro .ed select,.livro .ed input{padding:8px 10px;font-size:15px;border-radius:10px}
+.edit-f{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.cnt{font:600 13px var(--body);color:var(--muted)}
+.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#f6d38d;color:var(--night);font:700 12.5px var(--body);margin-left:6px;vertical-align:middle}
