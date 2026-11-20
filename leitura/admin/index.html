@@ -381,7 +381,7 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
         (livros.some(l=>l._id===r.id)?'<button class="del" type="button" data-tirar="'+i+'">Tirar da lista</button>':'<span class="muted small">Fora da lista</span>')+'</span></div></li>').join('');
       $('lwpp').href='https://wa.me/?text='+encodeURIComponent(texto());lchips()}
     $('lgen').onclick=e=>{const b=e.target.closest('[data-g]');if(!b||lgirando)return;lgen=b.dataset.g;LS.set('sorteioGenero',lgen);lchips()};
-    db.collection('sugestoes').where('status','==','lista').onSnapshot(s=>{livros=s.docs.map(d=>Object.assign({_id:d.id},d.data()));lres()},
+    db.collection('sugestoes').where('status','==','lista').onSnapshot(s=>{livros=s.docs.map(d=>Object.assign({_id:d.id},d.data())).filter(l=>!l.lista||l.lista==='oficial');lres()},
       e=>{console.warn(e);$('linfo').textContent='Não foi possível ler a lista de livros: '+e.code});
     $('lsortear').onclick=async()=>{if(lgirando)return;const lista=lpool();if(!lista.length){toast('Não há mais livros para sortear');return}
       lgirando=true;$('lsortear').disabled=true;const box=$('ldraw'),nm=$('lnm');box.classList.remove('win');box.classList.add('spin');

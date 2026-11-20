@@ -28,28 +28,37 @@
   <section class="panel arch">
     <div class="top">
       <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
-      <p class="lbl">Leitura oficial do mês</p>
+      <p class="lbl" id="topoLbl">Leitura oficial do mês</p>
       <h1>Livros sugeridos</h1>
     </div>
-    <div class="generos"><span class="tag g-romantasia">Romantasia</span><span class="tag g-fantasia">Fantasia</span></div>
-    <div class="aviso">
-      <p>Esta é a lista de sugestões para o <b>sorteio e a votação da leitura oficial do mês</b>.</p>
-      <p>Só entram livros de <b>romantasia</b> e <b>fantasia</b>.</p>
-      <p class="nao">Não é a lista das LCs extras.</p>
+    <div class="abas" id="abas" role="tablist" aria-label="Escolha a lista"></div>
+    <div id="sobreOficial">
+      <div class="generos"><span class="tag g-romantasia">Romantasia</span><span class="tag g-fantasia">Fantasia</span></div>
+      <div class="aviso">
+        <p>Esta é a lista de sugestões para o <b>sorteio e a votação da leitura oficial do mês</b>.</p>
+        <p>Só entram livros de <b>romantasia</b> e <b>fantasia</b>.</p>
+        <p class="nao">As LCs extras têm listas separadas, nos botões acima.</p>
+      </div>
+      <details class="criterios">
+        <summary>Critérios da lista</summary>
+        <ul>
+          <li>Livros com edição brasileira, em português.</li>
+          <li>Volumes únicos ou primeiros livros de séries.</li>
+          <li>Distopias entram em Fantasia.</li>
+          <li>Leituras anteriores da Sociedade Arcádia não participam do sorteio.</li>
+        </ul>
+      </details>
     </div>
-    <details class="criterios">
-      <summary>Critérios da lista</summary>
-      <ul>
-        <li>Livros com edição brasileira, em português.</li>
-        <li>Volumes únicos ou primeiros livros de séries.</li>
-        <li>Distopias entram em Fantasia.</li>
-        <li>Leituras anteriores da Sociedade Arcádia não participam do sorteio.</li>
-      </ul>
-    </details>
+    <div id="sobreLc" hidden>
+      <div class="aviso">
+        <p>Esta é a lista de sugestões da <b>LC extra <span id="lcNome"></span></b>.</p>
+        <p class="nao">Não é a lista da leitura oficial do mês.</p>
+      </div>
+    </div>
   </section>
 
   <section class="panel">
-    <p class="lbl">Lista para o sorteio</p>
+    <p class="lbl" id="listaLbl">Lista para o sorteio</p>
     <h2 id="totalT">Livros da lista</h2>
     <p class="muted" id="carregando" style="margin:0">Carregando…</p>
     <div id="listaBox" hidden>
@@ -60,7 +69,7 @@
   </section>
 
   <section class="panel" id="sugP">
-    <p class="lbl">Sugestões</p>
+    <p class="lbl" id="sugLbl">Sugestões</p>
     <h2>Sugerir um livro</h2>
     <div id="sugBox"><p class="muted" style="margin:0">Carregando…</p></div>
   </section>
@@ -133,85 +142,112 @@
         $('gateBtn').disabled=false}});
     LS.set('membroOk',uid)}
 
-  /* ---------- lista ---------- */
-  let livros=[],filtro=LS.get('livrosFiltro','todos'),cfg=null,minhas=[];
+  /* ---------- listas: leitura oficial e LCs extras ---------- */
+  let todos=[],filtro=LS.get('livrosFiltro','todos'),cfg=null,cfgLc=null,minhas=[],carregou=false;
+  let aba=(location.hash.slice(1)||LS.get('livrosAba','oficial'));
   if(!['todos','romantasia','fantasia'].includes(filtro))filtro='todos';
+  const lcsAtivas=()=>L.lcs(cfgLc,true);
+  const nomeLista=id=>id==='oficial'?'Leitura oficial':'LC '+((lcsAtivas().find(l=>l.id===id)||L.lcs(cfgLc).find(l=>l.id===id)||{}).nome||'extra');
+  const daAba=()=>todos.filter(l=>L.listaDe(l)===aba);
+  function abas(){
+    if(aba!=='oficial'&&cfgLc&&!lcsAtivas().some(l=>l.id===aba))aba='oficial';
+    $('abas').innerHTML=[{id:'oficial',nome:'Leitura oficial'}].concat(lcsAtivas().map(l=>({id:l.id,nome:'LC '+l.nome}))).map(t=>
+      '<button type="button" class="chip" role="tab" data-aba="'+esc(t.id)+'" aria-pressed="'+(aba===t.id)+'" aria-selected="'+(aba===t.id)+'">'+esc(t.nome)+'</button>').join('');
+    const of=aba==='oficial',lc=lcsAtivas().find(l=>l.id===aba);
+    $('topoLbl').textContent=of?'Leitura oficial do mês':'LC extra';
+    $('sobreOficial').hidden=!of;$('sobreLc').hidden=of;if(lc)$('lcNome').textContent=lc.nome;
+    $('listaLbl').textContent=of?'Lista para o sorteio':'Lista da LC '+(lc?lc.nome:'');
+    $('sugLbl').textContent=of?'Sugestões · leitura oficial':'Sugestões · LC '+(lc?lc.nome:'');
+    $('filtro').hidden=!of}
+  $('abas').onclick=e=>{const b=e.target.closest('[data-aba]');if(!b)return;aba=b.dataset.aba;LS.set('livrosAba',aba);
+    history.replaceState(null,'',aba==='oficial'?location.pathname:'#'+aba);$('busca').value='';tudo()};
+  function tudo(){abas();desenhar();estavaAberto=null;formulario();checar();desenharMinhas()}
+
   db.collection('sugestoes').where('status','==','lista').onSnapshot(s=>{
-    livros=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort(L.ordem);
-    $('carregando').hidden=true;$('listaBox').hidden=false;desenhar();checar()
+    todos=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort(L.ordem);
+    carregou=true;$('carregando').hidden=true;$('listaBox').hidden=false;desenhar();checar()
   },e=>{console.warn(e);$('carregando').textContent='Não foi possível carregar agora. Tente recarregar a página.'});
 
-  function desenhar(){
-    const c={todos:livros.length,romantasia:0,fantasia:0};livros.forEach(l=>c[L.genero(l.genero)]++);
+  function desenhar(){if(!carregou)return;
+    const livros=daAba(),of=aba==='oficial';
+    const c={todos:livros.length,romantasia:0,fantasia:0};if(of)livros.forEach(l=>c[L.genero(l.genero)]++);
     $('totalT').textContent=livros.length===1?'1 livro na lista':livros.length+' livros na lista';
     $('filtro').innerHTML=[['todos','Todos'],['romantasia','Romantasia'],['fantasia','Fantasia']].map(([k,t])=>
       '<button type="button" class="chip" data-f="'+k+'" aria-pressed="'+(filtro===k)+'">'+t+'<b>'+c[k]+'</b></button>').join('');
     const q=L.chave($('busca').value);
-    const ls=livros.filter(l=>(filtro==='todos'||L.genero(l.genero)===filtro)&&(!q||L.chave(l.titulo+' '+(l.autor||'')).includes(q)));
-    $('livros').innerHTML=ls.length?ls.map(l=>'<li class="livro g-'+L.genero(l.genero)+'"><span class="lombada"></span><div class="bd">'+
+    const ls=livros.filter(l=>(!of||filtro==='todos'||L.genero(l.genero)===filtro)&&(!q||L.chave(l.titulo+' '+(l.autor||'')).includes(q)));
+    $('livros').innerHTML=ls.length?ls.map(l=>'<li class="livro '+(of?'g-'+L.genero(l.genero):'g-lc')+'"><span class="lombada"></span><div class="bd">'+
         '<h3>'+esc(l.titulo)+'</h3>'+(l.autor?'<p class="au">'+esc(l.autor)+'</p>':'')+
         (l.obs?'<p class="obs">“'+esc(l.obs)+'”</p>':'')+
-        (l.nome?'<p class="por">Sugerido por '+esc(l.nome)+'</p>':'')+L.tag(l.genero)+'</div></li>').join('')
-      :'<li class="vazio muted small">'+(livros.length?'Nenhum livro encontrado.':'A lista ainda está vazia.')+'</li>'}
+        (l.nome?'<p class="por">Sugerido por '+esc(l.nome)+'</p>':'')+(of?L.tag(l.genero):'')+'</div></li>').join('')
+      :'<li class="vazio muted small">'+(livros.length?'Nenhum livro encontrado.':'A lista ainda está vazia.'+(of?'':' Que tal sugerir o primeiro?'))+'</li>'}
   $('filtro').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;filtro=b.dataset.f;LS.set('livrosFiltro',filtro);desenhar()};
   $('busca').oninput=desenhar;
 
   /* ---------- sugestões abertas ou fechadas ---------- */
   db.collection('config').doc('sugestoes').onSnapshot(s=>{cfg=s.exists?s.data():{};formulario()},e=>{console.warn(e);cfg={};formulario()});
+  db.collection('config').doc('lcs').onSnapshot(s=>{cfgLc=s.exists?s.data():{};tudo()},e=>{console.warn(e);cfgLc={};tudo()});
   let estavaAberto=null;
   function formulario(){
-    const ab=L.aberto(cfg),k=ab+'|'+(cfg.ate||'')+'|'+(cfg.proxima||'');
+    const of=aba==='oficial';if(!cfg||(!of&&!cfgLc))return;
+    const lc=of?null:lcsAtivas().find(l=>l.id===aba);
+    const ab=of?L.aberto(cfg):!!(lc&&lc.aberto),k=aba+'|'+ab+'|'+(of?(cfg.ate||'')+'|'+(cfg.proxima||''):'');
     if(k===estavaAberto)return;estavaAberto=k;
     if(!ab){
-      $('sugBox').innerHTML='<div class="fechado">'+icon('cadeado')+'<div><p><b>As sugestões estão fechadas agora.</b></p>'+
-        '<p class="muted small" style="margin-top:4px">Elas abrem a cada 3 meses.'+(cfg&&cfg.proxima&&cfg.proxima>=L.hojeISO()?' Próxima abertura: <b style="color:var(--cream)">'+esc(L.dataLonga(cfg.proxima))+'</b>.':' O aviso sai no grupo quando abrir.')+'</p></div></div>';
+      $('sugBox').innerHTML='<div class="fechado">'+icon('cadeado')+'<div><p><b>As sugestões '+(of?'':'desta LC ')+'estão fechadas agora.</b></p>'+
+        (of?'<p class="muted small" style="margin-top:4px">'+(cfg&&cfg.proxima&&cfg.proxima>=L.hojeISO()?'Próxima abertura: <b style="color:var(--cream)">'+esc(L.dataLonga(cfg.proxima))+'</b>.':'O aviso sai no grupo quando abrir.')+'</p>':'')+'</div></div>';
       return}
-    $('sugBox').innerHTML=(cfg.ate?'<span class="aberto-ate">Abertas até '+esc(L.dataLonga(cfg.ate))+'</span>':'<span class="aberto-ate">Sugestões abertas</span>')+
+    $('sugBox').innerHTML=(of?(cfg.ate?'<span class="aberto-ate">Abertas até '+esc(L.dataLonga(cfg.ate))+'</span>':'<span class="aberto-ate">Sugestões abertas</span>'):'<span class="aberto-ate">Sugestões abertas</span>')+
       '<p class="repetido" style="margin:0 0 12px"><b>Antes de sugerir, procure o livro na lista acima</b> para ver se ele já não está lá.</p>'+
-      '<p class="muted small" style="margin:0 0 14px">Sua sugestão vai para a administração, que olha e decide se entra na lista. Livros de outros gêneros ficam para as LCs extras.</p>'+
+      '<p class="muted small" style="margin:0 0 14px">'+(of?'Sua sugestão vai para a administração, que olha e decide se entra na lista. Livros de outros gêneros ficam para as LCs extras.'
+        :'Esta sugestão é só para a LC '+esc(lc.nome)+'. A administração olha e decide se entra na lista.')+'</p>'+
       '<form class="form" id="sugF">'+
         '<label>Seu nome<select id="sNome" required><option value="">Escolha seu nome</option>'+MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label>'+
         '<label>Nome do livro<input type="text" id="sTitulo" maxlength="120" required autocomplete="off"></label>'+
         '<label>Autora ou autor<input type="text" id="sAutor" maxlength="120" required autocomplete="off"></label>'+
-        '<div class="field">Gênero<div class="radios" id="sGen">'+
+        (of?'<div class="field">Gênero<div class="radios" id="sGen">'+
           '<label class="g-romantasia"><input type="radio" name="gen" value="romantasia" required>Romantasia</label>'+
-          '<label class="g-fantasia"><input type="radio" name="gen" value="fantasia">Fantasia</label></div></div>'+
+          '<label class="g-fantasia"><input type="radio" name="gen" value="fantasia">Fantasia</label></div></div>':'')+
         '<label>Por que você indica? <small>Opcional</small><textarea id="sObs" maxlength="400" rows="3"></textarea></label>'+
         '<p class="repetido" id="sRep" hidden></p>'+
         '<button class="btn wide" type="submit" id="sBtn">Enviar sugestão</button>'+
       '</form>';
-    const gen=$('sGen');gen.onchange=()=>gen.querySelectorAll('label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));
+    const gen=$('sGen');if(gen)gen.onchange=()=>gen.querySelectorAll('label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));
     $('sTitulo').oninput=checar;
     $('sNome').onchange=e=>{eu=e.target.value;LS.set('livrosNome',eu)};
     $('sugF').onsubmit=enviar}
   function repetido(t){const k=L.chave(t);if(k.length<3)return null;
-    return livros.find(l=>L.chave(l.titulo)===k)||minhas.find(l=>l.status==='pendente'&&L.chave(l.titulo)===k)||null}
+    return daAba().find(l=>L.chave(l.titulo)===k)||minhas.find(l=>l.status==='pendente'&&L.listaDe(l)===aba&&L.chave(l.titulo)===k)||null}
   function checar(){const el=$('sRep');if(!el)return;const r=repetido($('sTitulo').value);
-    el.hidden=!r;if(r)el.textContent=r.status==='lista'?'“'+r.titulo+'” já está na lista.':'Você já sugeriu “'+r.titulo+'”. Está aguardando a administração.'}
+    el.hidden=!r;if(r)el.textContent=r.status==='lista'?'“'+r.titulo+'” já está nesta lista.':'Você já sugeriu “'+r.titulo+'”. Está aguardando a administração.'}
   async function enviar(ev){ev.preventDefault();
-    const g=(document.querySelector('input[name=gen]:checked')||{}).value;
+    const of=aba==='oficial';
+    const g=of?(document.querySelector('input[name=gen]:checked')||{}).value:'';
     const v={titulo:$('sTitulo').value.trim(),autor:$('sAutor').value.trim(),genero:g,obs:$('sObs').value.trim(),nome:$('sNome').value};
     if(!v.nome){toast('Escolha seu nome');$('sNome').focus();return}
     if(!v.titulo){toast('Escreva o nome do livro');$('sTitulo').focus();return}
     if(!v.autor){toast('Escreva a autora ou o autor');$('sAutor').focus();return}
-    if(!L.GEN[v.genero]){toast('Marque se é romantasia ou fantasia');return}
+    if(of&&!L.GEN[v.genero]){toast('Marque se é romantasia ou fantasia');return}
     if(repetido(v.titulo)){toast('Esse livro já está na lista');return}
+    if(!of)v.lista=aba;
     const b=$('sBtn');b.disabled=true;
     try{await db.collection('sugestoes').add(Object.assign(v,{status:'pendente',uid,criadoEm:firebase.firestore.FieldValue.serverTimestamp()}));
       eu=v.nome;LS.set('livrosNome',eu);
       $('sTitulo').value='';$('sAutor').value='';$('sObs').value='';$('sRep').hidden=true;
-      document.querySelectorAll('input[name=gen]').forEach(i=>i.checked=false);$('sGen').onchange();
+      document.querySelectorAll('input[name=gen]').forEach(i=>i.checked=false);if($('sGen'))$('sGen').onchange();
       toast('Sugestão enviada! A administração vai olhar ✨')}
     catch(e){console.warn(e);toast(e.code==='permission-denied'?'As sugestões fecharam. Tente na próxima abertura.':'Não foi possível enviar. Tente de novo.')}
     b.disabled=false}
 
   /* ---------- minhas sugestões (deste aparelho) ---------- */
   const ST={pendente:'Aguardando',lista:'Entrou na lista',recusada:'Não entrou'};
+  function desenharMinhas(){$('minhasP').hidden=!minhas.length;
+    $('minhas').innerHTML=minhas.map(m=>{const of=L.listaDe(m)==='oficial';
+      return '<li><span>'+esc(m.titulo)+'<small>'+esc(of?'Leitura oficial · '+L.GEN[L.genero(m.genero)]:nomeLista(L.listaDe(m)))+(m.motivo?' · '+esc(m.motivo):'')+'</small></span><span class="st '+esc(m.status)+'">'+(ST[m.status]||'')+'</span></li>'}).join('')}
   db.collection('sugestoes').where('uid','==',uid).onSnapshot(s=>{
     minhas=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort((a,b)=>((b.criadoEm&&b.criadoEm.seconds)||9e9)-((a.criadoEm&&a.criadoEm.seconds)||9e9));
-    $('minhasP').hidden=!minhas.length;
-    $('minhas').innerHTML=minhas.map(m=>'<li><span>'+esc(m.titulo)+'<small>'+esc(L.GEN[L.genero(m.genero)])+(m.motivo?' · '+esc(m.motivo):'')+'</small></span><span class="st '+esc(m.status)+'">'+(ST[m.status]||'')+'</span></li>').join('');
-    checar()},e=>console.warn(e));
+    desenharMinhas();checar()},e=>console.warn(e));
+  abas();
 })();
 </script>
 </body>
