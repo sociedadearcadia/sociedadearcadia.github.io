@@ -18,6 +18,12 @@ window.LIVROS=(function(){
     return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('pt-BR',{day:'numeric',month:'long'})};
   /* sugestões abertas agora? (a chave liga/desliga e a data final, se houver) */
   const aberto=cfg=>!!(cfg&&cfg.aberto)&&(!cfg.ate||hojeISO()<=cfg.ate);
+  /* listas: a da leitura oficial e uma para cada LC extra */
+  const listaDe=l=>(l&&l.lista)||'oficial';
+  const LCS_INICIAIS={'thriller':{nome:'Thriller e suspense',aberto:true,ativa:true,ordem:1},'true-crime':{nome:'True crime',aberto:true,ativa:true,ordem:2}};
+  /* LCs em ordem; ativas=true deixa só as que aparecem para as integrantes */
+  const lcs=(cfg,ativas)=>Object.entries((cfg&&cfg.itens)||{}).map(([id,v])=>Object.assign({id},v))
+    .filter(l=>!ativas||l.ativa!==false).sort((a,b)=>(a.ordem||99)-(b.ordem||99)||String(a.nome).localeCompare(String(b.nome)));
   const ordem=(a,b)=>String(a.titulo||'').localeCompare(String(b.titulo||''),'pt-BR',{sensitivity:'base'});
-  return {GEN,icon,esc,slug,chave,genero,tag,hojeISO,dataBR,dataLonga,aberto,ordem};
+  return {listaDe,LCS_INICIAIS,lcs,GEN,icon,esc,slug,chave,genero,tag,hojeISO,dataBR,dataLonga,aberto,ordem};
 })();
