@@ -40,3 +40,4 @@
 .arte .edit-f input,.arte .edit-f select{padding:8px 10px;font-size:15px;border-radius:10px}
 .arte .edit-f .btn{margin-top:0}
 .uso-livre{margin:0;font-size:13px;color:var(--muted)}
+.btn.montar{display:block;margin-top:14px;text-align:center;text-decoration:none}
