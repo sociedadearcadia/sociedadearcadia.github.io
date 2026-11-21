@@ -104,8 +104,6 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
           <button class="btn" type="button" id="qAbrir" style="padding:10px 16px;font-size:14px"></button>
           <button class="btn ghost" type="button" id="qLib" style="padding:10px 16px;font-size:14px"></button>
         </div>
-        <label style="flex-direction:row;align-items:center;gap:10px;font-weight:600">Nota mínima para contar como lido
-          <input type="number" id="qMin" min="0" max="100" step="5" style="width:90px">%</label>
         <p class="lbl" style="margin-top:18px" id="qRespT">Respostas</p>
         <p class="small" id="qResumo" style="margin:4px 0 10px"></p>
         <ul class="mini qres" id="qResp"></ul>
@@ -268,9 +266,8 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
         if(!$('qTxt').value&&qDoc&&qCertas)$('qTxt').value=Q.texto(qDoc.perguntas,qCertas);qRender()},e=>console.warn(e)));
       qOff.push(ref.collection('respostas').onSnapshot(s=>{qResp={};s.docs.forEach(d=>qResp[d.id]=Object.assign({_id:d.id},d.data()));qRender()},e=>console.warn(e)));
     }
-    const qMin=()=>qDoc&&typeof qDoc.minimo==='number'?qDoc.minimo:70;
     function qLinhas(){
-      return MEMBROS.map(n=>{const r=qResp[slug(n)];if(!r)return {n};const nt=Q.nota(qDoc.perguntas,qCertas||[],r.r);return {n,r,nt,leu:nt.pct>=qMin()}})}
+      return MEMBROS.map(n=>{const r=qResp[slug(n)];if(!r)return {n};const nt=Q.nota(qDoc.perguntas,qCertas||[],r.r);return {n,r,nt,leu:true}})}
     function qRender(){
       const l=qLivro;
       $('qT').textContent=l?'Questionário de '+(l.titulo||'livro do mês'):'Questionário do livro do mês';
@@ -286,9 +283,8 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
         '<br>Link para o grupo: <a href="/leitura/questionario/" style="color:var(--lilac)">sociedadearcadia.com.br/leitura/questionario</a>';
       $('qAbrir').textContent=qDoc.aberto?'Fechar o questionário':'Abrir para respostas';
       $('qLib').textContent=lib?'Esconder o gabarito':'Liberar o gabarito';
-      if(document.activeElement!==$('qMin'))$('qMin').value=qMin();
       const ls=qLinhas(),feitas=ls.filter(x=>x.r);
-      $('qResumo').textContent=feitas.length+' de '+MEMBROS.length+' responderam · '+feitas.filter(x=>x.leu).length+' com '+qMin()+'% ou mais';
+      $('qResumo').textContent=feitas.length+' de '+MEMBROS.length+' responderam (quem respondeu conta como lido)';
       const ord=ls.slice().sort((a,b)=>(b.r?b.nt.pct:-1)-(a.r?a.nt.pct:-1));
       $('qResp').innerHTML=ord.map(x=>{
         if(!x.r)return '<li><div class="top2"><span class="nada">'+esc(x.n)+'</span><span class="nada">não respondeu</span></div></li>';
@@ -296,7 +292,7 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
           if(!(q.o||[]).length)return '<li><span class="m">'+esc(q.p)+'</span><br>'+esc(v)+'</li>';
           const ok=qCertas&&v===qCertas[i];
           return '<li><span class="m">'+esc(q.p)+'</span><br><span class="'+(ok?'c':'e')+'">'+(ok?'✓ ':'✗ ')+esc((q.o||[])[v]||'—')+'</span>'+(ok||!qCertas?'':' <span class="m">(certa: '+esc(q.o[qCertas[i]]||'')+')</span>')+'</li>'}).join('');
-        return '<li><div class="top2"><b>'+esc(x.n)+'</b><span class="'+(x.leu?'ok':'no')+'">'+x.nt.acertos+'/'+x.nt.total+(x.leu?' ✓ leu':' ✗')+'</span></div>'+
+        return '<li><div class="top2"><b>'+esc(x.n)+'</b><span class="'+(x.leu?'ok':'no')+'">'+x.nt.acertos+'/'+x.nt.total+' acertos ✓ leu'+'</span></div>'+
           '<details><summary>Ver respostas · '+data(x.r.em)+'</summary><ol>'+det+'</ol><button class="del" type="button" data-qdel="'+esc(x.r._id)+'" style="margin-top:8px">Apagar e deixar responder de novo</button></details></li>'}).join('');
       $('qZap').href='https://wa.me/?text='+encodeURIComponent(qTexto());
     }
@@ -310,7 +306,6 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
     $('qLib').onclick=()=>{const lib=Array.isArray(qDoc.liberado)&&qDoc.liberado.length>0;
       if(!lib&&!confirm('Liberar o gabarito? Quem já respondeu passa a ver o próprio resultado. Se o questionário ainda estiver aberto, quem não respondeu pode ver as respostas certas com quem já respondeu, então o melhor é fechar antes.'))return;
       qMuda({liberado:lib?[]:(qCertas||[])})};
-    $('qMin').onchange=()=>{const v=Math.max(0,Math.min(100,Math.round(+$('qMin').value||0)));qMuda({minimo:v})};
     function qLer(){const r=Q.ler($('qTxt').value);
       $('qErr').hidden=!r.erros.length;$('qErr').innerHTML=r.erros.map(esc).join('<br>');
       $('qPrev').innerHTML=r.perguntas.length?'<p class="muted small" style="margin:0 0 8px">Prévia: '+r.perguntas.length+' perguntas</p><ol>'+r.perguntas.map((q,i)=>'<li><b>'+esc(q.p)+'</b>'+(q.o.length?'<br>'+q.o.map((o,j)=>j===r.certas[i]?'<span class="cert">'+esc(o)+' ✓</span>':esc(o)).join(' · '):'<br><span class="muted">(resposta escrita)</span>')+'</li>').join('')+'</ol>':'';
@@ -322,7 +317,7 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
       const b=$('qSalvar');b.disabled=true;
       try{const ref=db.collection('questionarios').doc(qLivro._id),bt=db.batch();
         const lib=qDoc&&Array.isArray(qDoc.liberado)&&qDoc.liberado.length>0;
-        bt.set(ref,{perguntas:r.perguntas,aberto:qDoc?!!qDoc.aberto:true,minimo:qMin(),liberado:lib?r.certas:[],em:FV.serverTimestamp()});
+        bt.set(ref,{perguntas:r.perguntas,aberto:qDoc?!!qDoc.aberto:true,minimo:0,liberado:lib?r.certas:[],em:FV.serverTimestamp()});
         bt.set(ref.collection('gabarito').doc('certas'),{c:r.certas});
         await bt.commit();toast(qDoc?'Questionário atualizado':'Questionário salvo e aberto para respostas');$('qEdit').open=false}
       catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}

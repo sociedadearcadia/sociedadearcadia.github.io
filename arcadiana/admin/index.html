@@ -38,7 +38,7 @@
     <section class="panel">
       <p class="lbl">10 pontos cada</p>
       <h2>Livro do Mês concluído</h2>
-      <p class="muted small" style="margin:0 0 10px">Quem atinge a nota mínima no questionário ganha os 10 pontos sozinha, quando esta página é aberta. Você também pode marcar ou desmarcar à mão (por exemplo, quem respondeu a avaliação fora do site).</p>
+      <p class="muted small" style="margin:0 0 10px">Quem responde o questionário ganha os 10 pontos sozinha (não tem nota mínima), quando esta página é aberta. Você também pode marcar ou desmarcar à mão (por exemplo, quem respondeu a avaliação fora do site).</p>
       <div id="livros"><p class="muted small">Carregando…</p></div>
       <div class="ed" style="margin-top:10px"><button class="lnk" type="button" id="reler">Verificar os questionários de novo</button></div>
     </section>
@@ -165,16 +165,16 @@
       lerQuiz();ouvirRsvp();desenhar();
     }
 
-    /* questionários: quem atingiu a nota mínima */
+    /* questionários: quem respondeu (não tem nota mínima) */
     async function lerQuiz(){
       const ls=lAno();
       await Promise.all(ls.map(async l=>{
         try{const ref=db.collection('questionarios').doc(l._id);
           const [q,g,r]=await Promise.all([ref.get(),ref.collection('gabarito').doc('certas').get(),ref.collection('respostas').get()]);
           if(!q.exists||!g.exists){quiz[l._id]={tem:false};return}
-          const qd=q.data(),certas=g.data().c||[],min=typeof qd.minimo==='number'?qd.minimo:70,res={};
-          r.docs.forEach(d=>{const x=d.data(),nt=Q.nota(qd.perguntas,certas,x.r);res[slug(x.nome||d.id)]={nome:x.nome,nt,passou:nt.pct>=min}});
-          quiz[l._id]={tem:true,min,res}}
+          const qd=q.data(),certas=g.data().c||[],res={};
+          r.docs.forEach(d=>{const x=d.data(),nt=Q.nota(qd.perguntas,certas,x.r);res[slug(x.nome||d.id)]={nome:x.nome,nt,passou:true}});
+          quiz[l._id]={tem:true,res}}
         catch(e){console.warn(e);quiz[l._id]={erro:e.code}}}));
       sincronizar();desenhar();
     }
@@ -214,7 +214,7 @@
           const extra=p&&p.anulado?'<small class="no">desmarcada à mão</small>':(ativo(p)&&p.fonte==='manual'?'<small>marcada à mão</small>':'');
           return '<label><input type="checkbox" data-livro="'+esc(l._id)+'" value="'+esc(n)+'"'+(ativo(p)?' checked':'')+'><span>'+esc(n)+dica+extra+'</span></label>'}).join('');
         const n=MEMBROS.filter(m=>ativo(porId('livro_'+l._id+'_'+slug(m)))).length;
-        const info=q.erro?'Não foi possível ler o questionário ('+esc(q.erro)+').':q.tem?'Questionário: '+Object.keys(q.res).length+' responderam · nota mínima '+q.min+'%.':q.tem===false?'Este livro ainda não tem questionário. Marque à mão quem concluiu.':'Lendo o questionário…';
+        const info=q.erro?'Não foi possível ler o questionário ('+esc(q.erro)+').':q.tem?'Questionário: '+Object.keys(q.res).length+' responderam. Quem respondeu conta como lido.':q.tem===false?'Este livro ainda não tem questionário. Marque à mão quem concluiu.':'Lendo o questionário…';
         return '<details class="bloco" data-k="l'+esc(l._id)+'"'+(abertos.has('l'+l._id)?' open':'')+'><summary>'+esc(l.mes||A.dataCurta(dataLivro(l)))+' · '+esc(l.titulo||'')+' <small>'+n+' concluíram</small></summary>'+
           '<p class="muted small" style="margin:8px 0 0">'+info+'</p><div class="nomes">'+nomes+'</div></details>'}).join('')
         :'<p class="semnada">Nenhum Livro do Mês cadastrado em '+ano+'. O livro do mês é cadastrado na <a href="/leitura/admin/" style="color:var(--lilac)">administração da leitura</a>.</p>';
