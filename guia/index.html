@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Guia do site · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/leitura/leitura.css">
+<link rel="stylesheet" href="guia.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/">← Sociedade Arcádia</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Passo a passo</p>
+      <h1>Guia do site</h1>
+    </div>
+    <p class="intro muted">Tudo o que dá para fazer no site da Arcádia. Escolha uma página e toque na pergunta para ver os passos.</p>
+    <nav class="indice" id="indice" aria-label="Páginas do guia"></nav>
+    <div class="busca"><input type="search" id="busca" placeholder="Procurar no guia (ex.: senha, ranking)" aria-label="Procurar no guia" autocomplete="off"></div>
+  </section>
+
+  <p class="panel nada muted" id="nada" hidden>Nada encontrado. Tente outra palavra.</p>
+
+  <!--
+    Cada página do site tem uma <section class="panel secao">.
+    Para incluir uma página nova no guia, copie uma seção, troque o id,
+    o data-titulo (nome no índice), o link do botão "Abrir" e as perguntas.
+    O índice do topo e a busca se atualizam sozinhos.
+  -->
+
+  <section class="panel secao" id="comecar" data-titulo="Primeiro acesso">
+    <div class="cab"><div><p class="lbl">Para começar</p><h2>Primeiro acesso</h2></div></div>
+    <p class="resumo">O que fazer na primeira vez que você abre o site em um aparelho.</p>
+    <details>
+      <summary>Como entro nas páginas das integrantes?</summary>
+      <ol class="passos">
+        <li>Abra qualquer página do menu, como a <b>Agenda</b>.</li>
+        <li>Digite a <b>senha do clube</b>. É a mesma do sprint.</li>
+        <li>Toque em <b>Entrar</b>.</li>
+      </ol>
+      <p class="txt">Você só digita a senha uma vez em cada aparelho. Ela vale para todas as páginas.</p>
+      <p class="dica">Se pedir a senha de novo, é porque você trocou de aparelho, de navegador ou apagou os dados do navegador. É só digitar outra vez.</p>
+    </details>
+    <details>
+      <summary>Como escolho o meu nome?</summary>
+      <ol class="passos">
+        <li>Nas páginas que pedem, toque em <b>Seu nome</b>.</li>
+        <li>Escolha o seu nome na lista.</li>
+      </ol>
+      <p class="txt">O site lembra o seu nome neste aparelho. Se escolheu errado, é só escolher de novo na mesma lista.</p>
+    </details>
+    <details>
+      <summary>Como coloco o site na tela de início do celular?</summary>
+      <p class="txt"><b>iPhone (Safari):</b></p>
+      <ol class="passos">
+        <li>Abra <b>sociedadearcadia.com.br</b> no Safari.</li>
+        <li>Toque no botão de <b>compartilhar</b> (o quadrado com a seta para cima).</li>
+        <li>Toque em <b>Adicionar à Tela de Início</b> e depois em <b>Adicionar</b>.</li>
+      </ol>
+      <p class="txt"><b>Android (Chrome):</b></p>
+      <ol class="passos">
+        <li>Abra o site no Chrome.</li>
+        <li>Toque nos <b>três pontinhos</b> no canto de cima.</li>
+        <li>Toque em <b>Adicionar à tela inicial</b>.</li>
+      </ol>
+      <p class="dica">Faça o mesmo com o sprint (sociedadearcadia.com.br/sprint) para abrir o timer direto.</p>
+    </details>
+    <details>
+      <summary>Onde ficam as páginas?</summary>
+      <ol class="passos">
+        <li>Na página inicial, toque em <b>Menu</b>, no alto da tela.</li>
+        <li>Escolha a página. Em todas elas, o botão <b>← Sociedade Arcádia</b> volta para o início.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="panel secao" id="agenda" data-titulo="Agenda">
+    <div class="cab"><div><p class="lbl">Encontros e eventos</p><h2>Agenda</h2></div><a class="btn ghost abrir" href="/agenda/">Abrir</a></div>
+    <p class="resumo">Calendário com todos os encontros do clube.</p>
+    <details>
+      <summary>Como vejo os próximos encontros?</summary>
+      <ol class="passos">
+        <li>Abra a <b>Agenda</b>.</li>
+        <li>No alto aparece quanto tempo falta para o próximo encontro.</li>
+        <li>Use as setas <b>‹ ›</b> do calendário para trocar de mês. Os encontros do mês aparecem embaixo.</li>
+      </ol>
+    </details>
+    <details>
+      <summary>Como confirmo minha presença?</summary>
+      <ol class="passos">
+        <li>Toque no encontro.</li>
+        <li>Escolha o seu nome, se o site pedir.</li>
+        <li>Toque em <b>Vou</b>, <b>Talvez</b> ou <b>Não vou</b>.</li>
+      </ol>
+      <p class="txt">Na mesma tela aparece quem já confirmou.</p>
+    </details>
+    <details>
+      <summary>Como mudo ou tiro minha resposta?</summary>
+      <ol class="passos">
+        <li>Toque no encontro de novo.</li>
+        <li>Toque na nova resposta, ou em <b>Tirar resposta</b>.</li>
+      </ol>
+    </details>
+    <details>
+      <summary>Como salvo o encontro na agenda do celular?</summary>
+      <ol class="passos">
+        <li>Toque no encontro.</li>
+        <li>Toque em <b>Salvar na agenda do celular</b>.</li>
+        <li>Abra o arquivo baixado e confirme para adicionar ao calendário.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="panel secao" id="sprint" data-titulo="Sprint de leitura">
+    <div class="cab"><div><p class="lbl">Timer de leitura</p><h2>Sprint de leitura</h2></div><a class="btn ghost abrir" href="/sprint/">Abrir</a></div>
+    <p class="resumo">Timer para ler com foco, sozinha ou junto com o grupo, com ranking de quem mais leu.</p>
+    <details>
+      <summary>Como faço um sprint?</summary>
+      <ol class="passos">
+        <li>Abra o <b>Sprint de leitura</b> e escolha o seu nome (só na primeira vez).</li>
+        <li>Toque em <b>Começar</b>. O tempo de <b>Leitura</b> começa a contar.</li>
+        <li>Quando o alarme tocar, começa a <b>Prosa</b>, com uma pergunta para conversar sobre o livro. Toque em <b>Outra pergunta</b> para trocar.</li>
+        <li>No fim, escreva o livro e, se quiser, as páginas lidas. Toque em <b>Salvar sprint</b>.</li>
+      </ol>
+      <p class="txt">Para pausar, toque em <b>Pausar</b>. <b>Reiniciar</b> volta o tempo do começo e <b>Encerrar sprint</b> termina antes da hora.</p>
+      <p class="dica">Se ficar 2 horas sem tocar na tela, o timer pausa sozinho. O que você leu fica guardado.</p>
+    </details>
+    <details>
+      <summary>Como leio junto com as meninas (sprint coletivo)?</summary>
+      <ol class="passos">
+        <li>Em <b>Sprint coletivo</b>, toque em <b>Começar sprint coletivo</b>.</li>
+        <li>O sprint começa em 1 minuto, com os seus tempos de leitura e prosa. Avise no grupo.</li>
+        <li>Quem abrir o sprint toca em <b>Entrar no sprint coletivo</b> e lê no mesmo ritmo.</li>
+        <li>Para sair, toque em <b>Sair do coletivo</b>.</li>
+      </ol>
+      <p class="txt">Os minutos do sprint coletivo contam no ranking de cada uma.</p>
+    </details>
+    <details>
+      <summary>Como funciona o ranking?</summary>
+      <p class="txt">Em <b>Ranking da Sociedade</b> aparece quem mais leu. Toque em <b>Este mês</b>, <b>Mês passado</b> ou <b>Este ano</b> para trocar o período. Só conta o tempo de leitura. A prosa fica de fora.</p>
+    </details>
+    <details>
+      <summary>Onde vejo os meus sprints?</summary>
+      <p class="txt">Em <b>Histórico</b> aparecem os seus minutos de hoje, da semana, o total, os dias seguidos e um gráfico dos últimos 7 dias.</p>
+      <p class="dica">O histórico fica salvo no aparelho. Se trocar de celular, ele começa do zero (o ranking não).</p>
+    </details>
+    <details>
+      <summary>Como posto o sprint nos stories?</summary>
+      <ol class="passos">
+        <li>Em <b>Histórico</b>, toque em <b>Criar imagem para os stories</b>.</li>
+        <li>Escolha entre <b>Sprint</b>, <b>Hoje</b>, <b>Semana</b> ou <b>Mês</b>. Se quiser, escreva uma mensagem.</li>
+        <li>Toque em <b>Baixar imagem</b>. No iPhone, se não baixar, toque e segure na imagem e escolha salvar.</li>
+      </ol>
+      <p class="txt">Para mandar no grupo, use <b>Copiar resumo para o grupo</b> e cole no WhatsApp.</p>
+    </details>
+    <details>
+      <summary>Como troco o tempo, o som do alarme ou o fundo?</summary>
+      <ol class="passos">
+        <li>Em <b>Configurações</b>, mude os minutos de <b>Leitura</b> e <b>Prosa</b>.</li>
+        <li>Em <b>Som do alarme</b>, escolha uma cena de filme ou série, um som do clube, ou deixe sortear uma cena a cada sprint. Toque em <b>Testar alarme</b>.</li>
+        <li>Em <b>Plano de fundo</b>, escolha a arte da Arcádia, uma cor, ou toque em <b>+</b> para usar uma imagem do celular, como a capa do livro.</li>
+      </ol>
+      <p class="dica">No iPhone, deixe ligado <b>Tocar mesmo com o celular no silencioso</b> para ouvir o alarme.</p>
+    </details>
+    <details>
+      <summary>Como ouço música durante o sprint?</summary>
+      <p class="txt">Toque em <b>Abrir meu Spotify</b>. Abre o seu próprio Spotify para ouvir o que quiser. O timer continua contando no site.</p>
+    </details>
+    <details>
+      <summary>Outras opções do sprint</summary>
+      <p class="txt"><b>Modo foco</b> esconde o resto da tela e deixa só o timer. <b>Tela cheia</b> está em Configurações. <b>Trocar meu nome</b> e <b>Zerar contador de hoje</b> também ficam em Configurações.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="leitura" data-titulo="Atualização de leitura">
+    <div class="cab"><div><p class="lbl">Livro do mês</p><h2>Atualização de leitura</h2></div><a class="btn ghost abrir" href="/leitura/">Abrir</a></div>
+    <p class="resumo">Onde cada uma conta quanto já leu do livro do mês.</p>
+    <details>
+      <summary>Como atualizo a minha leitura?</summary>
+      <ol class="passos">
+        <li>Abra a <b>Atualização de leitura</b> e escolha o seu nome.</li>
+        <li>Arraste a barra, use <b>−</b> e <b>+</b>, ou toque em 25%, 50%, 75% ou <b>Terminei</b>.</li>
+        <li>Toque em <b>Salvar minha leitura</b>.</li>
+      </ol>
+      <p class="txt">Pode atualizar quantas vezes quiser. Vale sempre a última.</p>
+    </details>
+    <details>
+      <summary>Como vejo a leitura do grupo?</summary>
+      <p class="txt">Em <b>Como está o grupo</b> aparecem a média e a porcentagem de cada integrante. Em <b>Meses anteriores</b> ficam os livros passados.</p>
+    </details>
+    <details>
+      <summary>Como mando a listinha no grupo?</summary>
+      <ol class="passos">
+        <li>Em <b>Como está o grupo</b>, toque em <b>Mandar no WhatsApp</b>.</li>
+        <li>Escolha o grupo e envie.</li>
+      </ol>
+      <p class="txt">Ou toque em <b>Copiar listinha</b> e cole onde quiser.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="questionario" data-titulo="Questionário do mês">
+    <div class="cab"><div><p class="lbl">Livro do mês</p><h2>Questionário do mês</h2></div><a class="btn ghost abrir" href="/leitura/questionario/">Abrir</a></div>
+    <p class="resumo">Perguntas sobre o livro do mês, para quem terminou a leitura.</p>
+    <details>
+      <summary>Como respondo o questionário?</summary>
+      <ol class="passos">
+        <li>Abra o <b>Questionário do mês</b> (está no menu e na Atualização de leitura).</li>
+        <li>Em <b>Quem está respondendo?</b>, escolha o seu nome.</li>
+        <li>Responda todas as perguntas. Nas abertas, escreva com as suas palavras.</li>
+        <li>Toque em <b>Enviar respostas</b> e confirme.</li>
+      </ol>
+      <p class="txt">Cada nome responde uma vez só. Depois de enviar, não dá para mudar. Confira antes de enviar.</p>
+      <p class="dica">Se fechar a página no meio, as respostas marcadas ficam guardadas no aparelho até você enviar.</p>
+    </details>
+    <details>
+      <summary>Quando vejo o meu resultado?</summary>
+      <p class="txt">A administração confere as respostas. Quando o gabarito for liberado, abra o questionário de novo: o seu resultado aparece na página.</p>
+    </details>
+    <details>
+      <summary>Apareceu "questionário fechado". E agora?</summary>
+      <p class="txt">O questionário só fica aberto no período que a administração define. Fora desse período, a página avisa que está fechado. Volte quando ele abrir.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="votacao" data-titulo="Votação do livro do mês">
+    <div class="cab"><div><p class="lbl">Livro do mês</p><h2>Votação do livro do mês</h2></div><a class="btn ghost abrir" href="/votacao/">Abrir</a></div>
+    <p class="resumo">Para votar online em um dos 3 livros do próximo livro do mês.</p>
+    <details>
+      <summary>Como voto?</summary>
+      <ol class="passos">
+        <li>Abra <b>Votação do livro do mês</b> e escolha o seu nome.</li>
+        <li>Toque em um dos 3 livros.</li>
+        <li>Toque em <b>Votar</b> e confirme.</li>
+      </ol>
+      <p class="txt">Cada nome vota uma vez só, e não dá para trocar o voto. Confira antes de confirmar.</p>
+    </details>
+    <details>
+      <summary>Onde vejo o resultado?</summary>
+      <p class="txt">O resultado não aparece no site. O livro vencedor é revelado no encontro.</p>
+    </details>
+    <details>
+      <summary>Apareceu "Votação fechada"</summary>
+      <p class="txt">A votação só fica aberta na semana do encontro, até o dia anterior. Fora desse período, a página mostra a data do próximo encontro.</p>
+    </details>
+    <details>
+      <summary>Diz "Já existe um voto com o seu nome"</summary>
+      <p class="txt">Se não foi você que votou, fale com a administração.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="arcadiana" data-titulo="Arcadiana do Ano">
+    <div class="cab"><div><p class="lbl">Ranking anual</p><h2>Arcadiana do Ano</h2></div><a class="btn ghost abrir" href="/arcadiana/">Abrir</a></div>
+    <p class="resumo">O ranking do ano, com os pontos de cada integrante.</p>
+    <details>
+      <summary>Como vejo os meus pontos?</summary>
+      <ol class="passos">
+        <li>Abra <b>Arcadiana do Ano</b>.</li>
+        <li>Em <b>Seus pontos</b>, escolha o seu nome.</li>
+        <li>Veja o seu total, a sua posição e o histórico de cada ponto.</li>
+      </ol>
+      <p class="txt">Mais abaixo fica o ranking do ano com todas as integrantes.</p>
+    </details>
+    <details>
+      <summary>Como ganho pontos?</summary>
+      <p class="txt"><b>10 pontos</b> por concluir o Livro do Mês. Eles entram quando você atinge a nota mínima no questionário do mês.</p>
+      <p class="txt"><b>5 pontos</b> pela presença no encontro oficial do Livro do Mês. A administração marca quem esteve lá.</p>
+      <p class="txt"><b>Pontos extras</b> lançados pela administração, como sprints especiais, Bingo e Tribunal.</p>
+      <p class="dica">Encontros extras, oficinas e LCs não contam pontos de presença.</p>
+    </details>
+    <details>
+      <summary>E se houver empate?</summary>
+      <p class="txt">Ganha quem tiver mais Livros do Mês concluídos. Se continuar empatado, quem foi a mais encontros oficiais. Se ainda empatar, é feito um sorteio.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="livros" data-titulo="Livros sugeridos">
+    <div class="cab"><div><p class="lbl">Leitura oficial e LCs</p><h2>Livros sugeridos</h2></div><a class="btn ghost abrir" href="/livros/">Abrir</a></div>
+    <p class="resumo">A lista de livros para o sorteio da leitura oficial do mês, e as listas das LCs extras.</p>
+    <details>
+      <summary>Como vejo a lista de livros?</summary>
+      <ol class="passos">
+        <li>Abra <b>Livros sugeridos</b>.</li>
+        <li>No alto, escolha <b>Leitura oficial</b> ou uma das LCs extras.</li>
+        <li>Use a busca para achar um livro. Na leitura oficial, dá para filtrar por gênero.</li>
+      </ol>
+      <p class="txt">Na leitura oficial só entram romantasia e fantasia. Os critérios da lista aparecem na página.</p>
+    </details>
+    <details>
+      <summary>Como sugiro um livro?</summary>
+      <ol class="passos">
+        <li>Escolha a lista certa no alto (leitura oficial ou LC extra).</li>
+        <li>Em <b>Sugerir um livro</b>, escolha o seu nome.</li>
+        <li>Escreva o nome do livro e a autora ou o autor. Na leitura oficial, marque se é romantasia ou fantasia.</li>
+        <li>Toque em <b>Enviar sugestão</b>.</li>
+      </ol>
+      <p class="txt">As sugestões só ficam abertas em alguns períodos. Quando estão fechadas, a página avisa e, se já tiver data, mostra quando abrem de novo.</p>
+      <p class="dica">Se o livro já estiver na lista, o site avisa. Não precisa sugerir de novo.</p>
+    </details>
+    <details>
+      <summary>Como sei se a minha sugestão entrou?</summary>
+      <p class="txt">Em <b>Suas sugestões</b> aparece o status de cada uma: <b>Aguardando</b>, <b>Entrou</b> ou <b>Não entrou</b> (com o motivo, quando houver).</p>
+      <p class="dica">Suas sugestões aparecem só no aparelho em que você enviou.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="ideias" data-titulo="Ideias de encontros">
+    <div class="cab"><div><p class="lbl">Oficinas e encontros extras</p><h2>Ideias de encontros</h2></div><a class="btn ghost abrir" href="/ideias/">Abrir</a></div>
+    <p class="resumo">Para sugerir uma oficina ou um encontro extra.</p>
+    <details>
+      <summary>Como mando uma ideia?</summary>
+      <ol class="passos">
+        <li>Abra <b>Ideias de encontros</b> e escolha o seu nome.</li>
+        <li>Marque se é <b>Oficina</b> ou <b>Encontro extra</b>.</li>
+        <li>Escreva o título, explique a ideia e conte como seria a organização (onde, quando, materiais, custos).</li>
+        <li>Marque que você participa da organização e toque em <b>Enviar ideia</b>.</li>
+      </ol>
+      <p class="txt"><b>Quem sugere, organiza junto.</b> Se a ideia for aprovada, você participa da organização do encontro.</p>
+      <p class="dica">O texto fica guardado no aparelho enquanto você escreve. Se a página fechar, ele continua lá.</p>
+    </details>
+    <details>
+      <summary>Como vejo a resposta da administração?</summary>
+      <p class="txt">Em <b>Suas ideias</b> aparece o status de cada ideia e o recado da administração, quando houver. Aparece só no aparelho em que você enviou.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="redes" data-titulo="Sugestões para as redes">
+    <div class="cab"><div><p class="lbl">Instagram do clube</p><h2>Sugestões para as redes</h2></div><a class="btn ghost abrir" href="/redes/">Abrir</a></div>
+    <p class="resumo">Para mandar ideias de post, trends, resenhas e fotos para as redes sociais da Arcádia.</p>
+    <details>
+      <summary>Como mando uma sugestão?</summary>
+      <ol class="passos">
+        <li>Abra <b>Sugestões para as redes</b> e escolha o seu nome.</li>
+        <li>Escolha o tipo: ideia de post, trend, resenha, foto/registro ou outro.</li>
+        <li>Escreva a descrição. Se quiser, coloque um link ou uma imagem (foto ou print).</li>
+        <li>Toque em <b>Enviar sugestão</b>.</li>
+      </ol>
+      <p class="txt">As sugestões passam por avaliação antes da publicação.</p>
+    </details>
+    <details>
+      <summary>Como acompanho a minha sugestão?</summary>
+      <p class="txt">Em <b>Suas sugestões</b> aparece a situação de cada uma: <b>Recebida</b> (a administração já tem), <b>Aprovada</b> (vai ser usada) ou <b>Publicada</b> (já está no ar), e o recado da administração, se houver.</p>
+      <p class="dica">Suas sugestões aparecem só no aparelho em que você enviou.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="artes" data-titulo="Artes do clube">
+    <div class="cab"><div><p class="lbl">Artes e templates</p><h2>Artes do clube</h2></div><a class="btn ghost abrir" href="/artes/">Abrir</a></div>
+    <p class="resumo">Artes e templates oficiais para baixar. Use à vontade para divulgar suas leituras e sua participação na Arcádia.</p>
+    <details>
+      <summary>Como baixo uma arte?</summary>
+      <ol class="passos">
+        <li>Abra <b>Artes do clube</b>.</li>
+        <li>Escolha uma categoria nos botões do topo, ou role a galeria.</li>
+        <li>Toque em <b>Baixar</b> na arte.</li>
+        <li>No celular, toque em <b>Salvar no celular</b> e escolha <b>Salvar imagem</b>. No computador, toque em <b>Baixar arquivo</b>.</li>
+      </ol>
+      <p class="dica">No celular, também dá para tocar e segurar a imagem e escolher <b>Salvar em Fotos</b>.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="bingo" data-titulo="Provas do bingo">
+    <div class="cab"><div><p class="lbl">Bingo</p><h2>Provas do bingo</h2></div><a class="btn ghost abrir" href="/bingo/">Abrir</a></div>
+    <p class="resumo">Para mandar os prints que mostram que você cumpriu os desafios do bingo.</p>
+    <details>
+      <summary>Como mando a prova de um desafio?</summary>
+      <ol class="passos">
+        <li>Abra <b>Provas do bingo</b> e escolha o seu nome.</li>
+        <li>Na cartela, toque no desafio que você cumpriu.</li>
+        <li>Toque em <b>Escolher imagem</b> e escolha o print (até 3 imagens).</li>
+        <li>Se quiser, escreva um comentário, como o livro que você usou.</li>
+        <li>Toque em <b>Enviar prova</b>.</li>
+      </ol>
+    </details>
+    <details>
+      <summary>Como sei se a prova foi aceita?</summary>
+      <p class="txt">Em <b>Suas provas</b>, a prova aparece como <b>Aguardando</b>. Depois da conferência, fica <b>Aprovada</b> ou <b>Não aprovada</b>, com o recado da administração. Se não for aprovada, dá para mandar outra.</p>
+    </details>
+    <details>
+      <summary>Mandei a prova errada. E agora?</summary>
+      <p class="txt">Enquanto ela estiver <b>Aguardando</b>, toque em <b>Cancelar envio</b> e mande de novo.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="problemas" data-titulo="Problemas comuns">
+    <div class="cab"><div><p class="lbl">Ajuda</p><h2>Problemas comuns</h2></div></div>
+    <p class="resumo">O que fazer quando algo não funciona.</p>
+    <details>
+      <summary>Diz "senha incorreta"</summary>
+      <p class="txt">Confira se digitou certo, sem espaço no fim. Se continuar, peça a senha para a administração.</p>
+    </details>
+    <details>
+      <summary>A página fica em "Carregando…" ou diz "sem conexão"</summary>
+      <ol class="passos">
+        <li>Confira a internet do celular.</li>
+        <li>Recarregue a página (puxe a tela para baixo ou toque na seta de recarregar).</li>
+        <li>Se continuar, feche o navegador e abra de novo.</li>
+      </ol>
+    </details>
+    <details>
+      <summary>O alarme do sprint não toca</summary>
+      <p class="txt">Aumente o volume do celular. No iPhone, em Configurações do sprint, ligue <b>Tocar mesmo com o celular no silencioso</b> e toque em <b>Testar alarme</b>. Deixe o site aberto na tela durante o sprint.</p>
+    </details>
+    <details>
+      <summary>Minhas sugestões ou meu histórico sumiram</summary>
+      <p class="txt">Eles ficam guardados no aparelho e no navegador em que você usou. Abra pelo mesmo celular e pelo mesmo navegador. O que você salvou no site (leitura, presença, ranking, respostas) continua lá para todas.</p>
+    </details>
+    <details>
+      <summary>Escolhi o nome errado</summary>
+      <p class="txt">Escolha o nome certo de novo na lista da página. No sprint, use <b>Trocar meu nome</b> em Configurações. Se já enviou algo com o nome errado, avise a administração.</p>
+    </details>
+  </section>
+
+  <p class="foot"><a href="/agenda/">Agenda</a> · <a href="/sprint/">Sprint de leitura</a> · <a href="/leitura/">Atualização de leitura</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/config.js"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const secoes=[...document.querySelectorAll('.secao')];
+
+  /* índice do topo, montado a partir das seções */
+  $('indice').innerHTML=secoes.map(s=>'<a href="#'+s.id+'">'+s.dataset.titulo+'</a>').join('');
+  /* abrir a seção pelo link (ex.: /guia/#sprint) */
+  function abrirHash(){const s=location.hash&&document.getElementById(location.hash.slice(1));
+    if(s&&s.classList.contains('secao')){const d=s.querySelector('details');if(d&&!s.querySelector('details[open]'))d.open=true}}
+  window.addEventListener('hashchange',abrirHash);abrirHash();
+
+  /* busca: mostra só as perguntas com a palavra e já abre */
+  const norm=t=>t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  secoes.forEach(s=>s.querySelectorAll('details').forEach(d=>d._t=norm(s.dataset.titulo+' '+d.textContent)));
+  let tt;$('busca').addEventListener('input',e=>{clearTimeout(tt);tt=setTimeout(()=>{
+    const q=norm(e.target.value.trim());let algum=false;
+    secoes.forEach(s=>{let tem=false;
+      s.querySelectorAll('details').forEach(d=>{const ok=!q||q.split(/\s+/).every(p=>d._t.includes(p));d.hidden=!ok;d.open=!!q&&ok;if(ok)tem=true});
+      s.hidden=!tem;if(tem)algum=true});
+    $('nada').hidden=algum},150)});
+})();
+
+/* senha do clube (a mesma do sprint) */
+(async function(){
+  const $=id=>document.getElementById(id);
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadia:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadia:'+k,JSON.stringify(v))}catch(e){}}};
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const V='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);return}
+  if(LS.get('membroOk','')===uid)return;
+  let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}
+  if(ok){LS.set('membroOk',uid);return}
+  $('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+  $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+    $('gateBtn').disabled=true;$('gateErr').hidden=true;
+    try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});$('gate').hidden=true;LS.set('membroOk',uid)}
+    catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+    $('gateBtn').disabled=false};
+})();
+</script>
+</body>
+</html>

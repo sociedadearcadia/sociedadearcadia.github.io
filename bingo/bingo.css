@@ -1,0 +1,52 @@
+/* Provas do bingo (usa /leitura/leitura.css e /livros/livros.css) */
+.cartela{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cartela li{display:flex}
+.cartela button{flex:1;display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;font:600 13.5px/1.35 var(--body);color:var(--cream);
+  padding:10px;border-radius:12px;border:1px solid var(--line);background:rgba(23,15,51,.6);cursor:pointer;min-height:76px}
+.cartela button .n{font:600 12px var(--display);color:#e8c98a}
+.cartela button .t{overflow-wrap:anywhere}
+.cartela button .st{margin-top:auto;font-size:10.5px;padding:2px 8px}
+.cartela li.aprovada button{border-color:rgba(160,230,190,.7);background:linear-gradient(160deg,rgba(160,230,190,.18),rgba(23,15,51,.6) 70%)}
+.cartela li.pendente button{border-color:rgba(246,211,141,.6)}
+.cartela li.recusada button{border-color:rgba(242,160,184,.5)}
+.cartela button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.placar{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 12px;font-size:14px}
+.placar b{font:600 22px var(--display);color:#fff}
+.fotos-in{display:flex;flex-direction:column;gap:8px}
+.fotos-in input[type=file]{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.escolher{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;border-radius:12px;border:1px dashed rgba(214,180,108,.7);background:rgba(15,8,32,.5);
+  color:#f6d38d;font-weight:700;cursor:pointer;text-align:center}
+.escolher:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+.miniaturas{display:flex;gap:8px;flex-wrap:wrap}
+.miniaturas .m{position:relative;width:86px;height:120px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:rgba(15,8,32,.6)}
+.miniaturas .m img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.miniaturas .m .x{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(15,8,32,.85);color:#fff;font:700 15px var(--body);cursor:pointer;line-height:1}
+.miniaturas .m.carregando{display:grid;place-items:center;font-size:11px;color:var(--muted)}
+.prova{position:relative;padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(23,15,51,.55);display:flex;flex-direction:column;gap:6px}
+.prova h3{margin:0;font:500 17px/1.3 var(--display);color:#fff;overflow-wrap:anywhere}
+.prova .topo{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.prova .por{margin:0;font-size:12.5px;color:#a99bd0}
+.prova .txt{margin:0;font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
+.prova .nota{margin:4px 0 0;padding:8px 10px;border-radius:10px;background:rgba(15,8,32,.5);border:1px solid var(--line);font-size:13.5px;white-space:pre-line}
+.prova .ed{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+.prova.aprovada{border-color:rgba(160,230,190,.5)}
+.prova.pendente{border-color:rgba(246,211,141,.5)}
+.provas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.st.aprovada{color:#bff0d2;border-color:rgba(160,230,190,.55)}
+.fechado-box{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;background:rgba(15,8,32,.5);border:1px solid var(--line)}
+.fechado-box .ico{width:26px;height:26px;color:#f6d38d;margin-top:2px}
+.fechado-box p{margin:0}
+.enviando{font-size:13.5px;color:#f6d38d;text-align:center;margin:0}
+/* imagem em tela cheia */
+.zoom{position:fixed;inset:0;z-index:40;background:rgba(8,3,18,.94);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 12px max(16px,env(safe-area-inset-bottom));overflow:auto}
+.zoom img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+.zoom button{position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(23,15,51,.9);color:#fff;font:700 20px var(--body);cursor:pointer}
+/* administração */
+.tabela{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.tabela li{border-bottom:1px solid rgba(200,182,240,.12);padding-bottom:6px}
+.tabela details{border:0;padding:0}
+.tabela summary{display:flex;justify-content:space-between;gap:10px;color:var(--cream);font-weight:600;font-size:14.5px;list-style:none}
+.tabela summary::-webkit-details-marker{display:none}
+.tabela summary b{font:600 15px var(--display);color:#fff;white-space:nowrap}
+.tabela ul{margin:6px 0 4px;padding-left:18px;font-size:13.5px;color:var(--muted)}
+.tabela .zero summary{color:#8f81b6}
