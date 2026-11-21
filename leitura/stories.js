@@ -79,8 +79,7 @@ async function desenhar(c,escala){const f=FUNDOS[fundo];
     brilho(x,bx+fw-6,by+bh/2,22,.95,'#fffbe8');brilho(x,bx+fw*.45,by-4,10,.7,'#fffbe8')}
   rr(x,bx,by,bw,bh,bh/2);x.lineWidth=2;x.strokeStyle='rgba(214,180,108,.8)';x.stroke();
   x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;  txt(x,'✦ SOCIEDADE ARCÁDIA ✦',540,1818,'600 28px "Nunito Sans",sans-serif',GOLD,8);x.shadowBlur=0;
-  if(selo){x.save();x.shadowColor='rgba(10,4,20,.6)';x.shadowBlur=14;x.beginPath();x.arc(996,1836,36,0,6.28);x.fillStyle=CREAM;x.fill();x.restore();
-    x.save();x.beginPath();x.arc(996,1836,36,0,6.28);x.clip();x.drawImage(selo,960,1800,72,72);x.restore();x.strokeStyle='rgba(214,180,108,.85)';x.lineWidth=2;x.beginPath();x.arc(996,1836,37,0,6.28);x.stroke()}
+  if(selo){const SEL=selo;x.save();x.shadowColor='rgba(10,4,20,.65)';x.shadowBlur=16;x.beginPath();x.arc(540,1720,46,0,6.28);x.fillStyle='#f4e8da';x.fill();x.restore();x.save();x.beginPath();x.arc(540,1720,46,0,6.28);x.clip();x.drawImage(SEL,494,1674,92,92);x.restore();x.strokeStyle='#d6b46c';x.lineWidth=2.5;x.beginPath();x.arc(540,1720,47.5,0,6.28);x.stroke()}
 }
 function marcar(){$('lsFundos').querySelectorAll('[data-i]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===fundo))}
 function botaoGerar(){const v=window.ArcVideo&&ArcVideo.suportado;

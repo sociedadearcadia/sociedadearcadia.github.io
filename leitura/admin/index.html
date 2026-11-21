@@ -238,8 +238,10 @@ input[type=file]{font:14px var(--body);color:var(--muted);max-width:100%}
     $('tiraCapa').onclick=()=>setCapa(null);
     $('capa').onchange=async()=>{const f=$('capa').files[0];if(!f)return;
       try{const url=URL.createObjectURL(f);const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});
-        const k=Math.min(1,480/img.naturalHeight,320/img.naturalWidth);const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);
-        c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);setCapa(c.toDataURL('image/jpeg',.82))}
+        const k=Math.min(1,1200/img.naturalHeight,800/img.naturalWidth);const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);let d='';for(const q of [.88,.8,.72,.64,.56]){d=c.toDataURL('image/jpeg',q);if(d.length<380000)break}
+        if(d.length>=380000){const c2=document.createElement('canvas');c2.width=Math.round(c.width*.75);c2.height=Math.round(c.height*.75);c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);d=c2.toDataURL('image/jpeg',.8)}
+        setCapa(d)}
       catch(e){toast('Não consegui abrir essa imagem. Tente outra.');setCapa(null)}};
 
     $('livroF').onsubmit=async ev=>{ev.preventDefault();

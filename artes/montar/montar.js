@@ -53,7 +53,7 @@ function estrela(x,cx,cy,R,cheio){ // cheio: 0, .5 ou 1
 
 function linhas(n,cols){const r=Math.ceil(n/cols),base=Math.floor(n/r),extra=n%r,a=[];
   for(let i=0;i<r;i++)a.push(base+(i<extra?1:0));return a}
-function layout(n,est,num){const top=num?735:715,bottom=1700,maxw=num?740:760,gap=30;let melhor=null;
+function layout(n,est,num){const top=num?735:715,bottom=1655,maxw=num?740:760,gap=30;let melhor=null;
   const opcoes=[];for(let c=1;c<=5;c++)opcoes.push(linhas(n,Math.min(c,n)));
   if(num&&n>=2&&n<=5)opcoes.length=0,opcoes.push({2:[1,1],3:[1,2],4:[1,3],5:[1,2,2]}[n]);
   const eh=w=>(est?w/6.2*1.5:0);
@@ -94,9 +94,7 @@ function cena(x,im,sel,f,anim){
     for(const b of BRILHOS)brilho(x,b.x,b.y,b.k,b.a)}
   x.lineWidth=4;x.strokeStyle='rgba(214,180,108,.8)';archPath(x);x.stroke();
   x.lineWidth=1.5;x.strokeStyle='rgba(214,180,108,.35)';archPath(x,20);x.stroke();
-  if(sel){x.save();x.shadowColor='rgba(10,4,20,.6)';x.shadowBlur=14;x.beginPath();x.arc(996,1836,36,0,6.28);x.fillStyle='#f4e8da';x.fill();x.restore();
-    x.save();x.beginPath();x.arc(996,1836,36,0,6.28);x.clip();x.drawImage(sel,960,1800,72,72);x.restore();
-    x.strokeStyle='rgba(214,180,108,.85)';x.lineWidth=2;x.beginPath();x.arc(996,1836,37,0,6.28);x.stroke()}
+  if(sel){const SEL=sel;x.save();x.shadowColor='rgba(10,4,20,.65)';x.shadowBlur=16;x.beginPath();x.arc(540,1720,46,0,6.28);x.fillStyle='#f4e8da';x.fill();x.restore();x.save();x.beginPath();x.arc(540,1720,46,0,6.28);x.clip();x.drawImage(SEL,494,1674,92,92);x.restore();x.strokeStyle='#d6b46c';x.lineWidth=2.5;x.beginPath();x.arc(540,1720,47.5,0,6.28);x.stroke()}
   const m=modelo();
   x.textAlign='center';x.textBaseline='alphabetic';x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
   txt(x,m.lbl,540,664,'600 30px "Nunito Sans",sans-serif',GOLD,8);
@@ -124,7 +122,7 @@ function capas(x,m){const n=S.qtd[m.id];SLOTS=layout(n,m.est,m.num);
     if(m.est){const R=Math.min(23,s.w/12.4),gap=R*.24,tot=5*2*R+4*gap,y=s.y+s.h+R*.35+R;
       for(let k=0;k<5;k++){const v=Math.max(0,Math.min(1,L.nota-k));estrela(x,s.x+s.w/2-tot/2+R+k*(2*R+gap),y,R,v>=1?1:v>=.5?.5:0)}}
   })}
-function metaGrid(){const N=Math.max(1,Math.min(300,S.meta|0));const top=1000,bottom=1690,maxw=760;let best=null;
+function metaGrid(){const N=Math.max(1,Math.min(300,S.meta|0));const top=1000,bottom=1645,maxw=760;let best=null;
   for(let c=5;c<=20;c++){const r=Math.ceil(N/c);const s=Math.min((maxw)/(c*1.22),(bottom-top)/(r*1.22),70);if(!best||s>best.s)best={s,c,r}}
   const {s,c,r}=best,g=s*.22,x0=540-(c*s+(c-1)*g)/2,y0=top+((bottom-top)-(r*s+(r-1)*g))/2,a=[];
   for(let i=0;i<N;i++)a.push({x:x0+(i%c)*(s+g)+s/2,y:y0+Math.floor(i/c)*(s+g)+s/2,r:s/2});return a}
@@ -211,7 +209,7 @@ $('livros').onclick=e=>{const li=e.target.closest('[data-i]');if(!li)return;cons
 prev.onclick=e=>{const m=modelo();if(m.meta)return;const r=prev.getBoundingClientRect(),X=(e.clientX-r.left)*W/r.width,Y=(e.clientY-r.top)*H/r.height;
   const i=SLOTS.findIndex(s=>X>=s.x&&X<=s.x+s.w&&Y>=s.y&&Y<=s.y+s.h);if(i<0)return;abrirBusca(i)};
 async function usarImagem(im,i){
-  const sc=Math.min(1,1100/im.naturalHeight,800/im.naturalWidth),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);
+  const sc=Math.min(1,1600/im.naturalHeight,1100/im.naturalWidth),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);
   c.getContext('2d').drawImage(im,0,0,c.width,c.height);
   let u;try{u=await new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(),'image/jpeg',.85))}catch(e){return false} // falha se a imagem não permitir uso
   const L=S.livros[i];if(L.url)URL.revokeObjectURL(L.url);L.img=c;L.url=u;tudo();return true}
@@ -244,12 +242,13 @@ async function buscar(){const q=$('bQ').value.trim();if(!q)return;const n=++busc
 $('bForm').onsubmit=e=>{e.preventDefault();$('bQ').blur();buscar()};
 function corsImg(src){return new Promise(ok=>{const i=new Image();i.crossOrigin='anonymous';i.referrerPolicy='no-referrer';i.onload=()=>ok(i.naturalWidth>40?i:null);i.onerror=()=>ok(null);i.src=src})}
 $('bRes').onclick=async e=>{const b=e.target.closest('.res');if(!b||b.classList.contains('carregando'))return;b.classList.add('carregando');
-  const id=b.dataset.id,grande='https://books.google.com/books/content?id='+encodeURIComponent(id)+'&printsec=frontcover&img=1&zoom=0&edge=nocurl&fife=w900';
-  const fontes=['https://images.weserv.nl/?url='+encodeURIComponent(grande)+'&w=900&output=jpg',
+  const id=b.dataset.id,grande='https://books.google.com/books/content?id='+encodeURIComponent(id)+'&printsec=frontcover&img=1&zoom=0&edge=nocurl&fife=w1400';
+  const fontes=['https://images.weserv.nl/?url='+encodeURIComponent(grande)+'&w=1400&output=jpg&q=92',
     'https://images.weserv.nl/?url='+encodeURIComponent(b.dataset.t.replace('&edge=curl',''))+'&output=jpg',grande];
-  let ok=false;for(const f of fontes){const im=await corsImg(f);if(im&&await usarImagem(im,alvo)){ok=true;break}}
+  let ok=false,peq=false;const cands=[];for(const f of fontes){const im=await corsImg(f);if(im){cands.push(im);if(im.naturalWidth>=500)break}}
+  cands.sort((a,b)=>b.naturalWidth-a.naturalWidth);if(cands[0]&&await usarImagem(cands[0],alvo)){ok=true;peq=cands[0].naturalWidth<400}
   b.classList.remove('carregando');
-  if(ok){fecharBusca();toast(pal()==='pôster'?'Pôster colocado!':'Capa colocada!')}else toast('Não consegui usar essa capa. Tente outra, ou escolha da galeria.')};
+  if(ok){fecharBusca();toast(peq?'Essa capa veio pequena e pode ficar menos nítida. Se puder, tente outra edição ou use uma foto da galeria.':(pal()==='pôster'?'Pôster colocado!':'Capa colocada!'))}else toast('Não consegui usar essa capa. Tente outra, ou escolha da galeria.')};
 
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
 
