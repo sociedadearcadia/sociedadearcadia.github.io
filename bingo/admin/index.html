@@ -43,7 +43,7 @@
     <section class="panel">
       <p class="lbl">Resultado</p>
       <h2>Cartelas</h2>
-      <p class="muted small" style="margin:-4px 0 12px">Desafios aprovados de cada integrante. Toque no nome para ver quais.</p>
+      <p class="muted small" style="margin:-4px 0 12px">O que cada integrante marcou na própria cartela e quantas provas você já aprovou. Toque no nome para ver os desafios. O ranking das integrantes mostra só a porcentagem de aprovados.</p>
       <ul class="tabela" id="cartelas"></ul>
     </section>
 
@@ -54,14 +54,24 @@
     </section>
 
     <section class="panel">
+      <p class="lbl">Cartelas pessoais</p>
+      <h2>Códigos das integrantes</h2>
+      <p class="muted small" style="margin:-4px 0 12px">Cada integrante cria um código de 4 números para abrir a própria cartela. Ninguém, nem a administração, vê o código. Se alguém esquecer, apague o código dela aqui e ela cria outro no próximo acesso. As provas já enviadas continuam aqui na administração.</p>
+      <ul class="tabela" id="codigos"></ul>
+    </section>
+
+    <section class="panel">
       <p class="lbl">Configuração</p>
       <h2>Tabela do bingo</h2>
       <form class="form" id="cf">
+        <p class="ok-box" id="cEstado"></p>
         <label>Nome do bingo<input type="text" id="cTitulo" maxlength="60" autocomplete="off"></label>
+        <label class="sw"><input type="checkbox" id="cVisivel"><span class="tr"></span><span>Tabela visível para as integrantes</span></label>
         <label class="sw"><input type="checkbox" id="cAberto"><span class="tr"></span><span>Envio de provas aberto</span></label>
         <label>Último dia para mandar provas <small>Opcional. Deixe em branco para não ter prazo.</small><input type="date" id="cAte"></label>
-        <label>Desafios <small>Um desafio por linha, na ordem da cartela. Até 60.</small><textarea id="cDesafios" rows="10"></textarea></label>
+        <label>Desafios <small>Na ordem da cartela (5 por linha da cartela). Formato: "01. TÍTULO" e a explicação na linha de baixo. Uma linha "DESAFIOS — NOME" começa uma categoria (cada categoria ganha uma cor).</small><textarea id="cDesafios" rows="14"></textarea></label>
         <p class="cnt" id="cCnt"></p>
+        <button class="lnk" type="button" id="c2027" style="align-self:flex-start">Recolocar a tabela aprovada de 2027</button>
         <button class="btn wide" type="submit" id="cBtn">Salvar</button>
       </form>
       <details style="margin-top:16px">
@@ -118,7 +128,7 @@
   });
 
   function iniciar(){
-    const cfgRef=db.collection('config').doc('bingo'),col=db.collection('provas'),fotosCol=db.collection('provasFotos');
+    const cfgRef=db.collection('config').doc('bingo');const refs={};
     let cfg=null,todas=[],parar=null,edicao='',editado=false;
     const cacheImg={};
 
@@ -127,38 +137,72 @@
       if(!editado)preencher();
       const ed=(cfg&&cfg.edicao)||'';if(ed!==edicao){edicao=ed;ouvir()}else desenhar()},
       e=>{console.warn(e);toast('Erro ao ler o bingo: '+e.code)});
-    function preencher(){$('cTitulo').value=(cfg&&cfg.titulo)||B.TITULO;$('cAberto').checked=!!(cfg&&cfg.aberto);$('cAte').value=(cfg&&cfg.ate)||'';
-      $('cDesafios').value=((cfg&&cfg.desafios)||[]).map(d=>d.t).join('\n');contar()}
-    const linhas=()=>$('cDesafios').value.split('\n').map(x=>x.trim().replace(/^\d+[\.\)\-]\s*/,'')).filter(Boolean);
-    function contar(){const n=linhas().length;$('cCnt').textContent=n===1?'1 desafio':n+' desafios'}
+    function preencher(){
+      const novo=!cfg||!(cfg.desafios||[]).length;
+      $('cTitulo').value=(cfg&&cfg.titulo)||B.TITULO;$('cVisivel').checked=!!(cfg&&cfg.visivel);$('cAberto').checked=!!(cfg&&cfg.aberto);
+      $('cAte').value=cfg?(cfg.ate||''):'2027-04-30';
+      $('cDesafios').value=novo?B.TABELA_2027:B.texto(cfg.desafios);
+      estado(novo);contar()}
+    function estado(novo){$('cEstado').innerHTML=novo?'<b>A tabela aprovada de 2027 já está preenchida abaixo.</b> Confira e toque em Salvar. Com "Tabela visível" desligado, as integrantes continuam vendo "Tabela em breve".'
+      :(cfg.visivel?'<b>A tabela está visível</b> para as integrantes.':'<b>A tabela está escondida.</b> As integrantes veem "Tabela em breve". Para liberar, ligue "Tabela visível" e salve.')}
+    $('c2027').onclick=()=>{if(!confirm('Trocar o nome e os desafios pela tabela aprovada de 2027?'))return;
+      $('cTitulo').value=B.TITULO;$('cDesafios').value=B.TABELA_2027;if(!$('cAte').value)$('cAte').value='2027-04-30';editado=true;contar()};
+    const lidos=()=>B.ler($('cDesafios').value);
+    function contar(){const ds=lidos(),n=ds.length;$('cCnt').textContent=(n===1?'1 desafio':n+' desafios')+(n&&n!==25?' (a cartela de bingo completa tem 25)':'')+
+      (ds.some(d=>!d.d)&&ds.some(d=>d.d)?' · algum desafio está sem explicação':'')}
     $('cf').addEventListener('input',()=>{editado=true;contar()});
     $('cf').onsubmit=async ev=>{ev.preventDefault();
-      const ls=linhas();
-      if(ls.length>B.MAX.desafios){toast('No máximo '+B.MAX.desafios+' desafios');return}
-      if(ls.some(t=>t.length>B.MAX.desafio)){toast('Algum desafio passou de '+B.MAX.desafio+' letras');return}
+      const lido=lidos(),ls=lido.map(d=>d.t);
+      if(!lido.length&&$('cVisivel').checked){toast('Coloque os desafios antes de deixar a tabela visível');return}
+      if(lido.length>B.MAX.desafios){toast('No máximo '+B.MAX.desafios+' desafios');return}
+      if(lido.some(d=>d.t.length>B.MAX.desafio)){toast('Algum título passou de '+B.MAX.desafio+' letras');return}
+      if(lido.some(d=>d.d.length>B.MAX.desc)){toast('Alguma explicação passou de '+B.MAX.desc+' letras');return}
       /* cada desafio guarda o mesmo código quando o texto não muda (ou quando só corrige o texto na mesma linha),
          para as provas já enviadas continuarem na cartela */
       const velhos=(cfg&&cfg.desafios)||[],usados=new Set();
-      const ds=ls.map(t=>{const v=velhos.find(d=>d.t===t&&!usados.has(d.id));if(v){usados.add(v.id);return {id:v.id,t}}return {id:'',t}});
+      const ds=lido.map(x=>{const v=velhos.find(d=>d.t===x.t&&!usados.has(d.id));const o={id:'',t:x.t,d:x.d,c:x.c};if(v){usados.add(v.id);o.id=v.id}return o});
       ds.forEach((d,i)=>{if(d.id)return;const v=velhos[i];if(v&&!usados.has(v.id)&&!ls.includes(v.t)){usados.add(v.id);d.id=v.id}else d.id=B.novoId()});
-      const v={titulo:$('cTitulo').value.trim().slice(0,B.MAX.titulo)||B.TITULO,aberto:$('cAberto').checked,ate:$('cAte').value||'',desafios:ds,edicao:(cfg&&cfg.edicao)||B.novoId()};
+      const v={titulo:$('cTitulo').value.trim().slice(0,B.MAX.titulo)||B.TITULO,visivel:$('cVisivel').checked,aberto:$('cAberto').checked,ate:$('cAte').value||'',desafios:ds,
+        edicao:(cfg&&cfg.edicao)||B.novoId()};
       const b=$('cBtn');b.disabled=true;
-      try{await cfgRef.set(v);editado=false;toast('Bingo salvo')}catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}
+      try{await cfgRef.set(v);editado=false;toast(v.visivel?'Salvo. A tabela está visível para as integrantes.':'Salvo. A tabela continua escondida.')}catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}
       b.disabled=false};
     $('novo').onclick=async()=>{if(!cfg){toast('Salve os desafios primeiro');return}
       if(!confirm('Começar um bingo novo? As cartelas começam do zero.'))return;
       try{await cfgRef.update({edicao:B.novoId()});toast('Bingo novo começado. Confira os desafios e salve.')}catch(e){toast('Não foi possível: '+e.code)}};
 
+    /* ---------- cartelas pessoais (marcações de cada uma) ---------- */
+    let cartelas=[];
+    db.collection('cartelas').onSnapshot(s=>{cartelas=s.docs.map(d=>d.data());desenhar()},e=>console.warn(e));
+    /* ranking que as integrantes veem: só quantos desafios aprovados cada uma tem */
+    let rankAntes='';
+    async function salvarRanking(ds){if(!edicao||!ds.length)return;
+      const itens={};todas.filter(p=>p.status==='aprovada'&&ds.some(d=>d.id===p.desafio)).forEach(p=>{const k=L.slug(p.nome);
+        (itens[k]=itens[k]||{nome:p.nome,ids:new Set()}).ids.add(p.desafio)});
+      const out={};Object.entries(itens).forEach(([k,v])=>out[k]={nome:v.nome,feitos:v.ids.size});
+      const j=JSON.stringify([edicao,out]);if(j===rankAntes)return;rankAntes=j;
+      try{await db.collection('config').doc('bingoRanking').set({edicao,itens:out,em:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){console.warn(e);rankAntes=''}}
+
+    /* ---------- códigos das cartelas pessoais ---------- */
+    let pessoas=new Set();
+    db.collection('pessoas').onSnapshot(s=>{pessoas=new Set(s.docs.map(d=>d.id));desenharCodigos()},e=>console.warn(e));
+    function desenharCodigos(){$('codigos').innerHTML=MEMBROS.map(n=>{const tem=pessoas.has(L.slug(n));
+      return '<li><div class="cod"><span>'+esc(n)+'</span>'+(tem?'<span class="muted small">Já criou o código · <button class="del" type="button" data-apagar-cod="'+esc(L.slug(n))+'" data-nome="'+esc(n)+'">Apagar código</button></span>':'<span class="muted small">Ainda não abriu a cartela</span>')+'</div></li>'}).join('')}
+    $('codigos').onclick=async e=>{const b=e.target.closest('[data-apagar-cod]');if(!b)return;
+      if(!confirm('Apagar o código de '+b.dataset.nome+'? Ela vai criar um código novo no próximo acesso. As marcações da cartela antiga não passam para a nova.'))return;
+      try{await db.collection('pessoas').doc(b.dataset.apagarCod).delete();toast('Código apagado')}catch(er){toast('Não foi possível: '+er.code)}};
+
     /* ---------- provas ---------- */
     function ouvir(){if(parar){parar();parar=null}todas=[];desenhar();if(!edicao)return;
-      parar=col.where('edicao','==',edicao).onSnapshot(s=>{todas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));desenhar()},
+      /* as provas ficam dentro da cartela de cada integrante; a administração lê todas de uma vez */
+      parar=db.collectionGroup('provas').onSnapshot(s=>{todas=s.docs.filter(d=>d.data().edicao===edicao).map(d=>{refs[d.ref.path]=d.ref;return Object.assign({_id:d.ref.path},d.data())});desenhar()},
         e=>{console.warn(e);toast('Erro ao ler as provas: '+e.code)})}
 
     function card(p,extra){
       return '<li class="prova '+esc(p.status)+'" data-id="'+esc(p._id)+'">'+
         '<div class="topo"><h3>'+esc(p.desafioTexto)+'</h3>'+(p.status!=='pendente'?'<span class="st '+esc(p.status)+'">'+B.ST[p.status]+'</span>':'')+'</div>'+
         '<p class="por">Enviada por <b style="color:var(--cream)">'+esc(p.nome)+'</b>'+(data(p.criadoEm)?' em '+data(p.criadoEm):'')+'</p>'+
-        (p.obs?'<p class="txt">'+esc(p.obs)+'</p>':'')+
+        (p.livro?'<p class="txt"><b>Livro:</b> '+esc(p.livro)+'</p>':'')+(p.obs?'<p class="txt">'+esc(p.obs)+'</p>':'')+
         '<div class="miniaturas" data-imgs>'+(cacheImg[p._id]?mini(cacheImg[p._id]):'')+'</div>'+
         extra(p)+'</li>'}
     const mini=a=>a.map((src,i)=>'<div class="m"><img src="'+src+'" alt="Print '+(i+1)+'"></div>').join('')||'<p class="muted small" style="margin:0">Sem imagem.</p>';
@@ -166,7 +210,7 @@
     async function imagens(raiz){
       raiz.querySelectorAll('[data-imgs]').forEach(async el=>{const id=el.closest('[data-id]').dataset.id;if(cacheImg[id])return;
         el.innerHTML='<div class="m carregando">Carregando…</div>';
-        try{const s=await fotosCol.doc(id).get();cacheImg[id]=s.exists?(s.data().imgs||[]):[];el.innerHTML=mini(cacheImg[id])}
+        try{const s=await refs[id].collection('img').doc('0').get();cacheImg[id]=s.exists?(s.data().imgs||[]):[];el.innerHTML=mini(cacheImg[id])}
         catch(e){el.innerHTML='<p class="muted small" style="margin:0">Não foi possível abrir a imagem.</p>'}})}
 
     function desenhar(){
@@ -180,18 +224,22 @@
       imagens($('pend'));
       /* conferidas: as imagens só abrem quando toca em "Ver print", para a página ficar leve */
       $('feitas').innerHTML=feitas.length?feitas.map(p=>'<li class="prova '+esc(p.status)+'" data-id="'+esc(p._id)+'"><div class="topo"><h3>'+esc(p.desafioTexto)+'</h3><span class="st '+esc(p.status)+'">'+B.ST[p.status]+'</span></div>'+
-          '<p class="por">'+esc(p.nome)+(data(p.criadoEm)?' · '+data(p.criadoEm):'')+'</p>'+(p.obs?'<p class="txt">'+esc(p.obs)+'</p>':'')+(p.nota?'<p class="nota"><b>Recado:</b> '+esc(p.nota)+'</p>':'')+
+          '<p class="por">'+esc(p.nome)+(data(p.criadoEm)?' · '+data(p.criadoEm):'')+'</p>'+(p.livro?'<p class="txt"><b>Livro:</b> '+esc(p.livro)+'</p>':'')+(p.obs?'<p class="txt">'+esc(p.obs)+'</p>':'')+(p.nota?'<p class="nota"><b>Recado:</b> '+esc(p.nota)+'</p>':'')+
           (cacheImg[p._id]?'<div class="miniaturas" data-imgs>'+mini(cacheImg[p._id])+'</div>':'<div data-vazio></div>')+
           '<div class="ed"><button class="lnk" type="button" data-acao="ver">Ver print</button>'+(p.status==='recusada'?'<button class="lnk" type="button" data-acao="aprovar">Aprovar</button>':'')+
           '<button class="lnk" type="button" data-acao="voltar">Voltar para aguardando</button><button class="del" type="button" data-acao="apagar">Apagar</button></div></li>').join('')
         :'<li class="muted small">Nenhuma ainda.</li>';
       /* cartelas */
+      salvarRanking(ds);
       const nomes=[...new Set(MEMBROS.concat(todas.map(p=>p.nome)))];
       const linhasC=nomes.map(n=>{const m=B.cartela(todas.filter(p=>p.nome===n)),ok=ds.filter(d=>m[d.id]&&m[d.id].status==='aprovada');
         const fora=todas.filter(p=>p.nome===n&&p.status==='aprovada'&&!ds.some(d=>d.id===p.desafio));
-        return {n,ok,fora,total:ok.length+fora.length}}).sort((a,b)=>b.total-a.total||a.n.localeCompare(b.n,'pt-BR'));
-      $('cartelas').innerHTML=ds.length?linhasC.map(c=>'<li class="'+(c.total?'':'zero')+'"><details><summary><span>'+esc(c.n)+'</span><b>'+c.ok.length+' de '+ds.length+'</b></summary>'+
-          (c.total?'<ul>'+c.ok.map(d=>'<li>'+esc(d.t)+'</li>').join('')+c.fora.map(p=>'<li>'+esc(p.desafioTexto)+' (desafio que saiu da lista)</li>').join('')+'</ul>':'<p class="muted small" style="margin:6px 0">Nenhum desafio aprovado ainda.</p>')+
+        const c=cartelas.find(x=>x.nome===n&&x.edicao===edicao),mk=ds.filter(d=>c&&(c.marcadas||[]).includes(d.id));
+        return {n,ok,fora,mk,total:ok.length+fora.length+mk.length,bingos:B.bingos(ds,new Set(ok.map(d=>d.id)))}}).sort((a,b)=>b.total-a.total||a.n.localeCompare(b.n,'pt-BR'));
+      $('cartelas').innerHTML=ds.length?linhasC.map(c=>'<li class="'+(c.total?'':'zero')+'"><details><summary><span>'+esc(c.n)+'</span><b>'+c.ok.length+' aprovados · '+c.mk.length+' marcados'+(c.bingos?' · '+c.bingos+' bingo'+(c.bingos>1?'s':''):'')+'</b></summary>'+
+          (c.total?(c.ok.length||c.fora.length?'<p class="sub-c">Aprovados</p><ul>'+c.ok.map(d=>'<li>'+B.num(ds.indexOf(d))+'. '+esc(d.t)+'</li>').join('')+c.fora.map(p=>'<li>'+esc(p.desafioTexto)+' (desafio que saiu da lista)</li>').join('')+'</ul>':'')+
+            (c.mk.length?'<p class="sub-c">Marcados por ela</p><ul>'+c.mk.map(d=>'<li>'+B.num(ds.indexOf(d))+'. '+esc(d.t)+'</li>').join('')+'</ul>':'')
+          :'<p class="muted small" style="margin:6px 0">Nada marcado nem aprovado ainda.</p>')+
           '</details></li>').join('')
         :'<li class="muted small">Cadastre os desafios lá embaixo, em Configuração.</li>'}
 
@@ -199,15 +247,15 @@
       const im=e.target.closest('.miniaturas img');if(im){$('zoomImg').src=im.src;$('zoom').hidden=false;return}
       const b=e.target.closest('[data-acao]');if(!b)return;
       const li=b.closest('[data-id]');if(!li)return;const id=li.dataset.id,p=todas.find(y=>y._id===id);if(!p)return;
-      const a=b.dataset.acao,ta=li.querySelector('[data-nota]'),nota=ta?ta.value.trim():(p.nota||'');
+      const a=b.dataset.acao,ta=li.querySelector('[data-nota]'),nota=ta?ta.value.trim():(p.nota||''),ref=refs[id];
       if(a==='ver'){const v=li.querySelector('[data-vazio]');if(v){v.outerHTML='<div class="miniaturas" data-imgs></div>';imagens(li)}b.remove();return}
       b.disabled=true;
       try{
-        if(a==='aprovar'){await col.doc(id).update({status:'aprovada',nota});toast('Prova de '+p.nome+' aprovada')}
-        else if(a==='recusar'){await col.doc(id).update({status:'recusada',nota});toast('Prova não aprovada')}
-        else if(a==='voltar'){await col.doc(id).update({status:'pendente'});toast('Voltou para aguardando')}
+        if(a==='aprovar'){await ref.update({status:'aprovada',nota});toast('Prova de '+p.nome+' aprovada')}
+        else if(a==='recusar'){await ref.update({status:'recusada',nota});toast('Prova não aprovada')}
+        else if(a==='voltar'){await ref.update({status:'pendente'});toast('Voltou para aguardando')}
         else if(a==='apagar'){if(!confirm('Apagar a prova de '+p.nome+'? A imagem também é apagada.')){b.disabled=false;return}
-          const bt=db.batch();bt.delete(fotosCol.doc(id));bt.delete(col.doc(id));await bt.commit();delete cacheImg[id];toast('Apagada')}
+          const bt=db.batch();bt.delete(ref.collection('img').doc('0'));bt.delete(ref);await bt.commit();delete cacheImg[id];toast('Apagada')}
       }catch(er){console.warn(er);toast('Não foi possível agora: '+er.code);b.disabled=false}});
   }
 })();
