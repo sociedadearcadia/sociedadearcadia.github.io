@@ -1,0 +1,27 @@
+/* Sugestões para as redes sociais (usa /leitura/leitura.css e /livros/livros.css) */
+.t-post{--ac:#f2a8e0;--acr:242,168,224}
+.t-trend{--ac:#9cc4ff;--acr:156,196,255}
+.t-resenha{--ac:#f6d38d;--acr:246,211,141}
+.t-foto{--ac:#bff0d2;--acr:160,230,190}
+.t-outro{--ac:#c9b6ff;--acr:201,182,255}
+.radios.cinco label:last-child{grid-column:1 / -1}
+.sug{position:relative;padding:14px;border-radius:14px;border:1px solid rgba(var(--acr),.35);background:linear-gradient(110deg,rgba(var(--acr),.12),rgba(23,15,51,.55) 55%);display:flex;flex-direction:column;gap:6px}
+.sug .topo{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.sug .tag{align-self:flex-start}
+.sug .por{margin:0;font-size:12.5px;color:#a99bd0}
+.sug .txt{margin:0;font-size:14.5px;white-space:pre-line;overflow-wrap:anywhere}
+.sug .lk{font-size:14px;overflow-wrap:anywhere;color:var(--lilac)}
+.sug .foto{display:block;margin-top:4px;max-width:100%}
+.sug .foto img{display:block;max-width:100%;max-height:320px;border-radius:10px;border:1px solid var(--line);object-fit:contain;background:rgba(15,8,32,.5)}
+.sug .nota{margin:4px 0 0;padding:8px 10px;border-radius:10px;background:rgba(15,8,32,.5);border:1px solid var(--line);font-size:13.5px;white-space:pre-line}
+.sug .ed{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+.sugs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.st.recebida{color:#f6d38d;border-color:rgba(246,211,141,.5)}
+.st.aprovada{color:#bff0d2;border-color:rgba(160,230,190,.55)}
+.st.publicada{color:#f2a8e0;border-color:rgba(242,168,224,.6)}
+.passos{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px;text-align:left}
+.passos b{display:inline-block;min-width:92px}
+.anexo{display:flex;flex-direction:column;gap:8px}
+.anexo .prev{display:flex;gap:12px;align-items:center}
+.anexo .prev img{width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.anexo input[type=file]{font-size:14px;color:var(--cream)}

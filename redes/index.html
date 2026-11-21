@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Sugestões para as redes · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/leitura/leitura.css">
+<link rel="stylesheet" href="/livros/livros.css">
+<link rel="stylesheet" href="redes.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/">← Sociedade Arcádia</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Instagram e redes do clube</p>
+      <h1>Sugestões para as redes sociais</h1>
+    </div>
+    <div class="aviso">
+      <p>Tem uma ideia de post, uma trend, uma resenha ou uma foto de encontro para as redes da Arcádia? Mande aqui.</p>
+      <p><b>As sugestões passam por avaliação antes da publicação.</b></p>
+    </div>
+    <ul class="passos">
+      <li><span class="st recebida">Recebida</span> a administração já tem a sua sugestão</li>
+      <li><span class="st aprovada">Aprovada</span> vai ser usada nas redes</li>
+      <li><span class="st publicada">Publicada</span> já está no ar</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <p class="lbl">Nova sugestão</p>
+    <h2>Sugerir para as redes</h2>
+    <div id="formBox"><p class="muted" style="margin:0">Carregando…</p></div>
+  </section>
+
+  <section class="panel" id="minhasP" hidden>
+    <p class="lbl">Neste aparelho</p>
+    <h2>Suas sugestões</h2>
+    <ul class="sugs" id="minhas"></ul>
+  </section>
+
+  <p class="foot"><a href="/agenda/">Agenda</a> · <a href="/ideias/">Ideias de encontros</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/config.js"></script>
+<script src="/sprint/config.js"></script>
+<script src="/livros/comum.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const L=window.LIVROS,{esc,slug}=L,R=window.REDES;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadia:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadia:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+
+  /* nome de quem está usando este aparelho (o mesmo das outras páginas) */
+  let eu=(()=>{const l=LS.get('redesNome','')||LS.get('ideiasNome','')||LS.get('livrosNome','')||LS.get('agendaNome','')||LS.get('leituraNome','')||((LS.get('me',null)||{}).name||'');return MEMBROS.find(n=>slug(n)===slug(l))||''})();
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const V='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);$('formBox').innerHTML='<p class="muted" style="margin:0">'+'Sem conexão agora. Verifique a internet e recarregue a página.</p>';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* ---------- formulário ---------- */
+  const rascunho=LS.get('redesRascunho',{})||{};
+  let foto='';
+  $('formBox').innerHTML='<form class="form" id="f">'+
+    '<label>Seu nome<select id="fNome" required><option value="">Escolha seu nome</option>'+MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label>'+
+    '<div class="field">Tipo de sugestão<div class="radios cinco" id="fTipo">'+
+      Object.keys(R.TIPOS).map((k,i)=>'<label class="'+R.cls(k)+'"><input type="radio" name="tipo" value="'+k+'"'+(i?'':' required')+'>'+R.TIPOS[k]+'</label>').join('')+'</div></div>'+
+    '<label>Descrição <small>Conte a ideia: o que mostrar, o texto, a música da trend, quem aparece na foto…</small><textarea id="fDesc" maxlength="'+R.MAX.descricao+'" rows="5" required></textarea></label>'+
+    '<label>Link <small>Opcional. Ex.: o link da trend ou de um post de referência.</small><input type="text" id="fLink" autocapitalize="off" spellcheck="false" maxlength="'+R.MAX.link+'" inputmode="url" autocomplete="off" placeholder="https://"></label>'+
+    '<div class="field anexo">Imagem <small class="muted">Opcional. Uma foto ou print.</small>'+
+      '<input type="file" id="fFoto" accept="image/*">'+
+      '<div class="prev" id="fPrev" hidden><img id="fImg" alt="Imagem escolhida"><button class="del" type="button" id="fTirar">Tirar imagem</button></div></div>'+
+    '<button class="btn wide" type="submit" id="fBtn">Enviar sugestão</button>'+
+  '</form>';
+  const tipo=$('fTipo');tipo.onchange=()=>tipo.querySelectorAll('label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));
+  /* rascunho guardado no aparelho, para não perder o texto se a página fechar */
+  $('fDesc').value=rascunho.descricao||'';$('fLink').value=rascunho.link||'';
+  if(rascunho.tipo){const r=tipo.querySelector('input[value="'+rascunho.tipo+'"]');if(r){r.checked=true;tipo.onchange()}}
+  const tipoEsc=()=>(document.querySelector('input[name=tipo]:checked')||{}).value||'';
+  const guardar=()=>LS.set('redesRascunho',{descricao:$('fDesc').value,link:$('fLink').value,tipo:tipoEsc()});
+  $('f').addEventListener('input',guardar);$('f').addEventListener('change',guardar);
+  $('fNome').onchange=e=>{eu=e.target.value;LS.set('redesNome',eu)};
+  const semFoto=()=>{foto='';$('fFoto').value='';$('fPrev').hidden=true;$('fImg').removeAttribute('src')};
+  $('fTirar').onclick=semFoto;
+  $('fFoto').onchange=async e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return semFoto();
+    const b=$('fBtn');b.disabled=true;toast('Preparando a imagem…');
+    try{foto=await R.reduzir(fl);$('fImg').src=foto;$('fPrev').hidden=false}
+    catch(er){console.warn(er);semFoto();toast('Não deu para usar essa imagem. Tente outra.')}
+    b.disabled=false};
+  $('f').onsubmit=async ev=>{ev.preventDefault();
+    const v={nome:$('fNome').value,tipo:tipoEsc(),descricao:$('fDesc').value.trim(),link:$('fLink').value.trim()};
+    if(!v.nome){toast('Escolha seu nome');$('fNome').focus();return}
+    if(!R.TIPOS[v.tipo]){toast('Escolha o tipo de sugestão');return}
+    if(!v.descricao){toast('Escreva a descrição');$('fDesc').focus();return}
+    if(v.link&&!/^https?:\/\//i.test(v.link))v.link='https://'+v.link;
+    if(v.link&&!R.linkOk(v.link)){toast('Confira o link');$('fLink').focus();return}
+    if(!v.link)delete v.link;
+    if(foto)v.imagem=foto;
+    const b=$('fBtn');b.disabled=true;
+    try{await db.collection('redes').add(Object.assign(v,{status:'recebida',uid,criadoEm:firebase.firestore.FieldValue.serverTimestamp()}));
+      eu=v.nome;LS.set('redesNome',eu);LS.set('redesRascunho',{});
+      $('fDesc').value='';$('fLink').value='';semFoto();
+      document.querySelectorAll('input[name=tipo]').forEach(i=>i.checked=false);tipo.onchange();
+      toast('Sugestão enviada! ✨');
+      setTimeout(()=>$('minhasP').scrollIntoView({behavior:'smooth',block:'start'}),300)}
+    catch(e){console.warn(e);toast('Não foi possível enviar. Tente de novo.')}
+    b.disabled=false};
+
+  /* ---------- minhas sugestões (deste aparelho) ---------- */
+  db.collection('redes').where('uid','==',uid).onSnapshot(s=>{
+    const ms=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort(R.recentes);
+    $('minhasP').hidden=!ms.length;
+    $('minhas').innerHTML=ms.map(m=>'<li class="sug '+R.cls(m.tipo)+'">'+
+      '<div class="topo">'+R.tag(m.tipo)+'<span class="st '+esc(m.status)+'">'+(R.ST[m.status]||'')+'</span></div>'+
+      '<p class="txt">'+esc(m.descricao)+'</p>'+
+      (m.link&&R.linkOk(m.link)?'<a class="lk" href="'+esc(m.link)+'" target="_blank" rel="noopener">'+esc(m.link)+'</a>':'')+
+      (m.imagem?'<span class="foto"><img src="'+esc(m.imagem)+'" alt="Imagem enviada" loading="lazy"></span>':'')+
+      (m.nota?'<p class="nota"><b>Recado da administração:</b> '+esc(m.nota)+'</p>':'')+
+      '</li>').join('')},e=>console.warn(e));
+})();
+</script>
+</body>
+</html>
