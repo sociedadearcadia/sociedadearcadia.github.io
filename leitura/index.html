@@ -196,7 +196,7 @@
   $('copiar').onclick=async()=>{if(!livro)return;toast(await copiar(texto())?'Listinha copiada. É só colar no grupo.':'Não consegui copiar. Use o botão do WhatsApp.')};
 
   $('stories').onclick=()=>{if(!livro)return;if(!sel.value){toast('Escolha seu nome primeiro');sel.focus();return}
-    window.LeituraStories.abrir({nome:sel.value,pct:+r.value,capa:livro.capa||'',titulo:livro.titulo||''})};
+    window.LeituraStories.abrir({nome:sel.value,pct:+r.value,capa:livro.capa||'',titulo:livro.titulo||'',autor:livro.autor||''})};
   $('f').onsubmit=async ev=>{ev.preventDefault();if(!livro)return;
     if(!sel.value){toast('Escolha seu nome primeiro');sel.focus();return}
     const b=$('salvar');b.disabled=true;

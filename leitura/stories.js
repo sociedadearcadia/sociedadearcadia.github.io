@@ -1,7 +1,7 @@
 /* Imagem de stories da leitura do mês (mesmo padrão dos stories do sprint e dos templates) */
 (function(){
 const W=1080,H=1920,GOLD='#d6b46c',CREAM='#f4e8da',LILAC='#c9b6f2';
-const FUNDOS=[['todas','Todas'],['trancas','Tranças'],['ruiva','Ruiva'],['cachos','Sorriso'],['cha','Chá'],['fada','Fada'],['cachos-lua','Cachos'],['mesa','Mesa'],['moldura','Arco']];
+const FUNDOS=[['todas'],['trancas'],['ruiva'],['cachos'],['cha'],['fada'],['cachos-lua'],['mesa'],['moldura']];
 const LS={get(k,d){try{const v=localStorage.getItem('arcadia:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadia:'+k,JSON.stringify(v))}catch(e){}}};
 const imgs={};
 function img(src){if(!imgs[src])imgs[src]=new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});return imgs[src]}
@@ -17,14 +17,23 @@ const css=`.ls-dlg{position:fixed;inset:0;z-index:70;background:rgba(8,4,20,.78)
 .ls-fundos [aria-pressed="true"] img{border-color:#f6d38d;box-shadow:0 0 12px rgba(246,211,141,.55)}
 .ls-fundos [aria-pressed="true"] span{color:#f6d38d}
 .ls-dlg .btn{text-align:center;text-decoration:none}
+.ls-capa{display:flex;gap:8px;flex-wrap:wrap}.ls-capa .btn{flex:1;padding:9px 12px;font-size:14px}
+.ls-res{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-height:40vh;overflow:auto}
+.ls-res button{background:none;border:0;padding:0;cursor:pointer}.ls-res img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px;border:1.5px solid rgba(214,180,108,.4);display:block}
+.ls-res button.carregando{opacity:.5;pointer-events:none}
 .ls-dlg .dica{margin:0;font-size:13px;color:var(--muted);text-align:center}`;
 document.head.insertAdjacentHTML('beforeend','<style>'+css+'</style>');
 document.body.insertAdjacentHTML('beforeend',`<div class="ls-dlg" id="lsDlg" hidden role="dialog" aria-modal="true" aria-label="Imagem para os stories">
   <div class="panel">
     <p class="lbl" style="margin:0;text-align:center">Para os stories</p>
     <canvas id="lsPrev" width="540" height="960" aria-label="Prévia da imagem"></canvas>
+    <p class="lbl" style="margin:4px 0 0">Capa</p>
+    <div class="ls-capa"><button class="btn ghost" type="button" id="lsBuscar">Buscar capa em alta qualidade</button><button class="btn ghost" type="button" id="lsGal">Da galeria</button></div>
+    <p class="muted small" id="lsCapaSt" style="margin:0" hidden></p>
+    <div class="ls-res" id="lsRes" hidden></div>
+    <input type="file" id="lsArq" accept="image/*" hidden>
     <p class="lbl" style="margin:4px 0 0">Escolha o fundo</p>
-    <div class="ls-fundos" id="lsFundos">${FUNDOS.map((f,i)=>`<button type="button" data-i="${i}"><img src="/artes/montar/fundos/${f[0]}-mini.webp" alt="" loading="lazy"><span>${f[1]}</span></button>`).join('')}</div>
+    <div class="ls-fundos" id="lsFundos">${FUNDOS.map((f,i)=>`<button type="button" data-i="${i}" aria-label="Fundo ${i+1}"><img src="/artes/montar/fundos/${f[0]}-mini.webp" alt="" loading="lazy"></button>`).join('')}</div>
     <div id="lsBtns" style="display:flex;flex-direction:column;gap:8px"><button class="btn wide" type="button" id="lsGerar">Salvar imagem</button></div>
     <p class="dica" id="lsDica" hidden>No iPhone, você também pode tocar e segurar a imagem e escolher “Salvar em Fotos”.</p>
     <button class="btn ghost wide" type="button" id="lsX">Fechar</button>
@@ -47,7 +56,7 @@ function desfoque(x){const src=x.canvas;let cur=src,w=src.width,h=src.height;con
   x.imageSmoothingQuality='high';x.drawImage(cur,0,0,W,H)}
 
 async function desenhar(c,escala){const f=FUNDOS[fundo];
-  const [bg,selo,capa]=await Promise.all([img('/artes/montar/fundos/'+f[0]+'.webp'),img('/selo-arcadia.png'),D.capa?img(D.capa):null]);
+  const [bg,selo,capa]=await Promise.all([img('/artes/montar/fundos/'+f[0]+'.webp'),img('/selo-arcadia.png'),D.capaCanvas?D.capaCanvas:(D.capa?img(D.capa):null)]);
   try{await document.fonts.load('600 30px "Nunito Sans"');await document.fonts.load('italic 500 40px Lora');await document.fonts.load('500 40px Lora')}catch(e){}
   c.width=W*escala;c.height=H*escala;const x=c.getContext('2d');x.setTransform(escala,0,0,escala,0,0);
   x.fillStyle='#1a0b2e';x.fillRect(0,0,W,H);
@@ -64,7 +73,7 @@ async function desenhar(c,escala){const f=FUNDOS[fundo];
   // capa
   const cw=420,ch=630,cx=540-cw/2,cy=715;
   x.save();x.shadowColor='rgba(8,3,18,.6)';x.shadowBlur=26;x.shadowOffsetY=10;rr(x,cx,cy,cw,ch,10);x.fillStyle='rgba(20,8,38,.7)';x.fill();x.restore();
-  if(capa){x.save();rr(x,cx,cy,cw,ch,10);x.clip();const sc=Math.max(cw/capa.naturalWidth,ch/capa.naturalHeight),w=capa.naturalWidth*sc,h=capa.naturalHeight*sc;x.drawImage(capa,cx+(cw-w)/2,cy+(ch-h)/2,w,h);x.restore()}
+  if(capa){x.save();rr(x,cx,cy,cw,ch,10);x.clip();const nw=capa.naturalWidth||capa.width,nh=capa.naturalHeight||capa.height,sc=Math.max(cw/nw,ch/nh),w=nw*sc,h=nh*sc;x.drawImage(capa,cx+(cw-w)/2,cy+(ch-h)/2,w,h);x.restore()}
   else{x.font='italic 500 40px Lora,Georgia,serif';x.fillStyle=CREAM;x.textAlign='center';const n=Math.min(6,Math.ceil(x.measureText(D.titulo||'').width/(cw-60)));quebra(x,D.titulo||'',540,cy+ch/2-(n-1)*25,cw-60,50)}
   rr(x,cx,cy,cw,ch,10);x.lineWidth=2.5;x.strokeStyle='rgba(214,180,108,.85)';x.stroke();
   // porcentagem
@@ -103,5 +112,30 @@ async function gerar(){const b=$('lsGerar');b.disabled=true;b.textContent='Prepa
   catch(e){console.warn(e);botaoGerar()}}
 $('lsFundos').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;fundo=+b.dataset.i;LS.set('leituraFundo',fundo);marcar();botaoGerar();desenhar($('lsPrev'),.5)};
 $('lsX').onclick=()=>{$('lsDlg').hidden=true;document.body.style.overflow=''};
-window.LeituraStories={abrir(dados){D=dados;marcar();botaoGerar();$('lsDlg').hidden=false;document.body.style.overflow='hidden';desenhar($('lsPrev'),.5)}};
+function capaDe(im){const nw=im.naturalWidth||im.width,nh=im.naturalHeight||im.height,sc=Math.min(1,1600/nh,1100/nw),c=document.createElement('canvas');
+  c.width=Math.round(nw*sc);c.height=Math.round(nh*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  try{c.getContext('2d').getImageData(0,0,1,1)}catch(e){return null}return c}
+function usar(c){D.capaCanvas=c;botaoGerar();desenhar($('lsPrev'),.5)}
+function st(m){$('lsCapaSt').textContent=m;$('lsCapaSt').hidden=!m}
+const https=u=>String(u||'').replace(/^http:/,'https:');
+$('lsBuscar').onclick=async()=>{const q=[D.titulo,D.autor].filter(Boolean).join(' ');if(!q)return;st('Procurando…');$('lsRes').hidden=true;
+  try{const r=await fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=20&printType=books&country=BR');if(!r.ok)throw 0;
+    const d=await r.json(),vs=new Set(),it=(d.items||[]).filter(v=>{const l=v.volumeInfo&&v.volumeInfo.imageLinks;if(!l||!l.thumbnail||vs.has(v.id))return false;vs.add(v.id);return true});
+    if(!it.length){st('Não encontrei capas para esse livro. Use “Da galeria”.');return}
+    st('Toque na capa que quer usar.');
+    $('lsRes').innerHTML=it.map(v=>`<button type="button" data-id="${esc(v.id)}" data-t="${esc(https(v.volumeInfo.imageLinks.thumbnail))}"><img src="${esc(https(v.volumeInfo.imageLinks.thumbnail))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>`).join('');$('lsRes').hidden=false}
+  catch(e){st('A busca não respondeu agora. Tente de novo em instantes, ou use “Da galeria”.')}};
+function cors(src){return new Promise(ok=>{const i=new Image();i.crossOrigin='anonymous';i.referrerPolicy='no-referrer';i.onload=()=>ok(i.naturalWidth>40?i:null);i.onerror=()=>ok(null);i.src=src})}
+$('lsRes').onclick=async e=>{const b=e.target.closest('[data-id]');if(!b)return;b.classList.add('carregando');
+  const g='https://books.google.com/books/content?id='+encodeURIComponent(b.dataset.id)+'&printsec=frontcover&img=1&zoom=0&edge=nocurl&fife=w1400';
+  const fs=['https://images.weserv.nl/?url='+encodeURIComponent(g)+'&w=1400&output=jpg&q=92','https://images.weserv.nl/?url='+encodeURIComponent(b.dataset.t.replace('&edge=curl',''))+'&output=jpg',g];
+  const cs=[];for(const f of fs){const im=await cors(f);if(im){cs.push(im);if(im.naturalWidth>=500)break}}
+  cs.sort((a,b)=>b.naturalWidth-a.naturalWidth);const c=cs[0]&&capaDe(cs[0]);b.classList.remove('carregando');
+  if(!c){st('Não consegui usar essa capa. Tente outra, ou use “Da galeria”.');return}
+  usar(c);$('lsRes').hidden=true;st(cs[0].naturalWidth<400?'Essa capa veio pequena e pode ficar menos nítida. Se quiser, tente outra.':'Capa trocada.')};
+$('lsGal').onclick=()=>{$('lsArq').value='';$('lsArq').click()};
+$('lsArq').onchange=async()=>{const f=$('lsArq').files[0];if(!f)return;const u=URL.createObjectURL(f);
+  const im=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=u});
+  const c=im&&capaDe(im);URL.revokeObjectURL(u);if(!c){st('Não consegui abrir essa imagem. Tente outra.');return}usar(c);$('lsRes').hidden=true;st('Capa trocada.')};
+window.LeituraStories={abrir(dados){D=dados;st('');$('lsRes').hidden=true;marcar();botaoGerar();$('lsDlg').hidden=false;document.body.style.overflow='hidden';desenhar($('lsPrev'),.5)}};
 })();

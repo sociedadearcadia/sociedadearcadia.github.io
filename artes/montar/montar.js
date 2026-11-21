@@ -6,6 +6,7 @@ const GOLD='#d6b46c',CREAM='#f4e8da',LILAC='#c9b6f2';
 
 const MODELOS=[
   {id:'atual',nome:'Leitura atual',lbl:'LEITURA ATUAL',est:false,ini:1},
+  {id:'mes',nome:'Leitura do mês',lbl:'LEITURA DO MÊS',est:false,mes:true,ini:1},
   {id:'lidos',nome:'Lidos no mês',lbl:'LIDOS NO MÊS',est:true,ini:4},
   {id:'ranking',nome:'Ranking do mês',lbl:'MEU RANKING DO MÊS',est:true,num:true,ini:3},
   {id:'adapt',nome:'Adaptações do mês',lbl:'ADAPTAÇÕES DO MÊS',sub:'que eu assisti',est:true,ini:2},
@@ -14,9 +15,9 @@ const MODELOS=[
   {id:'meta',nome:'Meta do ano',lbl:'META DE LEITURA',meta:true}
 ];
 const FUNDOS=[
-  {id:'todas',nome:'Todas'},{id:'trancas',nome:'Tranças'},{id:'ruiva',nome:'Ruiva'},{id:'cachos',nome:'Sorriso'},
-  {id:'cha',nome:'Chá'},{id:'fada',nome:'Fada'},{id:'cachos-lua',nome:'Cachos'},{id:'mesa',nome:'Mesa'},
-  {id:'moldura',nome:'Arco'}
+  {id:'todas'},{id:'trancas'},{id:'ruiva'},{id:'cachos'},
+  {id:'cha'},{id:'fada'},{id:'cachos-lua'},{id:'mesa'},
+  {id:'moldura'}
 ];
 const MAX=14;
 
@@ -28,6 +29,8 @@ MODELOS.forEach(m=>S.qtd[m.id]=m.ini||1);
 if(!MODELOS.some(m=>m.id===S.modelo))S.modelo='lidos';
 if(!FUNDOS.some(f=>f.id===S.fundo))S.fundo='todas';
 for(let i=0;i<MAX;i++)S.livros.push({img:null,nota:0});
+S.mesLivro={img:null,url:'',nota:0,auto:false};S.pct=Math.max(0,Math.min(100,+LS.get('montarPct',0)||0));
+const LIV=i=>modelo().mes?S.mesLivro:S.livros[i];
 const modelo=()=>MODELOS.find(m=>m.id===S.modelo);
 
 /* ---------- imagens ---------- */
@@ -109,8 +112,8 @@ function txt(x,s,X,Y,font,cor,esp){x.font=font;x.fillStyle=cor;
   else x.fillText(s,X,Y)}
 
 let SLOTS=[];
-function capas(x,m){const n=S.qtd[m.id];SLOTS=layout(n,m.est,m.num);
-  SLOTS.forEach((s,i)=>{const L=S.livros[i];
+function capas(x,m){const n=S.qtd[m.id];SLOTS=m.mes?[{x:330,y:715,w:420,h:630}]:layout(n,m.est,m.num);
+  SLOTS.forEach((s,i)=>{const L=LIV(i);
     x.save();x.shadowColor='rgba(8,3,18,.55)';x.shadowBlur=22;x.shadowOffsetY=8;rr(x,s.x,s.y,s.w,s.h,10);x.fillStyle='rgba(20,8,38,.6)';x.fill();x.restore();
     if(L.img){x.save();rr(x,s.x,s.y,s.w,s.h,10);x.clip();const im=L.img,sc=Math.max(s.w/im.width,s.h/im.height),w=im.width*sc,h=im.height*sc;
       x.drawImage(im,s.x+(s.w-w)/2,s.y+(s.h-h)/2,w,h);x.restore()}
@@ -121,7 +124,14 @@ function capas(x,m){const n=S.qtd[m.id];SLOTS=layout(n,m.est,m.num);
       x.font=`600 ${Math.round(d*.48)}px Lora,Georgia,serif`;x.fillStyle=CREAM;x.textBaseline='middle';x.fillText((i+1)+'º',cx,cy+1);x.textBaseline='alphabetic'}
     if(m.est){const R=Math.min(23,s.w/12.4),gap=R*.24,tot=5*2*R+4*gap,y=s.y+s.h+R*.35+R;
       for(let k=0;k<5;k++){const v=Math.max(0,Math.min(1,L.nota-k));estrela(x,s.x+s.w/2-tot/2+R+k*(2*R+gap),y,R,v>=1?1:v>=.5?.5:0)}}
-  })}
+  });if(m.mes)porcento(x)}
+function porcento(x){const p=S.pct;x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
+  txt(x,p+'%',540,1500,'500 120px Lora,Georgia,serif',CREAM);
+  txt(x,p>=100?'leitura concluída':'lido até agora',540,1552,'italic 500 40px Lora,Georgia,serif',LILAC);x.shadowBlur=0;
+  const bx=200,by=1592,bw=680,bh=26;rr(x,bx,by,bw,bh,bh/2);x.fillStyle='rgba(20,8,38,.6)';x.fill();
+  if(p>0){const fw=Math.max(bh,bw*p/100),g=x.createLinearGradient(bx,0,bx+fw,0);g.addColorStop(0,'#b58ae6');g.addColorStop(.6,'#e9a8d8');g.addColorStop(1,'#f6d38d');
+    x.save();x.shadowColor='rgba(246,211,141,.7)';x.shadowBlur=18;rr(x,bx,by,fw,bh,bh/2);x.fillStyle=g;x.fill();x.restore()}
+  rr(x,bx,by,bw,bh,bh/2);x.lineWidth=2;x.strokeStyle='rgba(214,180,108,.8)';x.stroke()}
 function metaGrid(){const N=Math.max(1,Math.min(300,S.meta|0));const top=1000,bottom=1645,maxw=760;let best=null;
   for(let c=5;c<=20;c++){const r=Math.ceil(N/c);const s=Math.min((maxw)/(c*1.22),(bottom-top)/(r*1.22),70);if(!best||s>best.s)best={s,c,r}}
   const {s,c,r}=best,g=s*.22,x0=540-(c*s+(c-1)*g)/2,y0=top+((bottom-top)-(r*s+(r-1)*g))/2,a=[];
@@ -140,9 +150,10 @@ function meta(x){
 
 /* brilhos animados (céu + estrelinhas pintadas) */
 function pontosDourados(){const m=modelo(),a=[];
+  if(m.mes){if(S.pct>0)a.push({x:200+Math.max(26,680*S.pct/100)-6,y:1605,k:24});return a}
   if(m.meta){const M=Math.min(S.meta,S.lidosMeta);metaGrid().slice(0,M).forEach(c=>a.push({x:c.x+c.r*.5,y:c.y-c.r*.5,k:c.r*.55}));return a}
   if(!m.est)return a;
-  SLOTS.forEach((s,i)=>{const n=S.livros[i].nota;if(!n)return;const R=Math.min(23,s.w/12.4),gap=R*.24,tot=5*2*R+4*gap,y=s.y+s.h+R*.35+R;
+  SLOTS.forEach((s,i)=>{const n=LIV(i).nota;if(!n)return;const R=Math.min(23,s.w/12.4),gap=R*.24,tot=5*2*R+4*gap,y=s.y+s.h+R*.35+R;
     for(let k=0;k<Math.ceil(n);k++)a.push({x:s.x+s.w/2-tot/2+R+k*(2*R+gap)+R*.55,y:y-R*.6,k:R*.7})});return a}
 const PETALAS=(()=>{const r=rnd(53),C=[['#f3d4fa','#c99be8'],['#fbd6e8','#e79ac7'],['#e6c8ff','#a77ad8'],['#ffe9f4','#f0a8d2']],a=[];
   for(let i=0;i<22;i++){const c=C[Math.floor(r()*C.length)];a.push({x:r()*W,y:r()*H,s:9+r()*9,vy:28+r()*30,vx:8+r()*18,sw:r()*6.28,sws:.5+r()*.9,swa:14+r()*20,rot:r()*6.28,vr:(r()-.5)*2.4,c1:c[0],c2:c[1],a:.7+r()*.25})}return a})();
@@ -174,8 +185,9 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 function tudo(){montarBase();ui()}
 $('modelos').innerHTML=MODELOS.map(m=>`<button class="chip" type="button" data-m="${m.id}">${esc(m.nome)}</button>`).join('');
 $('modelos').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;S.modelo=b.dataset.m;LS.set('montarModelo',S.modelo);tudo()};
-$('fundos').innerHTML=FUNDOS.map(f=>`<button type="button" class="fundo" data-f="${f.id}"><img src="fundos/${f.id}-mini.webp" alt="" loading="lazy"><span>${esc(f.nome)}</span></button>`).join('');
+$('fundos').innerHTML=FUNDOS.map(f=>`<button type="button" class="fundo" data-f="${f.id}" aria-label="Fundo ${FUNDOS.indexOf(f)+1}"><img src="fundos/${f.id}-mini.webp" alt="" loading="lazy"></button>`).join('');
 $('fundos').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;S.fundo=b.dataset.f;LS.set('montarFundo',S.fundo);tudo()};
+$('pctR').oninput=()=>{S.pct=+$('pctR').value;$('pctR').style.setProperty('--v',S.pct+'%');$('pctV').textContent=S.pct+'%';LS.set('montarPct',S.pct);montarBase()};
 $('menos').onclick=()=>{const m=modelo();S.qtd[m.id]=Math.max(1,S.qtd[m.id]-1);tudo()};
 $('mais').onclick=()=>{const m=modelo();S.qtd[m.id]=Math.min(MAX,S.qtd[m.id]+1);tudo()};
 $('metaN').oninput=()=>{S.meta=Math.max(1,Math.min(300,+$('metaN').value||1));LS.set('montarMeta',S.meta);montarBase()};
@@ -188,20 +200,20 @@ function ui(){const m=modelo();
   document.querySelectorAll('#modelos [data-m]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m.id));
   document.querySelectorAll('#fundos [data-f]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===S.fundo));
   document.querySelectorAll('#anos [data-a]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.a===S.ano));
-  $('qtdBox').hidden=!!m.meta;$('metaBox').hidden=!m.meta;$('livrosBox').hidden=!!m.meta;
+  $('qtdBox').hidden=!!(m.meta||m.mes);$('pctBox').hidden=!m.mes;$('pctR').value=S.pct;$('pctR').style.setProperty('--v',S.pct+'%');$('pctV').textContent=S.pct+'%';$('metaBox').hidden=!m.meta;$('livrosBox').hidden=!!m.meta;
   $('metaN').value=S.meta;$('metaM').value=S.lidosMeta;
   if(m.meta)return;
   const n=S.qtd[m.id];$('qtd').textContent=n;$('menos').disabled=n<=1;$('mais').disabled=n>=MAX;
   const pal=m.id==='adapt'?'pôster':'capa';
-  $('livrosT').textContent=m.est?(m.id==='adapt'?'Pôsteres e notas':'Capas e notas'):'Capas';
-  $('livros').innerHTML=Array.from({length:n},(_,i)=>{const L=S.livros[i];
+  $('livrosT').textContent=m.mes?'Capa do livro do mês':m.est?(m.id==='adapt'?'Pôsteres e notas':'Capas e notas'):'Capas';
+  $('livros').innerHTML=Array.from({length:n},(_,i)=>{const L=LIV(i);
     return `<li data-i="${i}"><button type="button" class="capa" data-pick aria-label="Escolher ${pal} ${i+1}">${L.img?`<img src="${L.url}" alt="">`:`<span>+ ${pal}</span>`}</button>
-      <div class="info"><b>${m.num?(i+1)+'º lugar':(m.id==='adapt'?'Adaptação ':'Livro ')+(i+1)}</b>
+      <div class="info"><b>${m.mes?esc((window.LIVRO_MES&&LIVRO_MES.titulo)||'Livro do mês'):m.num?(i+1)+'º lugar':(m.id==='adapt'?'Adaptação ':'Livro ')+(i+1)}</b>
       ${m.est?`<div class="estrelas" role="group" aria-label="Nota">${[1,2,3,4,5].map(k=>{const v=L.nota-(k-1);return `<button type="button" data-k="${k}" class="${v>=1?'on':v>=.5?'meia':''}" aria-label="${k} estrela${k>1?'s':''}">${STAR}</button>`}).join('')}</div>
       <small class="muted">${L.nota?(String(L.nota).replace('.',',')+' estrela'+(L.nota>1?'s':'')):'Toque nas estrelas. Toque de novo para meia.'}</small>`:''}
       <div class="acoes"><button type="button" data-pick>Buscar ${pal}</button><button type="button" data-gal>Da galeria</button>${L.img?'<button type="button" data-tirar>Remover</button>':''}</div></div></li>`}).join('')}
 let alvo=0;
-$('livros').onclick=e=>{const li=e.target.closest('[data-i]');if(!li)return;const i=+li.dataset.i,L=S.livros[i];
+$('livros').onclick=e=>{const li=e.target.closest('[data-i]');if(!li)return;const i=+li.dataset.i,L=LIV(i);
   if(e.target.closest('[data-pick]')){abrirBusca(i);return}
   if(e.target.closest('[data-gal]')){alvo=i;$('arquivo').value='';$('arquivo').click();return}
   if(e.target.closest('[data-tirar]')){if(L.url)URL.revokeObjectURL(L.url);L.img=null;L.url='';tudo();return}
@@ -212,7 +224,7 @@ async function usarImagem(im,i){
   const sc=Math.min(1,1600/im.naturalHeight,1100/im.naturalWidth),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);
   c.getContext('2d').drawImage(im,0,0,c.width,c.height);
   let u;try{u=await new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(),'image/jpeg',.85))}catch(e){return false} // falha se a imagem não permitir uso
-  const L=S.livros[i];if(L.url)URL.revokeObjectURL(L.url);L.img=c;L.url=u;tudo();return true}
+  const L=LIV(i);if(L.url)URL.revokeObjectURL(L.url);L.img=c;L.url=u;tudo();return true}
 $('arquivo').onchange=async()=>{const f=$('arquivo').files[0];if(!f)return;fecharBusca();
   const url=URL.createObjectURL(f),im=await carregar(url);delete imgs[url];
   if(!im){toast('Não consegui abrir essa imagem. Tente outra.');URL.revokeObjectURL(url);return}
@@ -221,6 +233,7 @@ $('arquivo').onchange=async()=>{const f=$('arquivo').files[0];if(!f)return;fecha
 /* ---------- buscar capa (Google Livros) ---------- */
 const pal=()=>modelo().id==='adapt'?'pôster':'capa';
 function abrirBusca(i){alvo=i;const m=modelo();
+  if(m.mes&&window.LIVRO_MES&&!$('bQ').value.trim())$('bQ').value=[LIVRO_MES.titulo,LIVRO_MES.autor].filter(Boolean).join(' ');
   $('bT').textContent=m.id==='adapt'?'Buscar pôster':'Buscar capa';
   $('bQ').placeholder=m.id==='adapt'?'Nome do livro da adaptação':'Nome do livro ou autora';
   $('bDica').textContent=m.id==='adapt'?'A busca mostra capas de livros. Para o pôster do filme ou série, salve a imagem e use “Escolher da galeria”.':'';$('bDica').hidden=m.id!=='adapt';
@@ -286,5 +299,9 @@ $('salvarVideo').onclick=async()=>{const b=$('salvarVideo');b.disabled=true;b.te
   catch(e){console.warn(e);toast('Não deu para gravar o vídeo neste aparelho. Use “Salvar imagem”.')}
   b.disabled=false;b.textContent='Salvar com brilho (vídeo)'};
 
+async function prefill(){const d=window.LIVRO_MES;if(!d||!d.capa||S.mesLivro.img)return;
+  const im=await carregar(d.capa);if(!im||S.mesLivro.img)return;const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext('2d').drawImage(im,0,0);
+  S.mesLivro.img=c;S.mesLivro.url=d.capa;if(modelo().mes)tudo()}
+addEventListener('livromes',()=>{prefill();if(modelo().mes)ui()});prefill();
 tudo();
 })();
