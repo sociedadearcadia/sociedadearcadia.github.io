@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Administração · Provas do bingo</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/leitura/leitura.css">
+<link rel="stylesheet" href="/livros/livros.css">
+<link rel="stylesheet" href="../bingo.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="../">← Provas do bingo</a>
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+      <p class="lbl">Provas do bingo</p>
+      <h1>Administração</h1>
+    </div>
+    <div id="state" style="margin-top:14px;text-align:center"><p class="muted">Carregando…</p></div>
+  </section>
+
+  <div id="area" hidden style="display:flex;flex-direction:column;gap:16px">
+    <section class="panel">
+      <p class="lbl">Para conferir</p>
+      <h2>Provas aguardando<span class="badge" id="pendN" hidden></span></h2>
+      <ul class="provas" id="pend"><li class="muted small">Carregando…</li></ul>
+    </section>
+
+    <section class="panel">
+      <p class="lbl">Resultado</p>
+      <h2>Cartelas</h2>
+      <p class="muted small" style="margin:-4px 0 12px">Desafios aprovados de cada integrante. Toque no nome para ver quais.</p>
+      <ul class="tabela" id="cartelas"></ul>
+    </section>
+
+    <section class="panel">
+      <p class="lbl">Histórico</p>
+      <h2>Provas conferidas</h2>
+      <ul class="provas" id="feitas"></ul>
+    </section>
+
+    <section class="panel">
+      <p class="lbl">Configuração</p>
+      <h2>Desafios do bingo</h2>
+      <form class="form" id="cf">
+        <label>Nome do bingo<input type="text" id="cTitulo" maxlength="60" autocomplete="off"></label>
+        <label class="sw"><input type="checkbox" id="cAberto"><span class="tr"></span><span>Envio de provas aberto</span></label>
+        <label>Último dia para mandar provas <small>Opcional. Deixe em branco para não ter prazo.</small><input type="date" id="cAte"></label>
+        <label>Desafios <small>Um desafio por linha, na ordem da cartela. Até 60.</small><textarea id="cDesafios" rows="10"></textarea></label>
+        <p class="cnt" id="cCnt"></p>
+        <button class="btn wide" type="submit" id="cBtn">Salvar</button>
+      </form>
+      <details style="margin-top:16px">
+        <summary>Começar um bingo novo</summary>
+        <p class="small muted">As cartelas começam do zero. As provas do bingo atual saem da página das integrantes e desta lista, mas continuam guardadas no Firebase.</p>
+        <button class="btn ghost" type="button" id="novo">Começar um bingo novo</button>
+      </details>
+    </section>
+
+    <div class="row" style="justify-content:center"><button class="btn ghost" type="button" id="sair">Sair da conta</button></div>
+  </div>
+</main>
+<div class="zoom" id="zoom" hidden><img id="zoomImg" alt="Print enviado"><button type="button" id="zoomX" aria-label="Fechar">×</button></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/config.js"></script>
+<script src="/sprint/config.js"></script>
+<script src="/livros/comum.js"></script>
+<script src="../comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id),st=$('state');
+  const L=window.LIVROS,{esc}=L,B=window.BINGO;
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  const data=ts=>ts&&ts.toDate?ts.toDate().toLocaleDateString('pt-BR'):'';
+  $('zoomX').onclick=$('zoom').onclick=e=>{if(e.target.id!=='zoomImg'){$('zoom').hidden=true;$('zoomImg').removeAttribute('src')}};
+
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  const V='10.12.2';
+  try{await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`)}
+  catch(e){st.innerHTML='<p class="muted">Sem conexão agora. Recarregue a página.</p>';return}
+  // app separado: o login de administração não mexe no acesso de integrante deste aparelho
+  const app=firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase,'admin');const auth=app.auth(),db=app.firestore();
+  try{await auth.getRedirectResult()}catch(e){console.warn(e)}
+
+  function login(){$('area').hidden=true;
+    st.innerHTML='<p>Esta parte é só para a administração do clube.</p><button class="btn" id="g">Entrar com Google</button>';
+    $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}
+      catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);
+        else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request')st.insertAdjacentHTML('beforeend','<p class="muted small">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
+  $('sair').onclick=()=>auth.signOut();
+
+  let iniciou=false;
+  auth.onAuthStateChanged(async u=>{
+    if(!u||u.isAnonymous)return login();
+    let admin=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+    if(!admin){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted small">Para liberar, no console do Firebase crie em Firestore, na coleção <code>admins</code>, um documento cujo ID é:</p><p><code style="word-break:break-all">'+esc(u.uid)+'</code></p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
+    st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+'</p>';$('area').hidden=false;
+    if(!iniciou){iniciou=true;iniciar()}
+  });
+
+  function iniciar(){
+    const cfgRef=db.collection('config').doc('bingo'),col=db.collection('provas'),fotosCol=db.collection('provasFotos');
+    let cfg=null,todas=[],parar=null,edicao='',editado=false;
+    const cacheImg={};
+
+    /* ---------- configuração ---------- */
+    cfgRef.onSnapshot(s=>{cfg=s.exists?s.data():null;
+      if(!editado)preencher();
+      const ed=(cfg&&cfg.edicao)||'';if(ed!==edicao){edicao=ed;ouvir()}else desenhar()},
+      e=>{console.warn(e);toast('Erro ao ler o bingo: '+e.code)});
+    function preencher(){$('cTitulo').value=(cfg&&cfg.titulo)||B.TITULO;$('cAberto').checked=!!(cfg&&cfg.aberto);$('cAte').value=(cfg&&cfg.ate)||'';
+      $('cDesafios').value=((cfg&&cfg.desafios)||[]).map(d=>d.t).join('\n');contar()}
+    const linhas=()=>$('cDesafios').value.split('\n').map(x=>x.trim().replace(/^\d+[\.\)\-]\s*/,'')).filter(Boolean);
+    function contar(){const n=linhas().length;$('cCnt').textContent=n===1?'1 desafio':n+' desafios'}
+    $('cf').addEventListener('input',()=>{editado=true;contar()});
+    $('cf').onsubmit=async ev=>{ev.preventDefault();
+      const ls=linhas();
+      if(ls.length>B.MAX.desafios){toast('No máximo '+B.MAX.desafios+' desafios');return}
+      if(ls.some(t=>t.length>B.MAX.desafio)){toast('Algum desafio passou de '+B.MAX.desafio+' letras');return}
+      /* cada desafio guarda o mesmo código quando o texto não muda (ou quando só corrige o texto na mesma linha),
+         para as provas já enviadas continuarem na cartela */
+      const velhos=(cfg&&cfg.desafios)||[],usados=new Set();
+      const ds=ls.map(t=>{const v=velhos.find(d=>d.t===t&&!usados.has(d.id));if(v){usados.add(v.id);return {id:v.id,t}}return {id:'',t}});
+      ds.forEach((d,i)=>{if(d.id)return;const v=velhos[i];if(v&&!usados.has(v.id)&&!ls.includes(v.t)){usados.add(v.id);d.id=v.id}else d.id=B.novoId()});
+      const v={titulo:$('cTitulo').value.trim().slice(0,B.MAX.titulo)||B.TITULO,aberto:$('cAberto').checked,ate:$('cAte').value||'',desafios:ds,edicao:(cfg&&cfg.edicao)||B.novoId()};
+      const b=$('cBtn');b.disabled=true;
+      try{await cfgRef.set(v);editado=false;toast('Bingo salvo')}catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}
+      b.disabled=false};
+    $('novo').onclick=async()=>{if(!cfg){toast('Salve os desafios primeiro');return}
+      if(!confirm('Começar um bingo novo? As cartelas começam do zero.'))return;
+      try{await cfgRef.update({edicao:B.novoId()});toast('Bingo novo começado. Confira os desafios e salve.')}catch(e){toast('Não foi possível: '+e.code)}};
+
+    /* ---------- provas ---------- */
+    function ouvir(){if(parar){parar();parar=null}todas=[];desenhar();if(!edicao)return;
+      parar=col.where('edicao','==',edicao).onSnapshot(s=>{todas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));desenhar()},
+        e=>{console.warn(e);toast('Erro ao ler as provas: '+e.code)})}
+
+    function card(p,extra){
+      return '<li class="prova '+esc(p.status)+'" data-id="'+esc(p._id)+'">'+
+        '<div class="topo"><h3>'+esc(p.desafioTexto)+'</h3>'+(p.status!=='pendente'?'<span class="st '+esc(p.status)+'">'+B.ST[p.status]+'</span>':'')+'</div>'+
+        '<p class="por">Enviada por <b style="color:var(--cream)">'+esc(p.nome)+'</b>'+(data(p.criadoEm)?' em '+data(p.criadoEm):'')+'</p>'+
+        (p.obs?'<p class="txt">'+esc(p.obs)+'</p>':'')+
+        '<div class="miniaturas" data-imgs>'+(cacheImg[p._id]?mini(cacheImg[p._id]):'')+'</div>'+
+        extra(p)+'</li>'}
+    const mini=a=>a.map((src,i)=>'<div class="m"><img src="'+src+'" alt="Print '+(i+1)+'"></div>').join('')||'<p class="muted small" style="margin:0">Sem imagem.</p>';
+    const campoNota=(p,rot)=>'<label style="margin-top:6px">'+rot+' <small>Opcional. A integrante vê na página.</small><textarea data-nota rows="2" maxlength="'+B.MAX.nota+'">'+esc(p.nota||'')+'</textarea></label>';
+    async function imagens(raiz){
+      raiz.querySelectorAll('[data-imgs]').forEach(async el=>{const id=el.closest('[data-id]').dataset.id;if(cacheImg[id])return;
+        el.innerHTML='<div class="m carregando">Carregando…</div>';
+        try{const s=await fotosCol.doc(id).get();cacheImg[id]=s.exists?(s.data().imgs||[]):[];el.innerHTML=mini(cacheImg[id])}
+        catch(e){el.innerHTML='<p class="muted small" style="margin:0">Não foi possível abrir a imagem.</p>'}})}
+
+    function desenhar(){
+      const ds=(cfg&&cfg.desafios)||[];
+      const pend=todas.filter(p=>p.status==='pendente').sort(B.antigas);
+      const feitas=todas.filter(p=>p.status!=='pendente').sort(B.recentes);
+      $('pendN').hidden=!pend.length;$('pendN').textContent=pend.length;
+      $('pend').innerHTML=pend.length?pend.map(p=>card(p,p=>campoNota(p,'Recado para a integrante')+
+          '<div class="acoes"><button class="btn ok" type="button" data-acao="aprovar">Aprovar</button><button class="btn no" type="button" data-acao="recusar">Não aprovar</button></div>')).join('')
+        :'<li class="muted small">Nenhuma prova esperando.</li>';
+      imagens($('pend'));
+      /* conferidas: as imagens só abrem quando toca em "Ver print", para a página ficar leve */
+      $('feitas').innerHTML=feitas.length?feitas.map(p=>'<li class="prova '+esc(p.status)+'" data-id="'+esc(p._id)+'"><div class="topo"><h3>'+esc(p.desafioTexto)+'</h3><span class="st '+esc(p.status)+'">'+B.ST[p.status]+'</span></div>'+
+          '<p class="por">'+esc(p.nome)+(data(p.criadoEm)?' · '+data(p.criadoEm):'')+'</p>'+(p.obs?'<p class="txt">'+esc(p.obs)+'</p>':'')+(p.nota?'<p class="nota"><b>Recado:</b> '+esc(p.nota)+'</p>':'')+
+          (cacheImg[p._id]?'<div class="miniaturas" data-imgs>'+mini(cacheImg[p._id])+'</div>':'<div data-vazio></div>')+
+          '<div class="ed"><button class="lnk" type="button" data-acao="ver">Ver print</button>'+(p.status==='recusada'?'<button class="lnk" type="button" data-acao="aprovar">Aprovar</button>':'')+
+          '<button class="lnk" type="button" data-acao="voltar">Voltar para aguardando</button><button class="del" type="button" data-acao="apagar">Apagar</button></div></li>').join('')
+        :'<li class="muted small">Nenhuma ainda.</li>';
+      /* cartelas */
+      const nomes=[...new Set(MEMBROS.concat(todas.map(p=>p.nome)))];
+      const linhasC=nomes.map(n=>{const m=B.cartela(todas.filter(p=>p.nome===n)),ok=ds.filter(d=>m[d.id]&&m[d.id].status==='aprovada');
+        const fora=todas.filter(p=>p.nome===n&&p.status==='aprovada'&&!ds.some(d=>d.id===p.desafio));
+        return {n,ok,fora,total:ok.length+fora.length}}).sort((a,b)=>b.total-a.total||a.n.localeCompare(b.n,'pt-BR'));
+      $('cartelas').innerHTML=ds.length?linhasC.map(c=>'<li class="'+(c.total?'':'zero')+'"><details><summary><span>'+esc(c.n)+'</span><b>'+c.ok.length+' de '+ds.length+'</b></summary>'+
+          (c.total?'<ul>'+c.ok.map(d=>'<li>'+esc(d.t)+'</li>').join('')+c.fora.map(p=>'<li>'+esc(p.desafioTexto)+' (desafio que saiu da lista)</li>').join('')+'</ul>':'<p class="muted small" style="margin:6px 0">Nenhum desafio aprovado ainda.</p>')+
+          '</details></li>').join('')
+        :'<li class="muted small">Cadastre os desafios lá embaixo, em Configuração.</li>'}
+
+    document.addEventListener('click',async e=>{
+      const im=e.target.closest('.miniaturas img');if(im){$('zoomImg').src=im.src;$('zoom').hidden=false;return}
+      const b=e.target.closest('[data-acao]');if(!b)return;
+      const li=b.closest('[data-id]');if(!li)return;const id=li.dataset.id,p=todas.find(y=>y._id===id);if(!p)return;
+      const a=b.dataset.acao,ta=li.querySelector('[data-nota]'),nota=ta?ta.value.trim():(p.nota||'');
+      if(a==='ver'){const v=li.querySelector('[data-vazio]');if(v){v.outerHTML='<div class="miniaturas" data-imgs></div>';imagens(li)}b.remove();return}
+      b.disabled=true;
+      try{
+        if(a==='aprovar'){await col.doc(id).update({status:'aprovada',nota});toast('Prova de '+p.nome+' aprovada')}
+        else if(a==='recusar'){await col.doc(id).update({status:'recusada',nota});toast('Prova não aprovada')}
+        else if(a==='voltar'){await col.doc(id).update({status:'pendente'});toast('Voltou para aguardando')}
+        else if(a==='apagar'){if(!confirm('Apagar a prova de '+p.nome+'? A imagem também é apagada.')){b.disabled=false;return}
+          const bt=db.batch();bt.delete(fotosCol.doc(id));bt.delete(col.doc(id));await bt.commit();delete cacheImg[id];toast('Apagada')}
+      }catch(er){console.warn(er);toast('Não foi possível agora: '+er.code);b.disabled=false}});
+  }
+})();
+</script>
+</body>
+</html>
