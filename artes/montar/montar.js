@@ -146,7 +146,13 @@ function pontosDourados(){const m=modelo(),a=[];
   if(!m.est)return a;
   SLOTS.forEach((s,i)=>{const n=S.livros[i].nota;if(!n)return;const R=Math.min(23,s.w/12.4),gap=R*.24,tot=5*2*R+4*gap,y=s.y+s.h+R*.35+R;
     for(let k=0;k<Math.ceil(n);k++)a.push({x:s.x+s.w/2-tot/2+R+k*(2*R+gap)+R*.55,y:y-R*.6,k:R*.7})});return a}
-function animar(x,t){
+const PETALAS=(()=>{const r=rnd(53),C=[['#f3d4fa','#c99be8'],['#fbd6e8','#e79ac7'],['#e6c8ff','#a77ad8'],['#ffe9f4','#f0a8d2']],a=[];
+  for(let i=0;i<22;i++){const c=C[Math.floor(r()*C.length)];a.push({x:r()*W,y:r()*H,s:9+r()*9,vy:28+r()*30,vx:8+r()*18,sw:r()*6.28,sws:.5+r()*.9,swa:14+r()*20,rot:r()*6.28,vr:(r()-.5)*2.4,c1:c[0],c2:c[1],a:.7+r()*.25})}return a})();
+function petalas(x,t){for(const p of PETALAS){const y=((p.y+p.vy*t)%(H+80))-40,xx=((p.x+p.vx*t+Math.sin(p.sw+t*p.sws)*p.swa)%(W+80)+W+80)%(W+80)-40,ro=p.rot+p.vr*t;
+  x.save();x.translate(xx,y);x.rotate(ro);x.scale(1,.55+.45*Math.abs(Math.sin(t*1.7+p.sw)));x.globalAlpha=p.a;
+  const g=x.createLinearGradient(-p.s,0,p.s,0);g.addColorStop(0,p.c1);g.addColorStop(1,p.c2);x.fillStyle=g;
+  x.beginPath();x.moveTo(0,-p.s);x.bezierCurveTo(p.s*.9,-p.s*.6,p.s*.8,p.s*.6,0,p.s);x.bezierCurveTo(-p.s*.8,p.s*.6,-p.s*.9,-p.s*.6,0,-p.s);x.fill();x.restore()}x.globalAlpha=1}
+function animar(x,t,comPetalas){if(comPetalas)petalas(x,t);
   for(const s of CEU){x.globalAlpha=Math.max(0,s.a*(.55+.45*Math.sin(t*s.v+s.f)));x.fillStyle='#fff4ff';x.beginPath();x.arc(s.x,s.y,s.r,0,6.28);x.fill()}x.globalAlpha=1;
   for(const b of BRILHOS){const p=.5+.5*Math.sin(t*b.v+b.f);brilho(x,b.x,b.y,b.k*(.6+.5*p),b.a*p)}
   pontosDourados().forEach((p,i)=>{const q=Math.max(0,Math.sin(t*2.2+i*1.7));if(q>.05)brilho(x,p.x,p.y,p.k*(.4+.8*q),.95*q,'#fffbe8')})}
@@ -160,7 +166,7 @@ async function montarBase(){const v=++versao;const f=FUNDOS.find(f=>f.id===S.fun
   if(!base){base=document.createElement('canvas');base.width=W;base.height=H}
   const b=base.getContext('2d');b.setTransform(1,0,0,1,0,0);cena(b,im,sel,f,true);baseOk=true}
 const reduzir=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function quadro(t){if(baseOk){px.setTransform(prev.width/W,0,0,prev.height/H,0,0);px.drawImage(base,0,0);animar(px,reduzir?1:t/1000)}
+function quadro(t){if(baseOk){px.setTransform(prev.width/W,0,0,prev.height/H,0,0);px.drawImage(base,0,0);animar(px,reduzir?1:t/1000,!reduzir)}
   requestAnimationFrame(quadro)}
 function ajustarPrev(){const r=prev.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);prev.width=Math.round(r.width*d);prev.height=Math.round(r.width*d*H/W)}
 ajustarPrev();addEventListener('resize',ajustarPrev);requestAnimationFrame(quadro);
@@ -271,10 +277,10 @@ const tipoVideo=(()=>{if(!window.MediaRecorder||!HTMLCanvasElement.prototype.cap
 $('salvarVideo').hidden=!tipoVideo;
 $('salvarVideo').onclick=async()=>{const b=$('salvarVideo');b.disabled=true;b.textContent='Gravando… (6 segundos)';
   try{await montarBase();const c=$('gravador');c.width=W;c.height=H;const x=c.getContext('2d');
-    const st=c.captureStream(30),rec=new MediaRecorder(st,{mimeType:tipoVideo,videoBitsPerSecond:9e6}),partes=[];
+    const st=c.captureStream(30),rec=new MediaRecorder(st,{mimeType:tipoVideo,videoBitsPerSecond:16e6}),partes=[];
     rec.ondataavailable=e=>{if(e.data&&e.data.size)partes.push(e.data)};
     const fim=new Promise(ok=>rec.onstop=ok);const t0=performance.now();let rodando=true;
-    (function f(){if(!rodando)return;const t=(performance.now()-t0)/1000;x.drawImage(base,0,0);animar(x,t);requestAnimationFrame(f)})();
+    (function f(){if(!rodando)return;const t=(performance.now()-t0)/1000;x.drawImage(base,0,0);animar(x,t,true);requestAnimationFrame(f)})();
     rec.start(500);await new Promise(ok=>setTimeout(ok,6000));rec.stop();await fim;rodando=false;st.getTracks().forEach(t=>t.stop());
     const tipo=tipoVideo.split(';')[0],blob=new Blob(partes,{type:tipo});
     if(!blob.size)throw new Error('vazio');folha(blob,nomeArq(tipo==='video/mp4'?'mp4':'webm'),tipo,true)}
