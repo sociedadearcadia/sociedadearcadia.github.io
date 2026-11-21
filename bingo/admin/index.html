@@ -235,8 +235,8 @@
       const linhasC=nomes.map(n=>{const m=B.cartela(todas.filter(p=>p.nome===n)),ok=ds.filter(d=>m[d.id]&&m[d.id].status==='aprovada');
         const fora=todas.filter(p=>p.nome===n&&p.status==='aprovada'&&!ds.some(d=>d.id===p.desafio));
         const c=cartelas.find(x=>x.nome===n&&x.edicao===edicao),mk=ds.filter(d=>c&&(c.marcadas||[]).includes(d.id));
-        return {n,ok,fora,mk,total:ok.length+fora.length+mk.length,bingos:B.bingos(ds,new Set(ok.map(d=>d.id)))}}).sort((a,b)=>b.total-a.total||a.n.localeCompare(b.n,'pt-BR'));
-      $('cartelas').innerHTML=ds.length?linhasC.map(c=>'<li class="'+(c.total?'':'zero')+'"><details><summary><span>'+esc(c.n)+'</span><b>'+c.ok.length+' aprovados · '+c.mk.length+' marcados'+(c.bingos?' · '+c.bingos+' bingo'+(c.bingos>1?'s':''):'')+'</b></summary>'+
+        return {n,ok,fora,mk,total:ok.length+fora.length+mk.length,bingo:B.bingo(ds,new Set(ok.map(d=>d.id)))}}).sort((a,b)=>b.total-a.total||a.n.localeCompare(b.n,'pt-BR'));
+      $('cartelas').innerHTML=ds.length?linhasC.map(c=>'<li class="'+(c.total?'':'zero')+'"><details><summary><span>'+esc(c.n)+'</span><b>'+c.ok.length+' aprovados · '+c.mk.length+' marcados'+(c.bingo?' · BINGO!':'')+'</b></summary>'+
           (c.total?(c.ok.length||c.fora.length?'<p class="sub-c">Aprovados</p><ul>'+c.ok.map(d=>'<li>'+B.num(ds.indexOf(d))+'. '+esc(d.t)+'</li>').join('')+c.fora.map(p=>'<li>'+esc(p.desafioTexto)+' (desafio que saiu da lista)</li>').join('')+'</ul>':'')+
             (c.mk.length?'<p class="sub-c">Marcados por ela</p><ul>'+c.mk.map(d=>'<li>'+B.num(ds.indexOf(d))+'. '+esc(d.t)+'</li>').join('')+'</ul>':'')
           :'<p class="muted small" style="margin:6px 0">Nada marcado nem aprovado ainda.</p>')+

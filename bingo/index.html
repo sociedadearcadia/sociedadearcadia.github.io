@@ -244,7 +244,7 @@
     const cats0=[...new Set(ds.map(d=>d.c||''))];
     const ok=new Set(ds.filter(d=>m[d.id]&&m[d.id].status==='aprovada').map(d=>d.id));
     $('placarP').hidden=!chave;$('placar').textContent=ok.size+' de '+ds.length;
-    const nb=B.bingos(ds,ok);$('bingosT').textContent=nb?(nb===1?'1 bingo!':nb+' bingos!'):'';
+    $('bingosT').textContent=B.bingo(ds,ok)?'BINGO!':'';
     {let cat=null,h='';ds.forEach((d,i)=>{if((d.c||'')!==cat){cat=d.c||'';h+=cat?'<p class="ex-cat k'+(cats0.indexOf(cat)%4)+'">'+esc(cat)+'</p>':''}
       h+='<div class="ex k'+(cats0.indexOf(d.c||'')%4)+'"><b><span>'+B.num(i)+'</span> '+esc(d.t)+'</b>'+(d.d?'<p>'+esc(d.d)+'</p>':'')+'</div>'});$('explL').innerHTML=h}
     /* cartela de bingo: 5 colunas; cada categoria tem uma cor */

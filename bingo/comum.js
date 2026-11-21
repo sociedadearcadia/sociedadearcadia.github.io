@@ -90,7 +90,7 @@ Criar uma pergunta que provoque reflexão sobre livros, personagens, gêneros ou
   /* explicação simples, sempre à mostra (mesmo com a tabela escondida) */
   const COMO=[
     {t:'O que é',itens:['É uma brincadeira de leitura.','Tem uma cartela com 25 desafios.','Cumpriu um desafio? Marca a casa.']},
-    {t:'Como funciona',itens:['Vale de 1º de janeiro a 30 de abril de 2027.','Você escolhe a ordem. Não precisa ir do 1 ao 25.','Não precisa completar tudo. Faça quantos quiser.','Cumpriu? Mande um print aqui. A administração confere.','Cada desafio aprovado vale 1 ponto na Arcadiana do Ano.','Completou uma linha, coluna ou diagonal? É BINGO!','Não precisa comprar nada, aparecer nem gravar vídeo.']},
+    {t:'Como funciona',itens:['Vale de 1º de janeiro a 30 de abril de 2027.','Você escolhe a ordem. Não precisa ir do 1 ao 25.','Não precisa completar tudo. Cada desafio aprovado já vale ponto.','Cumpriu? Mande um print aqui. A administração confere.','Cada desafio aprovado vale 1 ponto na Arcadiana do Ano.','Completou as 25 casas? É BINGO!','Não precisa comprar nada, aparecer nem gravar vídeo.']},
     {t:'Sua cartela é só sua',itens:['Você entra com seu nome e um código de 4 números que você cria.','Só você e a administração veem a sua cartela.','No ranking, todas veem só a porcentagem de cada uma.']}];
 
   /* texto em maiúsculas vira "Só a primeira letra maiúscula" */
@@ -115,11 +115,8 @@ Criar uma pergunta que provoque reflexão sobre livros, personagens, gêneros ou
     (ds||[]).forEach((d,i)=>{if((d.c||'')!==cat){cat=d.c||'';if(cat)s.push((s.length?'\n':'')+'DESAFIOS — '+cat.toUpperCase())}
       s.push((s.length?'\n':'')+String(i+1).padStart(2,'0')+'. '+String(d.t).toUpperCase()+(d.d?'\n'+d.d:''))});
     return s.join('\n')}
-  /* quantas linhas, colunas e diagonais completas (cartela 5x5, desafios na ordem) */
-  function bingos(ds,okIds){if(!ds||ds.length!==25)return 0;const ok=i=>okIds.has(ds[i].id);let n=0;
-    for(let r=0;r<5;r++){if([0,1,2,3,4].every(c=>ok(r*5+c)))n++}
-    for(let c=0;c<5;c++){if([0,1,2,3,4].every(r=>ok(r*5+c)))n++}
-    if([0,6,12,18,24].every(ok))n++;if([4,8,12,16,20].every(ok))n++;return n}
+  /* bingo = cartela inteira aprovada */
+  function bingo(ds,okIds){return !!(ds&&ds.length&&ds.every(d=>okIds.has(d.id)))}
 
   /* cada print vira uma imagem JPEG menor, para caber no banco de dados gratuito */
   const LIMITE=280000; // caracteres por imagem (cerca de 200 KB)
@@ -141,5 +138,5 @@ Criar uma pergunta que provoque reflexão sobre livros, personagens, gêneros ou
   const recentes=(a,b)=>seg(b)-seg(a),antigas=(a,b)=>seg(a)-seg(b);
   const novoId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   const num=i=>String(i+1).padStart(2,'0');
-  return {ST,MAX,TITULO,TABELA_2027,COMO,ler,texto,bingos,comprimir,cartela,recentes,antigas,novoId,num};
+  return {ST,MAX,TITULO,TABELA_2027,COMO,ler,texto,bingo,comprimir,cartela,recentes,antigas,novoId,num};
 })();
