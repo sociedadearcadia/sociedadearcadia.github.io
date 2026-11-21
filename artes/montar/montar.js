@@ -23,7 +23,7 @@ const MAX=14;
 const LS={get(k,d){try{const v=localStorage.getItem('arcadia:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadia:'+k,JSON.stringify(v))}catch(e){}}};
 const ano=new Date().getFullYear();
 const S={modelo:LS.get('montarModelo','lidos'),fundo:LS.get('montarFundo','todas'),qtd:{},livros:[],
-  meta:LS.get('montarMeta',30),lidosMeta:0,ano:new Date().getMonth()>=10?ano+1:ano};
+  meta:LS.get('montarMeta',30),lidosMeta:LS.get('montarLidos',0),ano:new Date().getMonth()>=10?ano+1:ano};
 MODELOS.forEach(m=>S.qtd[m.id]=m.ini||1);
 if(!MODELOS.some(m=>m.id===S.modelo))S.modelo='lidos';
 if(!FUNDOS.some(f=>f.id===S.fundo))S.fundo='todas';
@@ -56,14 +56,15 @@ function linhas(n,cols){const r=Math.ceil(n/cols),base=Math.floor(n/r),extra=n%r
 function layout(n,est,num){const top=num?735:715,bottom=1700,maxw=num?740:760,gap=30;let melhor=null;
   const opcoes=[];for(let c=1;c<=5;c++)opcoes.push(linhas(n,Math.min(c,n)));
   if(num&&n>=2&&n<=5)opcoes.length=0,opcoes.push({2:[1,1],3:[1,2],4:[1,3],5:[1,2,2]}[n]);
-  for(const rows of opcoes){const cols=Math.max(...rows);
-    const eh=w=>(est?w/6.2*1.5:0);
-    let w=Math.min(520,(maxw-(cols-1)*gap)/cols);
-    while(rows.length*(w*1.5+eh(w)+gap)-gap>bottom-top)w-=2;
-    if(!melhor||w>melhor.w+.5)melhor={w,rows}}
-  const {w,rows}=melhor,h=w*1.5,ehs=est?w/6.2*1.5:0,rh=h+ehs+gap;
-  let y=top+((bottom-top)-(rh*rows.length-gap))/2;const slots=[];
-  for(const k of rows){const x0=540-(k*w+(k-1)*gap)/2;for(let c=0;c<k;c++)slots.push({x:x0+c*(w+gap),y,w,h});y+=rh}
+  const eh=w=>(est?w/6.2*1.5:0);
+  for(const rows of opcoes){const fat=rows.map((k,i)=>num&&i===0&&k===1&&rows.length>1?1.3:1);
+    let w=Math.min(520,...rows.map((k,i)=>(maxw-(k-1)*gap)/k/fat[i]));
+    const alt=w=>rows.reduce((a,k,i)=>a+w*fat[i]*1.5+eh(w*fat[i])+gap,0)-gap;
+    while(alt(w)>bottom-top)w-=2;
+    if(!melhor||w>melhor.w+.5)melhor={w,rows,fat,alt:alt(w)}}
+  const {w,rows,fat,alt}=melhor;let y=top+((bottom-top)-alt)/2;const slots=[];
+  rows.forEach((k,i)=>{const ww=w*fat[i],h=ww*1.5,x0=540-(k*ww+(k-1)*gap)/2;
+    for(let c=0;c<k;c++)slots.push({x:x0+c*(ww+gap),y,w:ww,h});y+=h+eh(ww)+gap});
   return slots}
 
 function fundo(x,im,f){
@@ -173,7 +174,7 @@ $('fundos').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;S.fund
 $('menos').onclick=()=>{const m=modelo();S.qtd[m.id]=Math.max(1,S.qtd[m.id]-1);tudo()};
 $('mais').onclick=()=>{const m=modelo();S.qtd[m.id]=Math.min(MAX,S.qtd[m.id]+1);tudo()};
 $('metaN').oninput=()=>{S.meta=Math.max(1,Math.min(300,+$('metaN').value||1));LS.set('montarMeta',S.meta);montarBase()};
-$('metaM').oninput=()=>{S.lidosMeta=Math.max(0,Math.min(300,+$('metaM').value||0));montarBase()};
+$('metaM').oninput=()=>{S.lidosMeta=Math.max(0,Math.min(300,+$('metaM').value||0));LS.set('montarLidos',S.lidosMeta);montarBase()};
 $('anos').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;S.ano=+b.dataset.a;tudo()};
 $('anos').innerHTML=[ano,ano+1].map(a=>`<button class="chip" type="button" data-a="${a}">${a}</button>`).join('');
 
