@@ -75,6 +75,28 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
 @keyframes pop{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(120deg)}}
 .foot{text-align:center;font-size:12.5px;color:var(--muted)}
 .foot a{color:inherit}
+/* Conheça nossas leituras */
+.leituras{border-radius:18px;padding:26px 18px 20px}
+.leituras h2{font-family:var(--display);font-style:italic;font-weight:500;font-size:28px;line-height:1.15;margin:4px 0 0;text-align:center;text-shadow:0 0 18px rgba(232,170,255,.4)}
+.leituras .sub{margin:8px 0 16px;text-align:center;color:#e9dcf5;font-size:14.5px}
+.leituras .chip b{font-weight:700;opacity:.75;margin-left:4px}
+.leituras .chips{justify-content:center;margin-bottom:14px}
+.livros{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.livro{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid rgba(var(--acr),.35);
+  background:linear-gradient(110deg,rgba(var(--acr),.12),rgba(23,15,51,.55) 55%)}
+.livro::before{content:"";flex:none;width:5px;align-self:stretch;border-radius:4px;background:linear-gradient(180deg,var(--ac),rgba(var(--acr),.25))}
+.livro .bd{min-width:0;flex:1}
+.livro h3{margin:0;font:500 17px/1.25 var(--display);color:#fff;overflow-wrap:anywhere}
+.livro p{margin:1px 0 0;font-size:13.5px;color:var(--muted)}
+.tag{flex:none;font:700 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--ac);padding:3px 8px;border-radius:999px;
+  border:1px solid rgba(var(--acr),.55);background:rgba(var(--acr),.10)}
+.g-romantasia{--ac:#f2a8e0;--acr:242,168,224}
+.g-fantasia{--ac:#9cc4ff;--acr:156,196,255}
+.mais{display:block;margin:14px auto 0;font:700 14px var(--body);color:var(--lilac);background:rgba(23,15,51,.6);border:1px solid var(--line);border-radius:999px;padding:10px 18px;cursor:pointer}
+.mais:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.leituras .vazio{text-align:center;color:var(--muted);font-size:14px;margin:6px 0 0}
+.ir{display:block;text-align:center;margin:12px 0 0;color:var(--lilac);font-weight:700;font-size:14px}
+@media (max-width:380px){.livro{flex-wrap:wrap}.tag{margin-left:17px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
 /* em telas largas, o formulário fica no céu à direita da arte */
 @media (min-width:1100px) and (orientation:landscape){.wrap{margin:0 max(4vw,24px) 0 auto;max-width:500px}}
@@ -99,6 +121,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
 
     <div id="formBox">
       <p class="intro">Preencha para entrar na lista de espera. Quando abrirmos as vagas, entramos em contato pelo WhatsApp.</p>
+      <a class="ir" href="#leituras">Conheça nossas leituras ↓</a>
       <form id="f" novalidate>
         <input type="text" id="site" name="site" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
         <fieldset><legend>Sobre você</legend>
@@ -167,6 +190,14 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
       <p><a href="../">Voltar para o site</a></p>
     </div>
   </section>
+  <section class="card leituras" id="leituras" aria-labelledby="leiturasT">
+    <p class="lbl" style="text-align:center">Lista de livros do clube</p>
+    <h2 id="leiturasT">Conheça nossas leituras</h2>
+    <p class="sub">Todo mês, a leitura oficial do clube sai desta lista.</p>
+    <div class="chips" id="lFiltro" role="group" aria-label="Filtrar por gênero"></div>
+    <ul class="livros" id="lLista" aria-live="polite"><li class="vazio">Carregando os livros…</li></ul>
+    <button type="button" class="mais" id="lMais" hidden>Mostrar mais</button>
+  </section>
   <p class="foot">Seus dados são usados só para contato sobre as vagas do clube.</p>
 </main>
 
@@ -219,6 +250,40 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
     try{const db=await fb();v.criadoEm=firebase.firestore.FieldValue.serverTimestamp();await db.collection('interessadas').add(v);
       $('formBox').hidden=true;$('done').classList.add('on');celebrate();scrollTo({top:0,behavior:'smooth'})}
     catch(x){console.warn(x);btn.disabled=false;btn.textContent='Quero entrar na lista de espera';err.textContent='Não foi possível enviar agora. Confira sua internet e tente de novo.'}});
+})();
+</script>
+<script>
+/* Conheça nossas leituras: só leitura (título, autora e gênero), sem senha */
+(function(){
+  const $=id=>document.getElementById(id),GEN={romantasia:'Romantasia',fantasia:'Fantasia'},PASSO=25;
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const gen=g=>GEN[g]?g:'fantasia';
+  let livros=[],filtro='todos',mostrar=PASSO;
+  function desenhar(){
+    const c={todos:livros.length,romantasia:0,fantasia:0};livros.forEach(l=>c[l.genero]++);
+    $('lFiltro').innerHTML=[['todos','Todos'],['romantasia','Romantasia'],['fantasia','Fantasia']].map(([k,t])=>
+      '<button type="button" class="chip" data-f="'+k+'" aria-pressed="'+(filtro===k)+'">'+t+'<b>'+c[k]+'</b></button>').join('');
+    const ls=livros.filter(l=>filtro==='todos'||l.genero===filtro);
+    $('lLista').innerHTML=ls.length?ls.slice(0,mostrar).map(l=>'<li class="livro g-'+l.genero+'"><div class="bd"><h3>'+esc(l.titulo)+'</h3>'+
+      (l.autor?'<p>'+esc(l.autor)+'</p>':'')+'</div><span class="tag">'+GEN[l.genero]+'</span></li>').join(''):'<li class="vazio">Nenhum livro aqui ainda.</li>';
+    const resta=ls.length-mostrar;$('lMais').hidden=resta<=0;if(resta>0)$('lMais').textContent='Mostrar mais ('+resta+')'}
+  $('lFiltro').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;filtro=b.dataset.f;mostrar=PASSO;desenhar()};
+  $('lMais').onclick=()=>{mostrar+=50;desenhar()};
+  function usar(lista){livros=(lista||[]).filter(l=>l&&l.titulo).map(l=>({titulo:String(l.titulo),autor:String(l.autor||''),genero:gen(l.genero)}))
+    .sort((a,b)=>a.titulo.localeCompare(b.titulo,'pt-BR',{sensitivity:'base'}));desenhar()}
+  /* lista inicial, caso a cópia pública ainda não exista */
+  function reserva(){if(window.LISTA_INICIAL)return usar(window.LISTA_INICIAL);
+    const sc=document.createElement('script');sc.src='/livros/lista-inicial.js';sc.onload=()=>usar(window.LISTA_INICIAL);
+    sc.onerror=()=>{$('lLista').innerHTML='<li class="vazio">Não foi possível carregar os livros agora.</li>'};document.head.appendChild(sc)}
+  /* a cópia pública fica no Firestore (publico/livros); lida direto, sem carregar o Firebase inteiro */
+  const C=window.ARCADIA_FIREBASE||{};
+  const txt=v=>(v&&v.stringValue)||'';
+  fetch('https://firestore.googleapis.com/v1/projects/'+C.projectId+'/databases/(default)/documents/publico/livros?key='+C.apiKey)
+    .then(r=>{if(!r.ok)throw r.status;return r.json()})
+    .then(d=>{const vs=(((d.fields||{}).itens||{}).arrayValue||{}).values||[];
+      const lista=vs.map(v=>{const f=(v.mapValue||{}).fields||{};return {titulo:txt(f.titulo),autor:txt(f.autor),genero:txt(f.genero)}});
+      if(!lista.length)throw 'vazia';usar(lista)})
+    .catch(e=>{console.warn('lista pública',e);reserva()});
 })();
 </script>
 </body>

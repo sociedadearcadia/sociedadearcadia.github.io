@@ -233,8 +233,20 @@
       await salvarLc(id,{nome,aberto:true,ativa:true,ordem},'LC criada');$('novaLc').reset();aba=id;history.replaceState(null,'','#'+id);desenhar()};
 
     /* ---------- tudo da coleção ---------- */
-    col.onSnapshot(s=>{todas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));carregouLista=true;desenhar();desenharLcs();semear()},
+    col.onSnapshot(s=>{todas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));carregouLista=true;desenhar();desenharLcs();semear();publicar()},
       e=>{console.warn(e);toast('Erro ao ler as sugestões: '+e.code)});
+
+    /* cópia pública da lista oficial (aparece em /lista-de-espera): só título, autora e gênero.
+       Atualiza sozinha sempre que a lista muda aqui. */
+    const pubRef=db.collection('publico').doc('livros');let pubAtual=null,pubT=null;
+    pubRef.onSnapshot(s=>{pubAtual=s.exists?JSON.stringify(s.data().itens||[]):'';publicar()},e=>console.warn('lista pública',e));
+    function publicar(){clearTimeout(pubT);pubT=setTimeout(async()=>{
+      if(!carregouLista||pubAtual===null||semeando&&!cfg.semeado)return;
+      const itens=todas.filter(l=>l.status==='lista'&&L.listaDe(l)==='oficial').sort(L.ordem)
+        .map(l=>({titulo:String(l.titulo||''),autor:String(l.autor||''),genero:L.genero(l.genero)}));
+      if(!itens.length&&!cfg.semeado)return;
+      if(JSON.stringify(itens)===pubAtual)return;
+      try{await pubRef.set({itens,em:FV.serverTimestamp()})}catch(e){console.warn('lista pública',e)}},1500)}
 
     /* lista inicial da leitura oficial: entra sozinha na primeira vez que esta página abre */
     let semeando=false;
