@@ -1,0 +1,60 @@
+/* Arcadiana do Ano (usa /leitura/leitura.css e /livros/livros.css) */
+.regras{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;text-align:left}
+.regras li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(15,8,32,.5);border:1px solid var(--line);font-size:14.5px}
+.regras .p{font:600 17px var(--display);color:#f6d38d;min-width:3.6ch;text-align:center}
+.regras small{display:block;color:var(--muted);font-size:12.5px}
+.nota-r{margin:10px 0 0;font-size:13px;color:var(--muted);text-align:left}
+details.como{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;text-align:left}
+details.como summary{cursor:pointer;color:var(--lilac);font:600 14px var(--body)}
+.eu{display:flex;flex-direction:column;gap:12px}
+.eu .tot{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.eu .tot b{font:600 40px/1 var(--display);color:#fff;text-shadow:0 0 16px rgba(232,139,214,.6)}
+.eu .tot span{font:600 15px var(--body);color:#f6d38d}
+.resumo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.resumo div{padding:10px 6px;border-radius:12px;background:rgba(15,8,32,.5);border:1px solid var(--line);text-align:center}
+.resumo b{display:block;font:600 22px var(--display);color:#fff}
+.resumo span{font-size:12px;color:var(--muted);line-height:1.2;display:block}
+.hpts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.hpts li{display:grid;grid-template-columns:3.2em minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(15,8,32,.45);border:1px solid var(--line);font-size:14px}
+.hpts .d{color:var(--muted);font-size:12.5px}
+.hpts .t{overflow-wrap:anywhere}
+.hpts .t small{display:block;color:var(--muted);font-size:12px}
+.hpts .p{font:600 15px var(--display);color:#bff0d2;white-space:nowrap}
+.rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rank li{display:grid;grid-template-columns:2.4em minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(15,8,32,.45)}
+.rank .pos{font:600 18px var(--display);color:var(--lilac);text-align:center}
+.rank .n{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .n small{display:block;font-weight:400;font-size:12px;color:var(--muted);white-space:normal}
+.rank .v{font:600 18px var(--display);color:#fff;white-space:nowrap}
+.rank .v small{font:600 11px var(--body);color:var(--muted);margin-left:2px}
+.rank li.p1{border-color:rgba(246,211,141,.75);background:linear-gradient(110deg,rgba(246,211,141,.20),rgba(23,15,51,.55) 60%);box-shadow:0 0 22px rgba(246,211,141,.18)}
+.rank li.p1 .pos{color:#f6d38d}
+.rank li.p2{border-color:rgba(214,214,240,.55);background:linear-gradient(110deg,rgba(214,214,240,.13),rgba(23,15,51,.55) 60%)}
+.rank li.p2 .pos{color:#e4e2f6}
+.rank li.p3{border-color:rgba(226,160,120,.55);background:linear-gradient(110deg,rgba(226,160,120,.13),rgba(23,15,51,.55) 60%)}
+.rank li.p3 .pos{color:#f0b896}
+.rank li.zero .n,.rank li.zero .v,.rank li.zero .pos{color:#8f81b6}
+.rank li.me{outline:2px solid #f6d38d;outline-offset:1px}
+.coroa{width:18px;height:18px;vertical-align:-3px;margin-right:4px;fill:#f6d38d;filter:drop-shadow(0 0 6px rgba(246,211,141,.7))}
+.semnada{margin:0;padding:12px;border-radius:12px;border:1px dashed var(--line);color:var(--muted);font-size:14px;text-align:center}
+/* administração */
+.nomes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.nomes label{flex-direction:row;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(15,8,32,.45);font-weight:600;font-size:14px;cursor:pointer;line-height:1.2}
+.nomes label input{flex:none;width:20px;height:20px;margin:0;accent-color:#f6d38d}
+.nomes label:has(input:checked){border-color:rgba(160,230,190,.6);background:rgba(160,230,190,.10)}
+.nomes label small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.nomes label small.ok{color:#bff0d2}
+.nomes label small.no{color:#f2a0b8}
+.bloco{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(15,8,32,.35)}
+.bloco+.bloco{margin-top:8px}
+.bloco>summary{cursor:pointer;font-weight:700;font-size:15px;list-style-position:inside}
+.bloco>summary small{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:4px}
+.ed{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+.lotes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lotes li{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(15,8,32,.45);font-size:14px;display:flex;flex-direction:column;gap:4px}
+.lotes .topo{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.lotes b{color:#fff}
+.lotes .p{font:600 15px var(--display);color:#bff0d2;white-space:nowrap}
+.lotes .quem{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.ano{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px}
+.ano select{width:auto}
