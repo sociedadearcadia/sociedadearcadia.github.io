@@ -1,0 +1,57 @@
+/* Votação do livro do mês (usa /leitura/leitura.css e /livros/livros.css) */
+.opcoes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.opcao{cursor:pointer;flex-direction:row;align-items:center;gap:12px;font-weight:400;padding:14px;border-radius:14px;
+  border:1px solid rgba(var(--acr),.35);background:linear-gradient(110deg,rgba(var(--acr),.12),rgba(23,15,51,.55) 55%);transition:box-shadow .2s,border-color .2s}
+.opcao input{position:absolute;opacity:0;pointer-events:none}
+.opcao .marca{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid rgba(var(--acr),.7);display:grid;place-items:center}
+.opcao .marca::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--ac);transform:scale(0);transition:transform .2s}
+.opcao .bd{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.opcao h3{margin:0;font:500 18px/1.25 var(--display);color:#fff;overflow-wrap:anywhere}
+.opcao .au{margin:0;font-size:14px;color:var(--muted)}
+.opcao .tag{align-self:flex-start;margin-top:6px}
+.opcao:has(input:checked){border-color:var(--ac);box-shadow:0 0 18px rgba(var(--acr),.45)}
+.opcao:has(input:checked) .marca::after{transform:scale(1)}
+.opcao:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+.opcoes.travado .opcao{cursor:default}
+.prazo{display:inline-block;margin:0 0 12px;font:700 12.5px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--night);background:#bff0d2;border-radius:999px;padding:4px 12px}
+.votou{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;background:rgba(160,230,190,.10);border:1px solid rgba(160,230,190,.55)}
+.votou p{margin:0}
+.votou p+p{margin-top:4px}
+.votou b{color:#fff}
+.votou .ico{width:26px;height:26px;color:#bff0d2;margin-top:2px}
+.encontro{margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(246,211,141,.5);background:rgba(246,211,141,.08);text-align:center}
+.encontro p{margin:0}
+.encontro .q{font:500 19px/1.3 var(--display);color:#fff;margin-top:2px}
+/* administração */
+.vt{display:flex;flex-direction:column;gap:12px}
+.vt .periodo{margin:0;font-size:14px;color:var(--muted)}
+.vt .periodo b{color:var(--cream)}
+.st.aberta{color:#bff0d2;border-color:rgba(160,230,190,.55)}
+.st.antes{color:#f6d38d;border-color:rgba(246,211,141,.5)}
+.contagem{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.contagem li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center}
+.contagem .t{font-weight:700;font-size:15px;overflow-wrap:anywhere}
+.contagem .t small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.contagem .n{font:600 22px var(--display);color:#fff;text-align:right;line-height:1.1}
+.contagem .n small{display:block;font:600 11.5px var(--body);color:var(--muted)}
+.contagem .bar{grid-column:1/-1}
+.contagem li.lider .t{color:#f6d38d}
+.presencial{display:flex;align-items:center;gap:8px;grid-column:1/-1;font-size:13px;font-weight:600;color:var(--muted)}
+.presencial input{width:84px;padding:8px 10px;font-size:15px;border-radius:10px;text-align:center}
+.nomes{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0;padding:0;list-style:none}
+.nomes li{font:600 13px var(--body);padding:5px 10px;border-radius:999px;border:1px solid rgba(160,230,190,.5);background:rgba(160,230,190,.08);display:inline-flex;gap:6px;align-items:center}
+.nomes.falta li{border-color:var(--line);background:rgba(23,15,51,.55);color:var(--muted)}
+.nomes li small{font-weight:400;color:var(--muted);font-size:11.5px}
+.nomes .x{font:700 14px var(--body);color:#f2a0b8;background:none;border:0;cursor:pointer;padding:0 0 0 2px;line-height:1}
+.escolhidos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.escolhidos li{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid rgba(var(--acr),.45);background:rgba(var(--acr),.10)}
+.escolhidos li .bd{flex:1;min-width:0}
+.escolhidos li b{display:block;overflow-wrap:anywhere}
+.escolhidos li small{color:var(--muted)}
+.escolhidos li.vaga{border-style:dashed;border-color:var(--line);background:none;color:var(--muted);font-size:14px;justify-content:center}
+.resultados{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
+.resultados button{width:100%;text-align:left;font:15px var(--body);color:var(--cream);background:rgba(23,15,51,.6);border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
+.resultados button small{color:var(--muted)}
+.resultados button:disabled{opacity:.45;cursor:default}
+.datas3{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:480px){.datas3{grid-template-columns:1fr 1fr 1fr}}
