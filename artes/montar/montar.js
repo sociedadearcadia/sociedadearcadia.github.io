@@ -94,8 +94,9 @@ function cena(x,im,sel,f,anim){
     for(const b of BRILHOS)brilho(x,b.x,b.y,b.k,b.a)}
   x.lineWidth=4;x.strokeStyle='rgba(214,180,108,.8)';archPath(x);x.stroke();
   x.lineWidth=1.5;x.strokeStyle='rgba(214,180,108,.35)';archPath(x,20);x.stroke();
-  if(sel){x.save();x.beginPath();x.arc(540,470,130,0,6.28);x.clip();x.drawImage(sel,410,340,260,260);x.restore();
-    x.save();x.shadowColor='rgba(10,4,20,.6)';x.shadowBlur=30;x.strokeStyle=GOLD;x.lineWidth=3;x.beginPath();x.arc(540,470,131.5,0,6.28);x.stroke();x.restore()}
+  if(sel){x.save();x.shadowColor='rgba(10,4,20,.6)';x.shadowBlur=14;x.beginPath();x.arc(996,1836,36,0,6.28);x.fillStyle='#f4e8da';x.fill();x.restore();
+    x.save();x.beginPath();x.arc(996,1836,36,0,6.28);x.clip();x.drawImage(sel,960,1800,72,72);x.restore();
+    x.strokeStyle='rgba(214,180,108,.85)';x.lineWidth=2;x.beginPath();x.arc(996,1836,37,0,6.28);x.stroke()}
   const m=modelo();
   x.textAlign='center';x.textBaseline='alphabetic';x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
   txt(x,m.lbl,540,664,'600 30px "Nunito Sans",sans-serif',GOLD,8);
@@ -194,22 +195,55 @@ function ui(){const m=modelo();
       <div class="info"><b>${m.num?(i+1)+'º lugar':(m.id==='adapt'?'Adaptação ':'Livro ')+(i+1)}</b>
       ${m.est?`<div class="estrelas" role="group" aria-label="Nota">${[1,2,3,4,5].map(k=>{const v=L.nota-(k-1);return `<button type="button" data-k="${k}" class="${v>=1?'on':v>=.5?'meia':''}" aria-label="${k} estrela${k>1?'s':''}">${STAR}</button>`}).join('')}</div>
       <small class="muted">${L.nota?(String(L.nota).replace('.',',')+' estrela'+(L.nota>1?'s':'')):'Toque nas estrelas. Toque de novo para meia.'}</small>`:''}
-      ${L.img?'<button type="button" class="tirar" data-tirar>Remover capa</button>':''}</div></li>`}).join('')}
+      <div class="acoes"><button type="button" data-pick>Buscar ${pal}</button><button type="button" data-gal>Da galeria</button>${L.img?'<button type="button" data-tirar>Remover</button>':''}</div></div></li>`}).join('')}
 let alvo=0;
 $('livros').onclick=e=>{const li=e.target.closest('[data-i]');if(!li)return;const i=+li.dataset.i,L=S.livros[i];
-  if(e.target.closest('[data-pick]')){alvo=i;$('arquivo').value='';$('arquivo').click();return}
+  if(e.target.closest('[data-pick]')){abrirBusca(i);return}
+  if(e.target.closest('[data-gal]')){alvo=i;$('arquivo').value='';$('arquivo').click();return}
   if(e.target.closest('[data-tirar]')){if(L.url)URL.revokeObjectURL(L.url);L.img=null;L.url='';tudo();return}
   const s=e.target.closest('[data-k]');if(s){const k=+s.dataset.k;L.nota=L.nota===k?k-.5:L.nota===k-.5?(k===1?0:k):k;ui();montarBase()}};
 prev.onclick=e=>{const m=modelo();if(m.meta)return;const r=prev.getBoundingClientRect(),X=(e.clientX-r.left)*W/r.width,Y=(e.clientY-r.top)*H/r.height;
-  const i=SLOTS.findIndex(s=>X>=s.x&&X<=s.x+s.w&&Y>=s.y&&Y<=s.y+s.h);if(i<0)return;alvo=i;$('arquivo').value='';$('arquivo').click()};
-$('arquivo').onchange=async()=>{const f=$('arquivo').files[0];if(!f)return;
+  const i=SLOTS.findIndex(s=>X>=s.x&&X<=s.x+s.w&&Y>=s.y&&Y<=s.y+s.h);if(i<0)return;abrirBusca(i)};
+async function usarImagem(im,i){
+  const sc=Math.min(1,1100/im.naturalHeight,800/im.naturalWidth),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  let u;try{u=await new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(),'image/jpeg',.85))}catch(e){return false} // falha se a imagem não permitir uso
+  const L=S.livros[i];if(L.url)URL.revokeObjectURL(L.url);L.img=c;L.url=u;tudo();return true}
+$('arquivo').onchange=async()=>{const f=$('arquivo').files[0];if(!f)return;fecharBusca();
   const url=URL.createObjectURL(f),im=await carregar(url);delete imgs[url];
   if(!im){toast('Não consegui abrir essa imagem. Tente outra.');URL.revokeObjectURL(url);return}
-  // reduz para economizar memória
-  const sc=Math.min(1,1100/im.naturalHeight,800/im.naturalWidth),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);
-  c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);
-  const L=S.livros[alvo];if(L.url)URL.revokeObjectURL(L.url);L.img=c;
-  L.url=await new Promise(ok=>c.toBlob(b=>ok(URL.createObjectURL(b)),'image/jpeg',.8));tudo()};
+  await usarImagem(im,alvo);URL.revokeObjectURL(url)};
+
+/* ---------- buscar capa (Google Livros) ---------- */
+const pal=()=>modelo().id==='adapt'?'pôster':'capa';
+function abrirBusca(i){alvo=i;const m=modelo();
+  $('bT').textContent=m.id==='adapt'?'Buscar pôster':'Buscar capa';
+  $('bQ').placeholder=m.id==='adapt'?'Nome do livro da adaptação':'Nome do livro ou autora';
+  $('bDica').textContent=m.id==='adapt'?'A busca mostra capas de livros. Para o pôster do filme ou série, salve a imagem e use “Escolher da galeria”.':'';$('bDica').hidden=m.id!=='adapt';
+  $('busca').hidden=false;document.body.style.overflow='hidden';if($('bQ').value.trim())buscar();setTimeout(()=>$('bQ').focus(),60)}
+function fecharBusca(){$('busca').hidden=true;document.body.style.overflow=''}
+$('bX').onclick=fecharBusca;$('busca').onclick=e=>{if(e.target===$('busca'))fecharBusca()};
+$('bGal').onclick=()=>{$('arquivo').value='';$('arquivo').click()};
+const https=u=>String(u||'').replace(/^http:/,'https:');
+let buscaN=0;
+async function buscar(){const q=$('bQ').value.trim();if(!q)return;const n=++buscaN;
+  $('bRes').innerHTML='<p class="muted small" style="grid-column:1/-1;margin:0">Procurando…</p>';
+  try{const r=await fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=30&printType=books&country=BR');
+    if(!r.ok)throw new Error(r.status);const d=await r.json();if(n!==buscaN)return;
+    const vistos=new Set(),it=(d.items||[]).filter(v=>{const l=v.volumeInfo&&v.volumeInfo.imageLinks;if(!l||!l.thumbnail||vistos.has(v.id))return false;vistos.add(v.id);return true});
+    if(!it.length){$('bRes').innerHTML='<p class="muted small" style="grid-column:1/-1;margin:0">Nenhuma capa encontrada. Tente o nome com a autora, ou escolha da galeria.</p>';return}
+    $('bRes').innerHTML=it.map(v=>{const vi=v.volumeInfo;return `<button type="button" class="res" data-id="${esc(v.id)}" data-t="${esc(https(vi.imageLinks.thumbnail))}">
+      <img src="${esc(https(vi.imageLinks.thumbnail))}" alt="" loading="lazy" referrerpolicy="no-referrer"><span>${esc((vi.title||'').slice(0,50))}</span><small>${esc(((vi.authors||[])[0]||'').slice(0,30))}${vi.publishedDate?' · '+esc(vi.publishedDate.slice(0,4)):''}</small></button>`}).join('')}
+  catch(e){console.warn(e);if(n===buscaN)$('bRes').innerHTML='<p class="muted small" style="grid-column:1/-1;margin:0">A busca não respondeu agora. Tente de novo em instantes, ou escolha da galeria.</p>'}}
+$('bForm').onsubmit=e=>{e.preventDefault();$('bQ').blur();buscar()};
+function corsImg(src){return new Promise(ok=>{const i=new Image();i.crossOrigin='anonymous';i.referrerPolicy='no-referrer';i.onload=()=>ok(i.naturalWidth>40?i:null);i.onerror=()=>ok(null);i.src=src})}
+$('bRes').onclick=async e=>{const b=e.target.closest('.res');if(!b||b.classList.contains('carregando'))return;b.classList.add('carregando');
+  const id=b.dataset.id,grande='https://books.google.com/books/content?id='+encodeURIComponent(id)+'&printsec=frontcover&img=1&zoom=0&edge=nocurl&fife=w900';
+  const fontes=['https://images.weserv.nl/?url='+encodeURIComponent(grande)+'&w=900&output=jpg',
+    'https://images.weserv.nl/?url='+encodeURIComponent(b.dataset.t.replace('&edge=curl',''))+'&output=jpg',grande];
+  let ok=false;for(const f of fontes){const im=await corsImg(f);if(im&&await usarImagem(im,alvo)){ok=true;break}}
+  b.classList.remove('carregando');
+  if(ok){fecharBusca();toast(pal()==='pôster'?'Pôster colocado!':'Capa colocada!')}else toast('Não consegui usar essa capa. Tente outra, ou escolha da galeria.')};
 
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
 

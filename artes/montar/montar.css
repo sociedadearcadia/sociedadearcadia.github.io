@@ -33,3 +33,16 @@
 .livros .tirar{align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--muted);font:600 12.5px var(--body);text-decoration:underline;cursor:pointer}
 .sheet .prev video{max-width:100%;max-height:46vh;display:block}
 @media (prefers-reduced-motion:reduce){.estrelas svg{animation:none!important}}
+.livros .acoes{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:2px}
+.livros .acoes button{background:none;border:0;padding:2px 0;color:#f6d38d;font:600 13px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.livros .acoes [data-tirar]{color:var(--muted)}
+.bForm{display:flex;gap:8px}
+.bForm input{flex:1;min-width:0}
+.bForm .btn{padding:10px 16px}
+.bRes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-height:52vh;overflow:auto;padding:2px}
+.res{display:flex;flex-direction:column;gap:3px;background:none;border:0;padding:0;cursor:pointer;text-align:left;color:var(--cream)}
+.res img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:1.5px solid rgba(214,180,108,.4);background:rgba(15,8,32,.7);display:block}
+.res span{font:500 12.5px/1.2 var(--display);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.res small{font:600 11px var(--body);color:var(--muted)}
+.res.carregando{opacity:.5;pointer-events:none}
+.res:focus-visible img{outline:2px solid var(--gold)}

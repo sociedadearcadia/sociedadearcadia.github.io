@@ -56,7 +56,7 @@
 
   <section class="panel previa">
     <canvas id="prev" width="540" height="960" aria-label="Prévia da arte"></canvas>
-    <p class="muted small" style="margin:0;text-align:center">Toque num espaço da prévia para colocar a capa.</p>
+    <p class="muted small" style="margin:0;text-align:center">Toque num espaço da prévia para buscar a capa.</p>
     <button class="btn wide" type="button" id="salvar">Salvar imagem</button>
     <button class="btn ghost wide" type="button" id="salvarVideo" hidden>Salvar com brilho (vídeo)</button>
   </section>
@@ -70,6 +70,17 @@
 </main>
 <input type="file" id="arquivo" accept="image/*" hidden>
 <canvas id="gravador" aria-hidden="true" style="position:fixed;left:-9999px;top:0;width:10px;height:10px"></canvas>
+
+<div class="sheet" id="busca" hidden role="dialog" aria-modal="true" aria-labelledby="bT">
+  <div class="panel">
+    <h2 id="bT" style="margin:0">Buscar capa</h2>
+    <form id="bForm" class="bForm"><input type="search" id="bQ" enterkeyhint="search" autocomplete="off" maxlength="120" aria-label="Pesquisar"><button class="btn" type="submit">Buscar</button></form>
+    <p class="muted small" id="bDica" hidden style="margin:0"></p>
+    <div class="bRes" id="bRes"></div>
+    <button class="btn ghost wide" type="button" id="bGal">Escolher da galeria</button>
+    <button class="btn ghost wide" type="button" id="bX">Fechar</button>
+  </div>
+</div>
 
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Salvar arte">
   <div class="panel">
