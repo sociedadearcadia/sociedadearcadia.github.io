@@ -46,3 +46,7 @@
 .res small{font:600 11px var(--body);color:var(--muted)}
 .res.carregando{opacity:.5;pointer-events:none}
 .res:focus-visible img{outline:2px solid var(--gold)}
+.pctBox{display:flex;flex-direction:column;gap:8px;margin-top:16px;font-size:15px}
+.pctRow{display:flex;align-items:center;gap:12px}
+.pctRow input{flex:1;border:0;background:none;padding:0;box-shadow:none}
+.pctRow output{min-width:4ch;text-align:right;font:500 22px var(--display);color:#fff}

@@ -45,6 +45,10 @@
       <output id="qtd">1</output>
       <button class="btn ghost" type="button" id="mais" aria-label="Mais uma">+</button>
     </div>
+    <div id="pctBox" class="pctBox" hidden>
+      <label for="pctR">Quanto você já leu</label>
+      <div class="pctRow"><input type="range" id="pctR" min="0" max="100" step="1" value="0"><output id="pctV">0%</output></div>
+    </div>
     <div id="metaBox" class="metaBox" hidden>
       <div class="chips" id="anos"></div>
       <label>Minha meta <input type="number" id="metaN" min="1" max="300" inputmode="numeric"> livros</label>
@@ -142,6 +146,8 @@
         catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
         $('gateBtn').disabled=false}});
     LS.set('membroOk',uid)}
+  /* livro do mês (para o modelo Leitura do mês) */
+  try{const q=await db.collection('leituras').orderBy('inicio','desc').limit(1).get();if(!q.empty){window.LIVRO_MES=q.docs[0].data();dispatchEvent(new Event('livromes'))}}catch(e){console.warn(e)}
 
 })();
 </script>
