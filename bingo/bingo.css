@@ -50,3 +50,9 @@
 .tabela summary b{font:600 15px var(--display);color:#fff;white-space:nowrap}
 .tabela ul{margin:6px 0 4px;padding-left:18px;font-size:13.5px;color:var(--muted)}
 .tabela .zero summary{color:#8f81b6}
+/* aviso de tabela em breve */
+.em-breve{padding:22px 16px;border-radius:14px;border:1px dashed rgba(214,180,108,.7);background:radial-gradient(circle at 50% 0,rgba(232,139,214,.16),rgba(15,8,32,.55) 70%);text-align:center}
+.em-breve p{margin:0}
+.em-breve p+p{margin-top:8px}
+.em-breve .eb-t{font:italic 500 26px/1.2 var(--display);color:#fff;text-shadow:0 0 18px rgba(232,170,255,.5)}
+.em-breve b{color:#f6d38d;white-space:nowrap}
