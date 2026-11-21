@@ -1,0 +1,42 @@
+/* Artes do clube (usa /leitura/leitura.css e /livros/livros.css) */
+.galeria{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:520px){.galeria{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.arte{display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:14px;border:1px solid rgba(214,180,108,.38);background:rgba(23,15,51,.55)}
+.arte .mini{position:relative;aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:rgba(15,8,32,.75);display:flex;align-items:center;justify-content:center;border:0;padding:0;cursor:pointer}
+.arte .mini img{width:100%;height:100%;object-fit:contain;display:block}
+.arte .mini .fmt{font:700 13px var(--body);letter-spacing:.12em;color:var(--gold);border:1px solid rgba(214,180,108,.55);border-radius:8px;padding:8px 12px}
+.arte .mini .seloF{width:46%;opacity:.55}
+.arte h3{margin:0;font:500 15.5px/1.25 var(--display);color:#fff;overflow-wrap:anywhere}
+.arte .info{margin:-4px 0 0;font-size:12px;color:var(--muted)}
+.arte .btn{padding:9px 12px;font-size:14px;margin-top:auto}
+.cat{margin:0 0 10px;font:500 20px/1.25 var(--display);color:#fff}
+.cat small{font:600 12.5px var(--body);color:var(--muted);margin-left:6px}
+.grupo+.grupo{margin-top:22px}
+.uso{margin:16px 0 0;padding:14px;border-radius:14px;border:1px solid rgba(246,211,141,.6);background:rgba(246,211,141,.10);font-size:15px;text-align:center}
+.uso b{color:#f6d38d}
+
+/* janela de baixar */
+.sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(8,4,20,.72);padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet[hidden]{display:none}
+@media (min-width:600px){.sheet{align-items:center}}
+.sheet .panel{width:100%;max-width:440px;max-height:calc(100vh - 32px);overflow:auto;display:flex;flex-direction:column;gap:12px;background:rgba(23,15,51,.96)}
+.sheet .prev{max-height:46vh;border-radius:12px;background:rgba(15,8,32,.75);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.sheet .prev img{max-width:100%;max-height:46vh;display:block;-webkit-touch-callout:default}
+.sheet h2{margin:0}
+.sheet .btn{text-align:center;text-decoration:none}
+.sheet .dica{margin:0;font-size:13px;color:var(--muted);text-align:center}
+
+/* administração */
+.arq{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;border:1px dashed rgba(214,180,108,.55);background:rgba(15,8,32,.5);cursor:pointer;flex-direction:row;font-size:15px}
+.arq input{position:absolute;opacity:0;width:1px;height:1px}
+.arq .pv{flex:none;width:64px;height:80px;border-radius:8px;background:rgba(23,15,51,.8);display:flex;align-items:center;justify-content:center;overflow:hidden;font:700 11px var(--body);color:var(--gold)}
+.arq .pv img{width:100%;height:100%;object-fit:contain}
+.arq:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+.prog{height:8px;border-radius:99px;background:rgba(23,15,51,.85);border:1px solid var(--line);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lilac),var(--rose));transition:width .2s}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cats .chip{font-size:13px;padding:6px 12px}
+.arte .ed{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.arte .edit-f input,.arte .edit-f select{padding:8px 10px;font-size:15px;border-radius:10px}
+.arte .edit-f .btn{margin-top:0}
+.uso-livre{margin:0;font-size:13px;color:var(--muted)}
