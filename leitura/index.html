@@ -60,6 +60,7 @@
         <div class="quick" id="quick"><button type="button" data-v="0">0%</button><button type="button" data-v="25">25%</button><button type="button" data-v="50">50%</button><button type="button" data-v="75">75%</button><button type="button" data-v="100">Terminei</button></div>
       </div>
       <button class="btn wide" id="salvar" type="submit">Salvar minha leitura</button>
+      <button class="btn ghost wide" id="stories" type="button">✦ Gerar imagem para os stories</button>
     </form>
   </section>
 
@@ -100,6 +101,7 @@
 <script src="/fx.js"></script>
 <script src="/config.js"></script>
 <script src="/sprint/config.js"></script>
+<script src="stories.js"></script>
 <script>
 (async function(){
   const $=id=>document.getElementById(id);
@@ -192,6 +194,8 @@
     let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();return ok}}
   $('copiar').onclick=async()=>{if(!livro)return;toast(await copiar(texto())?'Listinha copiada. É só colar no grupo.':'Não consegui copiar. Use o botão do WhatsApp.')};
 
+  $('stories').onclick=()=>{if(!livro)return;if(!sel.value){toast('Escolha seu nome primeiro');sel.focus();return}
+    window.LeituraStories.abrir({nome:sel.value,pct:+r.value,capa:livro.capa||'',titulo:livro.titulo||''})};
   $('f').onsubmit=async ev=>{ev.preventDefault();if(!livro)return;
     if(!sel.value){toast('Escolha seu nome primeiro');sel.focus();return}
     const b=$('salvar');b.disabled=true;
