@@ -46,7 +46,7 @@
     <section class="panel">
       <p class="lbl">5 pontos cada</p>
       <h2>Presença no encontro oficial</h2>
-      <p class="muted small" style="margin:0 0 10px">Aparecem aqui só os encontros da agenda marcados como “Encontro do livro do mês”. Encontros extras, oficinas e LCs não contam presença. Marque quem esteve lá.</p>
+      <p class="muted small" style="margin:0 0 10px">Aparecem aqui só os encontros da agenda marcados como “Encontro do livro do mês” ou “Natal” (o encontro de dezembro também é o oficial). Encontros extras, oficinas e LCs não contam presença. Marque quem esteve lá.</p>
       <div id="encontros"><p class="muted small">Carregando…</p></div>
     </section>
 
@@ -148,7 +148,7 @@
     db.collection('leituras').orderBy('inicio','desc').onSnapshot(s=>{
       leituras=s.docs.map(d=>Object.assign({_id:d.id},d.data())).filter(l=>l.inicio&&l.inicio.toDate);
       lerQuiz();desenhar()},e=>{console.warn(e);toast('Erro ao ler os livros do mês: '+e.code)});
-    db.collection('eventos').where('tema','==','livro').onSnapshot(s=>{
+    db.collection('eventos').where('tema','in',['livro','natal']).onSnapshot(s=>{
       eventos=s.docs.map(d=>Object.assign({_id:d.id},d.data()));ouvirRsvp();desenhar()},e=>{console.warn(e);toast('Erro ao ler a agenda: '+e.code)});
 
     const lAno=()=>leituras.filter(l=>l.inicio.toDate().getFullYear()===ano);
