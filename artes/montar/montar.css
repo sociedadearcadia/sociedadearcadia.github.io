@@ -1,0 +1,48 @@
+/* Montar minha arte */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips .chip{font-size:14px;padding:9px 14px}
+.qtd{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:15px}
+.qtd span{flex:1}
+.qtd .btn{width:46px;height:46px;padding:0;font-size:22px;line-height:1;border-radius:50%}
+.qtd output{min-width:2ch;text-align:center;font:500 26px var(--display);color:#fff}
+.metaBox{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.metaBox label{display:flex;align-items:center;gap:10px;font-size:15px}
+.metaBox input{width:90px;text-align:center}
+.fundos{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;margin:0 -4px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.fundo{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:0;padding:0;cursor:pointer;color:var(--cream);font:600 12.5px var(--body);scroll-snap-align:start}
+.fundo img{width:78px;height:139px;object-fit:cover;border-radius:10px;border:2px solid rgba(214,180,108,.3);display:block}
+.fundo[aria-pressed="true"] img{border-color:#f6d38d;box-shadow:0 0 14px rgba(246,211,141,.55)}
+.fundo[aria-pressed="true"] span{color:#f6d38d}
+.previa{display:flex;flex-direction:column;gap:12px;align-items:center}
+.previa canvas{width:100%;max-width:380px;aspect-ratio:9/16;height:auto;border-radius:14px;box-shadow:0 12px 40px rgba(8,4,20,.6);cursor:pointer;display:block}
+.livros{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.livros li{display:flex;gap:12px;align-items:center;padding:10px;border-radius:14px;border:1px solid rgba(214,180,108,.3);background:rgba(23,15,51,.5)}
+.livros .capa{flex:none;width:62px;height:93px;border-radius:8px;border:1.5px dashed rgba(214,180,108,.7);background:rgba(15,8,32,.7);padding:0;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gold);font:600 12px var(--body)}
+.livros .capa img{width:100%;height:100%;object-fit:cover;display:block}
+.livros .info{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
+.livros .info b{font:500 16px var(--display);color:#fff}
+.estrelas{display:flex;gap:2px}
+.estrelas button{width:40px;height:40px;padding:4px;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.estrelas svg{width:100%;height:100%;overflow:visible}
+.estrelas .v{fill:rgba(20,8,38,.5);stroke:rgba(230,196,120,.95);stroke-width:1.6;stroke-linejoin:round}
+.estrelas .c{fill:url(#gS);opacity:0}
+.estrelas .on .c,.estrelas .meia .c{opacity:1;filter:drop-shadow(0 0 4px rgba(246,211,141,.9))}
+.estrelas .meia .c{clip-path:url(#meia)}
+.estrelas .on svg,.estrelas .meia svg{animation:pinta .35s ease}
+@keyframes pinta{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.livros .tirar{align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--muted);font:600 12.5px var(--body);text-decoration:underline;cursor:pointer}
+.sheet .prev video{max-width:100%;max-height:46vh;display:block}
+@media (prefers-reduced-motion:reduce){.estrelas svg{animation:none!important}}
+.livros .acoes{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:2px}
+.livros .acoes button{background:none;border:0;padding:2px 0;color:#f6d38d;font:600 13px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.livros .acoes [data-tirar]{color:var(--muted)}
+.bForm{display:flex;gap:8px}
+.bForm input{flex:1;min-width:0}
+.bForm .btn{padding:10px 16px}
+.bRes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-height:52vh;overflow:auto;padding:2px}
+.res{display:flex;flex-direction:column;gap:3px;background:none;border:0;padding:0;cursor:pointer;text-align:left;color:var(--cream)}
+.res img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:1.5px solid rgba(214,180,108,.4);background:rgba(15,8,32,.7);display:block}
+.res span{font:500 12.5px/1.2 var(--display);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.res small{font:600 11px var(--body);color:var(--muted)}
+.res.carregando{opacity:.5;pointer-events:none}
+.res:focus-visible img{outline:2px solid var(--gold)}
