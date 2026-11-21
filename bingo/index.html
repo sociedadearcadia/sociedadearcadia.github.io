@@ -62,7 +62,11 @@
         <div class="grade" id="grade"></div>
       </div>
       <div class="legenda" id="legenda"></div>
-      <p class="muted small" style="margin:10px 0 0;text-align:center" id="dicaCasa">Toque em uma casa para ver o desafio.</p>
+      <p class="muted small" style="margin:10px 0 0;text-align:center" id="dicaCasa">Toque numa casa para ver a explicação.</p>
+      <details class="expl" id="expl" open>
+        <summary>Explicação de cada desafio</summary>
+        <div id="explL"></div>
+      </details>
     </div>
     <p class="muted" id="tabCarregando" style="margin:0">Carregando…</p>
   </section>
@@ -237,10 +241,12 @@
     $('tabCarregando').hidden=true;$('emBreve').hidden=!!ds.length;$('tabelaBox').hidden=!ds.length;if(!ds.length)return;
     $('acesso').hidden=!!chave;$('dona').hidden=!chave;$('donaN').textContent=eu;
     $('cartao').style.setProperty('--lin',Math.ceil(ds.length/5));
+    const cats0=[...new Set(ds.map(d=>d.c||''))];
     const ok=new Set(ds.filter(d=>m[d.id]&&m[d.id].status==='aprovada').map(d=>d.id));
     $('placarP').hidden=!chave;$('placar').textContent=ok.size+' de '+ds.length;
     const nb=B.bingos(ds,ok);$('bingosT').textContent=nb?(nb===1?'1 bingo!':nb+' bingos!'):'';
-    $('dicaCasa').textContent='Toque numa casa para ver o desafio.';
+    {let cat=null,h='';ds.forEach((d,i)=>{if((d.c||'')!==cat){cat=d.c||'';h+=cat?'<p class="ex-cat k'+(cats0.indexOf(cat)%4)+'">'+esc(cat)+'</p>':''}
+      h+='<div class="ex k'+(cats0.indexOf(d.c||'')%4)+'"><b><span>'+B.num(i)+'</span> '+esc(d.t)+'</b>'+(d.d?'<p>'+esc(d.d)+'</p>':'')+'</div>'});$('explL').innerHTML=h}
     /* cartela de bingo: 5 colunas; cada categoria tem uma cor */
     const cats=[...new Set(ds.map(d=>d.c||''))];
     $('grade').innerHTML=ds.map((d,i)=>{const p=m[d.id],mar=mk.has(d.id);
