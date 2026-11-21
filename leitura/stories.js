@@ -59,10 +59,10 @@ async function desenhar(c,escala){const f=FUNDOS[fundo];
   const r2=rnd(31);for(let i=0;i<16;i++)brilho(x,r2()*W,r2()*H,r2()*8+6,.4+r2()*.5);
   x.lineWidth=4;x.strokeStyle='rgba(214,180,108,.8)';arch(x);x.stroke();x.lineWidth=1.5;x.strokeStyle='rgba(214,180,108,.35)';arch(x,20);x.stroke();
   x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
-  txt(x,D.nome||'Leitora da Arcádia',540,680,'italic 500 54px Lora,Georgia,serif',CREAM);
+  txt(x,'LEITURA DO MÊS',540,664,'600 30px "Nunito Sans",sans-serif',GOLD,8);
   x.shadowBlur=0;
   // capa
-  const cw=380,ch=570,cx=540-cw/2,cy=720;
+  const cw=420,ch=630,cx=540-cw/2,cy=715;
   x.save();x.shadowColor='rgba(8,3,18,.6)';x.shadowBlur=26;x.shadowOffsetY=10;rr(x,cx,cy,cw,ch,10);x.fillStyle='rgba(20,8,38,.7)';x.fill();x.restore();
   if(capa){x.save();rr(x,cx,cy,cw,ch,10);x.clip();const sc=Math.max(cw/capa.naturalWidth,ch/capa.naturalHeight),w=capa.naturalWidth*sc,h=capa.naturalHeight*sc;x.drawImage(capa,cx+(cw-w)/2,cy+(ch-h)/2,w,h);x.restore()}
   else{x.font='italic 500 40px Lora,Georgia,serif';x.fillStyle=CREAM;x.textAlign='center';const n=Math.min(6,Math.ceil(x.measureText(D.titulo||'').width/(cw-60)));quebra(x,D.titulo||'',540,cy+ch/2-(n-1)*25,cw-60,50)}
@@ -70,16 +70,15 @@ async function desenhar(c,escala){const f=FUNDOS[fundo];
   // porcentagem
   const p=Math.max(0,Math.min(100,Math.round(+D.pct||0)));
   x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
-  txt(x,p+'%',540,1438,'500 120px Lora,Georgia,serif',CREAM);
-  txt(x,p>=100?'leitura concluída':'lido até agora',540,1490,'italic 500 40px Lora,Georgia,serif',LILAC);x.shadowBlur=0;
-  const bx=200,by=1525,bw=680,bh=26;
+  txt(x,p+'%',540,1500,'500 120px Lora,Georgia,serif',CREAM);
+  txt(x,p>=100?'leitura concluída':'lido até agora',540,1552,'italic 500 40px Lora,Georgia,serif',LILAC);x.shadowBlur=0;
+  const bx=200,by=1592,bw=680,bh=26;
   rr(x,bx,by,bw,bh,bh/2);x.fillStyle='rgba(20,8,38,.6)';x.fill();
   if(p>0){const fw=Math.max(bh,bw*p/100);g=x.createLinearGradient(bx,0,bx+fw,0);g.addColorStop(0,'#b58ae6');g.addColorStop(.6,'#e9a8d8');g.addColorStop(1,'#f6d38d');
     x.save();x.shadowColor='rgba(246,211,141,.7)';x.shadowBlur=18;rr(x,bx,by,fw,bh,bh/2);x.fillStyle=g;x.fill();x.restore();
     brilho(x,bx+fw-6,by+bh/2,22,.95,'#fffbe8');brilho(x,bx+fw*.45,by-4,10,.7,'#fffbe8')}
   rr(x,bx,by,bw,bh,bh/2);x.lineWidth=2;x.strokeStyle='rgba(214,180,108,.8)';x.stroke();
-  x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;txt(x,'LEITURA DO MÊS',540,1650,'600 30px "Nunito Sans",sans-serif',GOLD,8);
-  txt(x,'✦ SOCIEDADE ARCÁDIA ✦',540,1818,'600 28px "Nunito Sans",sans-serif',GOLD,8);x.shadowBlur=0;
+  x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;  txt(x,'✦ SOCIEDADE ARCÁDIA ✦',540,1818,'600 28px "Nunito Sans",sans-serif',GOLD,8);x.shadowBlur=0;
   if(selo){x.save();x.shadowColor='rgba(10,4,20,.6)';x.shadowBlur=14;x.beginPath();x.arc(996,1836,36,0,6.28);x.fillStyle=CREAM;x.fill();x.restore();
     x.save();x.beginPath();x.arc(996,1836,36,0,6.28);x.clip();x.drawImage(selo,960,1800,72,72);x.restore();x.strokeStyle='rgba(214,180,108,.85)';x.lineWidth=2;x.beginPath();x.arc(996,1836,37,0,6.28);x.stroke()}
 }
@@ -95,7 +94,7 @@ function entregar(blob,nome,tipo,ehVideo){if(url)URL.revokeObjectURL(url);url=UR
   if(pode)$('lsShare').onclick=async()=>{try{await navigator.share({files:[file]})}catch(e){}}}
 async function video(){const b=$('lsVideo');b.disabled=true;$('lsGerar').disabled=true;b.textContent='Gravando… (6 segundos)';
   try{const c=document.createElement('canvas');await desenhar(c,1);const p=Math.max(0,Math.min(100,+D.pct||0));
-    const pts=p>0?[{x:200+Math.max(26,680*p/100)-6,y:1538,k:24}]:[];
+    const pts=p>0?[{x:200+Math.max(26,680*p/100)-6,y:1605,k:24}]:[];
     const r=await ArcVideo.gravar(c,pts);entregar(r.blob,'arcadia-leitura-'+new Date().toISOString().slice(0,10)+'.'+r.ext,r.type,true)}
   catch(e){console.warn(e);botaoGerar()}}
 let url='';
