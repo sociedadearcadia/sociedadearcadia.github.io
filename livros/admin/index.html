@@ -158,7 +158,9 @@
   auth.onAuthStateChanged(async u=>{
     if(!u||u.isAnonymous)return login();
     let admin=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
-    if(!admin){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted small">Para liberar, no console do Firebase crie em Firestore, na coleção <code>admins</code>, um documento cujo ID é:</p><p><code style="word-break:break-all">'+esc(u.uid)+'</code></p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
+    // conselho: e-mail Google na lista do conselho (a Bia mantém em /admin)
+    if(!admin&&u.email){try{admin=(await db.collection('conselho').doc(u.email.toLowerCase()).get()).exists}catch(e){}}
+    if(!admin){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted small">Se você faz parte do conselho, peça para a Bia incluir este e-mail na lista do conselho.</p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
     st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+'</p>';$('area').hidden=false;
     if(!iniciou){iniciou=true;iniciar()}
   });
