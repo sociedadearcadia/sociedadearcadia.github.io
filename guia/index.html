@@ -41,19 +41,21 @@
   <!--
     Cada página do site tem uma <section class="panel secao">.
     Para incluir uma página nova no guia, copie uma seção, troque o id,
-    o data-titulo (nome no índice), o link do botão "Abrir" e as perguntas.
+    o data-ic (ícone de /icones.js), o data-titulo (nome no índice),
+    o link do botão "Abrir" e as perguntas.
     O índice do topo e a busca se atualizam sozinhos.
   -->
 
-  <section class="panel secao" id="comecar" data-titulo="Primeiro acesso">
+  <section class="panel secao" id="comecar" data-ic="chave" data-titulo="Primeiro acesso">
     <div class="cab"><div><p class="lbl">Para começar</p><h2>Primeiro acesso</h2></div></div>
     <p class="resumo">O que fazer na primeira vez que você abre o site em um aparelho.</p>
     <details>
       <summary>Como entro nas páginas das integrantes?</summary>
       <ol class="passos">
-        <li>Abra a <b>Área das integrantes</b>, no menu da página inicial.</li>
+        <li>Na página inicial, toque no <b>botão redondo de três pontinhos</b>, no alto da tela. O menu abre do lado direito.</li>
+        <li>Toque em <b>Área das integrantes</b>.</li>
         <li>Digite a <b>senha do clube</b>. É a mesma do sprint.</li>
-        <li>Toque em <b>Entrar</b>.</li>
+        <li>Toque em <b>Entrar</b>. Aparecem os botões de todas as páginas, separados por assunto.</li>
       </ol>
       <p class="txt">Você só digita a senha uma vez em cada aparelho. Ela vale para todas as páginas.</p>
       <p class="dica">Se pedir a senha de novo, é porque você trocou de aparelho, de navegador ou apagou os dados do navegador. É só digitar outra vez.</p>
@@ -85,13 +87,15 @@
     <details>
       <summary>Onde ficam as páginas?</summary>
       <ol class="passos">
-        <li>Na página inicial, toque no botão de menu, no alto da tela, e depois em <b>Área das integrantes</b>.</li>
-        <li>Escolha a página. Dá para salvar o endereço <b>sociedadearcadia.com.br/integrantes</b> nos favoritos. Em todas elas, o botão <b>← Sociedade Arcádia</b> volta para o início.</li>
+        <li>Na página inicial, toque no <b>botão redondo de três pontinhos</b>, no alto da tela, e depois em <b>Área das integrantes</b>.</li>
+        <li>Escolha a página. Elas estão separadas em grupos: Leitura do mês, Encontros e leituras juntas, Jogos, Divulgação e Ajuda.</li>
       </ol>
+      <p class="txt">Dá para salvar o endereço <b>sociedadearcadia.com.br/integrantes</b> nos favoritos. Em todas as páginas, o botão <b>← Sociedade Arcádia</b> volta para o início.</p>
+      <p class="dica">Algumas páginas só aparecem quando estão abertas, como a <b>Limpeza da lista de livros</b>. Nesse caso, o botão vem com a etiqueta <b>Aberta</b>.</p>
     </details>
   </section>
 
-  <section class="panel secao" id="agenda" data-titulo="Agenda">
+  <section class="panel secao" id="agenda" data-ic="calendario" data-titulo="Agenda">
     <div class="cab"><div><p class="lbl">Encontros e eventos</p><h2>Agenda</h2></div><a class="btn ghost abrir" href="/agenda/">Abrir</a></div>
     <p class="resumo">Calendário com todos os encontros do clube.</p>
     <details>
@@ -128,7 +132,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="sprint" data-titulo="Sprint de leitura">
+  <section class="panel secao" id="sprint" data-ic="ampulheta" data-titulo="Sprint de leitura">
     <div class="cab"><div><p class="lbl">Timer de leitura</p><h2>Sprint de leitura</h2></div><a class="btn ghost abrir" href="/sprint/">Abrir</a></div>
     <p class="resumo">Timer para ler com foco, sozinha ou junto com o grupo, com ranking de quem mais leu.</p>
     <details>
@@ -136,20 +140,23 @@
       <ol class="passos">
         <li>Abra o <b>Sprint de leitura</b> e escolha o seu nome (só na primeira vez).</li>
         <li>Toque em <b>Começar</b>. O tempo de <b>Leitura</b> começa a contar.</li>
-        <li>Quando o alarme tocar, começa a <b>Prosa</b>, com uma pergunta para conversar sobre o livro. Toque em <b>Outra pergunta</b> para trocar.</li>
-        <li>No fim, escreva o livro e, se quiser, as páginas lidas. Toque em <b>Salvar sprint</b>.</li>
+        <li>Quando o alarme tocar, começa a <b>Prosa</b> (a pausa), com uma pergunta para conversar sobre o livro. Toque em <b>Outra pergunta</b> para trocar.</li>
+        <li>Abre a janela para salvar. Escreva o livro e, se quiser, as páginas lidas, e toque em <b>Salvar sprint</b>. O timer continua contando a prosa enquanto isso.</li>
+        <li>Quando a prosa acaba, a leitura começa de novo sozinha. Leitura e prosa vão se alternando até você tocar em <b>Encerrar sprint</b>.</li>
       </ol>
       <p class="txt">Para pausar, toque em <b>Pausar</b>. <b>Reiniciar</b> volta o tempo do começo e <b>Encerrar sprint</b> termina antes da hora.</p>
-      <p class="dica">Se ficar 2 horas sem tocar na tela, o timer pausa sozinho. O que você leu fica guardado.</p>
+      <p class="txt">Na prosa aparece a janela <b>Você ainda está aqui?</b>. Toque em <b>Ainda estou aqui</b> para a próxima leitura começar. Se não tocar até o fim da prosa, o timer pausa e o que você leu fica guardado.</p>
+      <p class="dica">Se quiser fazer só uma leitura e parar, desligue <b>Alternar leitura e prosa sozinho</b> em Configurações.</p>
     </details>
     <details>
       <summary>Como leio junto com as meninas (sprint coletivo)?</summary>
-      <p class="txt">O sprint coletivo é sempre igual para todas: <b>15 minutos de prosa de abertura</b>, para todo mundo chegar e se organizar, depois <b>40 minutos de leitura</b> e <b>10 minutos de prosa</b>. O timer é o mesmo para todas, então não precisa mexer nas suas configurações.</p>
+      <p class="txt">O sprint coletivo começa com <b>15 minutos de prosa de abertura</b>, para todo mundo chegar e se organizar. Depois são rodadas de <b>40 minutos de leitura</b> e <b>15 minutos de prosa</b>, que se alternam sozinhas. O timer é o mesmo para todas, então não precisa mexer nas suas configurações.</p>
       <p class="txt"><b>Quem vai liderar:</b></p>
       <ol class="passos">
         <li>Abra o <b>Sprint de leitura</b>.</li>
         <li>Toque em <b>Entrar na sala de vídeo</b>, se for ter vídeo.</li>
-        <li>Em <b>Sprint coletivo</b>, toque em <b>Começar sprint coletivo</b>. Começa a prosa de abertura.</li>
+        <li>Em <b>Sprint coletivo</b>, escolha em <b>Quantas rodadas?</b> o número de rodadas, ou deixe <b>Livre: até todas saírem</b>.</li>
+        <li>Toque em <b>Começar sprint coletivo</b>. Começa a prosa de abertura.</li>
         <li>Avise no grupo do WhatsApp que o coletivo começou e a hora da leitura. Os horários aparecem no painel.</li>
       </ol>
       <p class="txt"><b>Quem vai participar:</b></p>
@@ -158,10 +165,29 @@
         <li>Primeiro toque em <b>Entrar na sala de vídeo</b>. A sala abre no topo da página.</li>
         <li>Depois, em <b>Sprint coletivo</b>, toque em <b>Entrar no sprint coletivo</b>. Seu timer fica igual ao das outras, mesmo entrando no meio.</li>
         <li>Quando a prosa de abertura acaba, o alarme toca para todas e começa a leitura.</li>
-        <li>No fim da leitura, salve o sprint como sempre. Para sair antes, toque em <b>Sair do coletivo</b>.</li>
+        <li>No fim de cada leitura, abre a janela para salvar. Salve o sprint como sempre. O timer segue para a prosa sem parar.</li>
+        <li>Em cada prosa aparece <b>Você ainda está no sprint coletivo?</b>. Toque em <b>Ainda estou aqui</b> para continuar na próxima rodada.</li>
+        <li>Para sair antes, toque em <b>Sair do coletivo</b>.</li>
       </ol>
-      <p class="txt">Os minutos do sprint coletivo contam no ranking de cada uma. Durante o coletivo não dá para pausar o timer: ele segue o mesmo horário para todas.</p>
+      <p class="txt">Os minutos do sprint coletivo contam no ranking de cada uma. Durante o coletivo não dá para pausar o timer: ele segue o mesmo horário para todas. O coletivo termina quando acabam as rodadas ou quando a última pessoa sai.</p>
+      <p class="dica">Se você não tocar em <b>Ainda estou aqui</b> até o fim da prosa, sai do coletivo sozinha. Os minutos que leu não se perdem: use <b>Resgatar meus minutos do coletivo</b>.</p>
       <p class="dica">Só existe um sprint coletivo por vez. Se já tiver um acontecendo, aparece <b>Entrar no sprint coletivo</b> em vez de Começar.</p>
+    </details>
+    <details>
+      <summary>Esqueci de salvar o coletivo. Perdi os minutos?</summary>
+      <ol class="passos">
+        <li>Depois que você sai do coletivo (ou ele acaba), aparece o botão <b>Resgatar meus minutos do coletivo</b>, com os minutos que faltam salvar.</li>
+        <li>Toque nele, confira os minutos (dá para mudar) e salve.</li>
+      </ol>
+      <p class="txt">O resgate fica disponível por 24 horas, no mesmo aparelho em que você leu.</p>
+    </details>
+    <details>
+      <summary>Como uso o chat do coletivo?</summary>
+      <ol class="passos">
+        <li>No painel do <b>Sprint coletivo</b>, escreva em <b>Escreva para o coletivo…</b>.</li>
+        <li>Toque em <b>Enviar</b>.</li>
+      </ol>
+      <p class="txt">Todas que estão no sprint veem as mensagens. Quando não tem coletivo acontecendo, o chat fica aberto para conversar do mesmo jeito. Para apagar uma mensagem sua, toque no <b>×</b> ao lado dela.</p>
     </details>
     <details>
       <summary>Como funciona a sala de vídeo?</summary>
@@ -169,9 +195,12 @@
         <li>No sprint, toque em <b>Entrar na sala de vídeo</b>. A sala abre dentro do site, no topo da página.</li>
         <li>O seu nome do sprint já vai preenchido. Toque em entrar.</li>
         <li>Câmera e microfone começam desligados. Ligue pelos botões da sala se quiser.</li>
+        <li>Para ver a sala maior, toque em <b>Tela cheia</b>. O timer aparece junto com o vídeo.</li>
         <li>Para sair, toque em <b>Sair da sala</b>.</li>
       </ol>
-      <p class="dica">No iPhone, permita o uso da câmera e do microfone quando o navegador pedir. A sala é separada do timer: dá para ler no coletivo sem entrar no vídeo.</p>
+      <p class="txt">Na lista do coletivo, quem está na sala aparece com o ícone de câmera ao lado do nome. Se a sala cair, ela tenta entrar de novo sozinha.</p>
+      <p class="txt">A sala tem um limite de minutos gratuitos por mês, que vale para todas juntas. O uso do mês aparece junto do botão da sala. Se o limite acabar, a sala volta no dia 1º. O sprint coletivo e o chat continuam funcionando.</p>
+      <p class="dica">No iPhone, permita o uso da câmera e do microfone quando o navegador pedir. A sala é separada do timer: dá para ler no coletivo sem entrar no vídeo. Saia da sala quando não estiver usando, para economizar os minutos do mês.</p>
     </details>
     <details>
       <summary>Como funciona o ranking?</summary>
@@ -196,13 +225,19 @@
     </details>
     <details>
       <summary>Como troco o tempo, o som do alarme ou o fundo?</summary>
-      <p class="txt">Isso vale para o seu sprint sozinha. O sprint coletivo tem tempo fixo.</p>
+      <p class="txt">Isso vale para o seu sprint sozinha. O sprint coletivo tem tempo fixo (40 de leitura e 15 de prosa).</p>
       <ol class="passos">
-        <li>Em <b>Configurações</b>, mude os minutos de <b>Leitura</b> e <b>Prosa</b>.</li>
+        <li>Em <b>Configurações</b>, mude os minutos de <b>Leitura</b> e <b>Prosa</b>. Em <b>Alternar leitura e prosa sozinho</b>, escolha se a leitura recomeça sozinha depois da prosa.</li>
         <li>Em <b>Som do alarme</b>, escolha uma cena de filme ou série, um som do clube, ou deixe sortear uma cena a cada sprint. Toque em <b>Testar alarme</b>.</li>
         <li>Em <b>Plano de fundo</b>, escolha a arte da Arcádia, uma cor, ou toque em <b>+</b> para usar uma imagem do celular, como a capa do livro.</li>
       </ol>
       <p class="dica">No iPhone, deixe ligado <b>Tocar mesmo com o celular no silencioso</b> para ouvir o alarme.</p>
+    </details>
+    <details>
+      <summary>Posso minimizar o site ou apagar a tela?</summary>
+      <p class="txt">Pode. O timer segue pelo relógio, então continua certo mesmo com o site minimizado ou a tela apagada. Quando você volta, ele está no ponto certo, e o sprint que estava rodando continua mesmo se a página recarregar.</p>
+      <p class="txt">No <b>iPhone</b>, o Safari não toca o alarme com o site minimizado. O alarme toca quando você volta para o site. No Android e no computador, se você permitir as notificações, chega um aviso na hora.</p>
+      <p class="dica">Na sala de vídeo, o iPhone desliga a câmera e o microfone quando o site é minimizado. Volte para o site para eles voltarem.</p>
     </details>
     <details>
       <summary>Como ouço música durante o sprint?</summary>
@@ -214,7 +249,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="leitura" data-titulo="Atualização de leitura">
+  <section class="panel secao" id="leitura" data-ic="livro" data-titulo="Atualização de leitura">
     <div class="cab"><div><p class="lbl">Livro do mês</p><h2>Atualização de leitura</h2></div><a class="btn ghost abrir" href="/leitura/">Abrir</a></div>
     <p class="resumo">Onde cada uma conta quanto já leu do livro do mês.</p>
     <details>
@@ -251,7 +286,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="questionario" data-titulo="Questionário do mês">
+  <section class="panel secao" id="questionario" data-ic="pergunta" data-titulo="Questionário do mês">
     <div class="cab"><div><p class="lbl">Livro do mês</p><h2>Questionário do mês</h2></div><a class="btn ghost abrir" href="/leitura/questionario/">Abrir</a></div>
     <p class="resumo">Perguntas sobre o livro do mês, para quem terminou a leitura.</p>
     <details>
@@ -275,7 +310,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="votacao" data-titulo="Votação do livro do mês">
+  <section class="panel secao" id="votacao" data-ic="carta" data-titulo="Votação do livro do mês">
     <div class="cab"><div><p class="lbl">Livro do mês</p><h2>Votação do livro do mês</h2></div><a class="btn ghost abrir" href="/votacao/">Abrir</a></div>
     <p class="resumo">Para votar online em um dos 3 livros do próximo livro do mês.</p>
     <details>
@@ -301,7 +336,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="arcadiana" data-titulo="Arcadiana do Ano">
+  <section class="panel secao" id="arcadiana" data-ic="coroa" data-titulo="Arcadiana do Ano">
     <div class="cab"><div><p class="lbl">Ranking anual</p><h2>Arcadiana do Ano</h2></div><a class="btn ghost abrir" href="/arcadiana/">Abrir</a></div>
     <p class="resumo">O ranking do ano, com os pontos de cada integrante.</p>
     <details>
@@ -326,7 +361,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="livros" data-titulo="Livros sugeridos">
+  <section class="panel secao" id="livros" data-ic="estante" data-titulo="Livros sugeridos">
     <div class="cab"><div><p class="lbl">Leitura oficial e LCs</p><h2>Livros sugeridos</h2></div><a class="btn ghost abrir" href="/livros/">Abrir</a></div>
     <p class="resumo">A lista de livros para o sorteio da leitura oficial do mês, e as listas das LCs extras.</p>
     <details>
@@ -356,7 +391,33 @@
     </details>
   </section>
 
-  <section class="panel secao" id="ideias" data-titulo="Ideias de encontros">
+  <section class="panel secao" id="limpeza" data-ic="vassoura" data-titulo="Limpeza da lista de livros">
+    <div class="cab"><div><p class="lbl">Leitura oficial</p><h2>Limpeza da lista de livros</h2></div><a class="btn ghost abrir" href="/limpeza/">Abrir</a></div>
+    <p class="resumo">De tempos em tempos, cada integrante marca os livros da lista do sorteio que não leria de jeito nenhum. Os mais marcados saem da lista.</p>
+    <details>
+      <summary>Como participo?</summary>
+      <ol class="passos">
+        <li>Quando a limpeza estiver aberta, abra <b>Limpeza da lista de livros</b> (na Área das integrantes, ou pelo aviso em Livros sugeridos).</li>
+        <li>Escolha o seu nome.</li>
+        <li>Em <b>Um por vez</b>, aparece um livro de cada vez. Toque em <b>Não leria</b> ou em <b>Pode ficar</b>. No celular, dá para arrastar o cartão: para a esquerda não leria, para a direita pode ficar.</li>
+        <li>Marque a quantidade de livros pedida na página.</li>
+        <li>Quando chegar ao mínimo, toque em <b>Terminei</b>.</li>
+      </ol>
+      <p class="txt">Tudo fica salvo sozinho. Dá para parar e continuar outro dia, até a data em que a limpeza fecha.</p>
+      <p class="dica">Só a administração vê o que você marcou. As outras integrantes não veem.</p>
+    </details>
+    <details>
+      <summary>Como procuro um livro ou mudo o que marquei?</summary>
+      <p class="txt">Em <b>Lista toda</b>, use a busca para achar um livro e marcar. Em <b>Marcados</b> ficam os livros que você escolheu. Toque em um livro para desmarcar.</p>
+      <p class="txt">Dá para filtrar por gênero. Você pode mudar até a data em que a limpeza fecha.</p>
+    </details>
+    <details>
+      <summary>Diz que eu já comecei em outro aparelho</summary>
+      <p class="txt">A sua lista fica no aparelho em que você começou. Abra por ele, ou peça para a administração liberar o outro aparelho.</p>
+    </details>
+  </section>
+
+  <section class="panel secao" id="ideias" data-ic="lanterna" data-titulo="Ideias de encontros">
     <div class="cab"><div><p class="lbl">Oficinas e encontros extras</p><h2>Ideias de encontros</h2></div><a class="btn ghost abrir" href="/ideias/">Abrir</a></div>
     <p class="resumo">Para sugerir uma oficina ou um encontro extra.</p>
     <details>
@@ -376,7 +437,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="redes" data-titulo="Sugestões para as redes">
+  <section class="panel secao" id="redes" data-ic="brilho" data-titulo="Sugestões para as redes">
     <div class="cab"><div><p class="lbl">Instagram do clube</p><h2>Sugestões para as redes</h2></div><a class="btn ghost abrir" href="/redes/">Abrir</a></div>
     <p class="resumo">Para mandar ideias de post, trends, resenhas e fotos para as redes sociais da Arcádia.</p>
     <details>
@@ -396,7 +457,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="artes" data-titulo="Artes do clube">
+  <section class="panel secao" id="artes" data-ic="moldura" data-titulo="Artes do clube">
     <div class="cab"><div><p class="lbl">Artes e templates</p><h2>Artes do clube</h2></div><a class="btn ghost abrir" href="/artes/">Abrir</a></div>
     <p class="resumo">Artes e templates oficiais para baixar, e o <b>Montar minha arte</b>, que cria imagens prontas para os stories com as suas capas. Use à vontade para divulgar suas leituras e sua participação na Arcádia.</p>
     <details>
@@ -441,7 +502,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="bingo" data-titulo="Bingo">
+  <section class="panel secao" id="bingo" data-ic="cartela" data-titulo="Bingo">
     <div class="cab"><div><p class="lbl">Bingo</p><h2>Bingo</h2></div><a class="btn ghost abrir" href="/bingo/">Abrir</a></div>
     <p class="resumo">A tabela do bingo e o envio dos prints que mostram que você cumpriu os desafios.</p>
     <details>
@@ -464,7 +525,7 @@
     </details>
   </section>
 
-  <section class="panel secao" id="problemas" data-titulo="Problemas comuns">
+  <section class="panel secao" id="problemas" data-ic="bussola" data-titulo="Problemas comuns">
     <div class="cab"><div><p class="lbl">Ajuda</p><h2>Problemas comuns</h2></div></div>
     <p class="resumo">O que fazer quando algo não funciona.</p>
     <details>
@@ -481,13 +542,15 @@
     </details>
     <details>
       <summary>O alarme do sprint não toca</summary>
-      <p class="txt">Aumente o volume do celular. No iPhone, em Configurações do sprint, ligue <b>Tocar mesmo com o celular no silencioso</b> e toque em <b>Testar alarme</b>. Deixe o site aberto na tela durante o sprint.</p>
+      <p class="txt">Aumente o volume do celular. No iPhone, em Configurações do sprint, ligue <b>Tocar mesmo com o celular no silencioso</b> e toque em <b>Testar alarme</b>.</p>
+      <p class="txt">No iPhone, o alarme não toca com o site minimizado. Ele toca assim que você volta para o site. Para ouvir na hora, deixe o site aberto na tela.</p>
     </details>
     <details>
       <summary>Não aparece o botão da sala de vídeo, ou a sala não abre</summary>
       <ol class="passos">
         <li>Feche a aba do sprint e abra de novo.</li>
-        <li>Confira se o navegador tem permissão de câmera e microfone (no iPhone: Ajustes &gt; Safari &gt; Câmera e Microfone).</li>
+        <li>Confira se o navegador tem permissão de câmera e microfone. No iPhone, toque em <b>aA</b> na barra do Safari, depois em <b>Ajustes do Site</b>, e escolha <b>Permitir</b> em Câmera e Microfone.</li>
+        <li>Se aparecer <b>Sala indisponível: limite do mês</b>, os minutos gratuitos do mês acabaram. A sala volta no dia 1º.</li>
         <li>Se continuar, avise a administração.</li>
       </ol>
     </details>
@@ -525,10 +588,13 @@
 <script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
 <script src="/fx.js"></script>
 <script src="/config.js"></script>
+<script src="/icones.js"></script>
 <script>
 (function(){
   const $=id=>document.getElementById(id);
   const secoes=[...document.querySelectorAll('.secao')];
+  /* ícone dourado no título de cada seção (data-ic, nomes em /icones.js) */
+  if(window.ARC_ICONE)secoes.forEach(s=>{const c=s.querySelector('.cab');if(c&&s.dataset.ic)c.insertAdjacentHTML('afterbegin','<span class="ic" aria-hidden="true">'+ARC_ICONE(s.dataset.ic)+'</span>')});
 
   /* índice do topo, montado a partir das seções */
   $('indice').innerHTML=secoes.map(s=>'<a href="#'+s.id+'">'+s.dataset.titulo+'</a>').join('');
