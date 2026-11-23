@@ -1,0 +1,12 @@
+/* Fale com a administração (usa /leitura/leitura.css, /livros/livros.css e /redes/redes.css) */
+.m-elogio{--ac:#f2a8e0;--acr:242,168,224}
+.m-reclamacao{--ac:#f6d38d;--acr:246,211,141}
+.m-problema{--ac:#9cc4ff;--acr:156,196,255}
+.m-outro{--ac:#c9b6ff;--acr:201,182,255}
+.m-com,.m-sem{--ac:#e7c987;--acr:231,201,135}
+.st.nova{color:#f6d38d;border-color:rgba(246,211,141,.5)}
+.st.lida{color:#bff0d2;border-color:rgba(160,230,190,.55)}
+.st.anon{color:#c9b6ff;border-color:rgba(201,182,255,.55)}
+.outras{margin:12px 0 0;font-size:13.5px;color:#cfc4ee;text-align:left}
+.outras a{color:var(--lilac)}
+.semnome{margin:0;padding:10px 12px;border-radius:12px;background:rgba(15,8,32,.5);border:1px solid var(--line);font-size:13.5px}
