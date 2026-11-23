@@ -78,6 +78,8 @@
   const LS={get(k,d){try{const v=localStorage.getItem('arcadia:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadia:'+k,JSON.stringify(v))}catch(e){}}};
   /* para incluir uma página nova, coloque uma linha no grupo certo */
   const GRUPOS=[
+    {t:'Nosso clube',itens:[
+      {ic:'pergaminho',n:'Código da Sociedade Arcádia',d:'Nossos combinados e como o clube funciona',u:'/codigo/'}]},
     {t:'Leitura do mês',itens:[
       {ic:'livro',n:'Atualização de leitura',d:'Quanto você já leu do livro do mês',u:'/leitura/'},
       {ic:'pergunta',n:'Questionário do mês',d:'Perguntas sobre o livro do mês',u:'/leitura/questionario/'},
