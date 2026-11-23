@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Administração · Limpeza da lista</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/leitura/leitura.css">
+<link rel="stylesheet" href="/livros/livros.css">
+<link rel="stylesheet" href="../limpeza.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <div class="row" style="justify-content:space-between"><a class="back" href="../">← Limpeza da lista</a><a class="back" href="/admin/">Painel da administração</a></div>
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+      <p class="lbl">Limpeza da lista de livros</p>
+      <h1>Administração</h1>
+    </div>
+    <div id="state" style="margin-top:14px;text-align:center"><p class="muted">Carregando…</p></div>
+  </section>
+
+  <div id="area" hidden style="display:flex;flex-direction:column;gap:16px">
+    <section class="panel" id="cfgP"><p class="muted" style="margin:0">Carregando…</p></section>
+
+    <section class="panel" id="quemP" hidden>
+      <p class="lbl">Integrantes</p>
+      <h2>Quem já marcou</h2>
+      <div class="resumo" id="resumo"></div>
+      <ul class="pessoas" id="pessoas"></ul>
+    </section>
+
+    <section class="panel" id="resP" hidden>
+      <p class="lbl">Resultado</p>
+      <h2>Livros mais marcados</h2>
+      <p class="muted small" style="margin:-6px 0 12px">Cada livro mostra quantas marcaram e quem foi. Só a administração e o conselho veem esta parte.</p>
+      <div class="filtro" id="rFiltro" role="group" aria-label="Filtrar por número de votos"></div>
+      <ul class="votos" id="votos"></ul>
+      <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost" type="button" id="copiar">Copiar resultado</button></div>
+    </section>
+
+    <div class="row" style="justify-content:center"><button class="btn ghost" type="button" id="sair">Sair da conta</button></div>
+  </div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/config.js"></script>
+<script src="/sprint/config.js"></script>
+<script src="/livros/comum.js"></script>
+<script src="../comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id),st=$('state');
+  const L=window.LIVROS,{esc,slug}=L,Z=window.LIMPEZA;
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  const copiar=async(t,ok)=>{try{await navigator.clipboard.writeText(t);toast(ok)}catch(e){prompt('Copie o texto:',t)}};
+
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  const V='10.12.2';
+  try{await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`)}
+  catch(e){st.innerHTML='<p class="muted">Sem conexão agora. Recarregue a página.</p>';return}
+  // app separado: o login de administração não mexe no acesso de integrante deste aparelho
+  const app=firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase,'admin');const auth=app.auth(),db=app.firestore();
+  const FV=firebase.firestore.FieldValue,TS=firebase.firestore.Timestamp;
+  try{await auth.getRedirectResult()}catch(e){console.warn(e)}
+
+  function login(){$('area').hidden=true;
+    st.innerHTML='<p>Esta parte é só para a administração do clube.</p><button class="btn" id="g">Entrar com Google</button>';
+    $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}
+      catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);
+        else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request')st.insertAdjacentHTML('beforeend','<p class="muted small">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
+  $('sair').onclick=()=>auth.signOut();
+
+  let iniciou=false;
+  auth.onAuthStateChanged(async u=>{
+    if(!u||u.isAnonymous)return login();
+    let admin=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+    // conselho: e-mail Google na lista do conselho (a Bia mantém em /admin)
+    if(!admin&&u.email){try{admin=(await db.collection('conselho').doc(u.email.toLowerCase()).get()).exists}catch(e){}}
+    if(!admin){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted small">Se você faz parte do conselho, peça para a Bia incluir este e-mail na lista do conselho.</p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
+    st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+'</p>';$('area').hidden=false;
+    if(!iniciou){iniciou=true;iniciar()}
+  });
+
+  function iniciar(){
+    const col=db.collection('limpezas');
+    let limpezas=null,sel=null,escolhas=[],offE=null,lista=null,rf=LS('lf',1),tirou=false;
+    function LS(k,d){try{const v=localStorage.getItem('arcadia:limpezaAdm:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+    function LSset(k,v){try{localStorage.setItem('arcadia:limpezaAdm:'+k,JSON.stringify(v))}catch(e){}}
+
+    col.onSnapshot(s=>{limpezas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));
+      const ant=sel&&limpezas.find(l=>l._id===sel._id);
+      const n=ant||Z.atual(limpezas);
+      if(!n||!sel||n._id!==sel._id){sel=n;ouvir()}else sel=n;
+      cfg();quem();resultado()},e=>{console.warn(e);toast('Erro ao ler: '+e.code)});
+    db.collection('sugestoes').where('status','==','lista').onSnapshot(s=>{
+      lista=s.docs.map(d=>Object.assign({_id:d.id},d.data())).filter(l=>L.listaDe(l)==='oficial').sort(L.ordem);
+      cfg();resultado();publicar()},e=>console.warn(e));
+    function ouvir(){if(offE){offE();offE=null}escolhas=[];
+      if(!sel)return;
+      offE=col.doc(sel._id).collection('escolhas').onSnapshot(s=>{escolhas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));quem();resultado()},
+        e=>{console.warn(e);toast('Erro ao ler as escolhas: '+e.code)})}
+
+    /* ---------- abrir, mudar, encerrar ---------- */
+    const fmtAte=l=>L.dataLonga(l.ate);
+    function formAbrir(){
+      const ate=Z.somaDias(L.hojeISO(),7);
+      return '<form class="form" id="abrirF">'+
+        '<div class="cfg-l"><label>Aberta até<input type="date" id="fAte" value="'+ate+'" required></label>'+
+        '<label>Mínimo<input type="number" id="fMin" value="10" min="1" max="50" inputmode="numeric" required></label>'+
+        '<label>Máximo<input type="number" id="fMax" value="20" min="1" max="50" inputmode="numeric" required></label></div>'+
+        '<p class="muted small" style="margin:0">Cada integrante marca entre o mínimo e o máximo de livros da lista oficial'+(lista?' ('+lista.length+' livros)':'')+'. Abre na hora e fecha sozinha no fim do último dia.</p>'+
+        '<button class="btn" type="submit" id="abrirB">Abrir limpeza</button></form>'}
+    function lerForm(){const ate=$('fAte').value,min=parseInt($('fMin').value,10),max=parseInt($('fMax').value,10);
+      if(!ate){toast('Escolha a data final');return null}
+      if(ate<L.hojeISO()){toast('A data final já passou');return null}
+      if(!(min>=1&&max>=min&&max<=50)){toast('Confira o mínimo e o máximo');return null}
+      return {ate,min,max,fechaEm:TS.fromDate(Z.fimDia(ate))}}
+    function cfg(){const el=$('cfgP');if(!limpezas)return;
+      const outras=limpezas.slice().sort((a,b)=>Z.ms(b.criadoEm)-Z.ms(a.criadoEm));
+      const seletor=outras.length>1?'<label style="margin-top:14px">Ver outra limpeza<select id="outra">'+outras.map(l=>'<option value="'+esc(l._id)+'"'+(sel&&l._id===sel._id?' selected':'')+'>'+esc(l.titulo||'Limpeza')+' · até '+esc(L.dataBR(l.ate))+'</option>').join('')+'</select></label>':'';
+      const temAberta=limpezas.some(l=>Z.aberta(l));
+      if(!sel){el.innerHTML='<p class="lbl">Limpeza da lista</p><h2>Abrir a limpeza</h2>'+formAbrir();ligarAbrir();return}
+      const ab=Z.aberta(sel);
+      el.innerHTML='<p class="lbl">'+esc(sel.titulo||'Limpeza da lista')+'</p><h2>'+(ab?'Aberta':'Encerrada')+'</h2>'+
+        '<p style="margin:0 0 6px"><span class="st '+(ab?'pronta':'nada')+'">'+(ab?'Aberta até '+esc(fmtAte(sel)):'Encerrada')+'</span></p>'+
+        '<p class="muted small" style="margin:0 0 12px">Cada uma marca de <b style="color:var(--cream)">'+(sel.min||10)+' a '+(sel.max||20)+'</b> livros. Link para mandar no grupo: <b style="color:var(--cream)">sociedadearcadia.com.br/limpeza</b></p>'+
+        '<div class="acoes">'+(ab?'<button class="btn" type="button" data-a="convite">Copiar convite</button><button class="btn ghost" type="button" data-a="mudar">Mudar datas ou números</button><button class="btn no" type="button" data-a="encerrar">Encerrar agora</button>'
+          :'<button class="btn ghost" type="button" data-a="reabrir">Reabrir</button>'+(temAberta?'':'<button class="btn" type="button" data-a="nova">Abrir nova limpeza</button>'))+
+          '<button class="btn no" type="button" data-a="apagar">Apagar esta limpeza</button></div>'+
+        '<div id="mudarBox"></div>'+seletor;
+      const o=$('outra');if(o)o.onchange=()=>{sel=limpezas.find(l=>l._id===o.value)||sel;ouvir();cfg();quem();resultado()};
+      el.querySelector('.acoes').onclick=async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+        if(a==='convite')return copiar('Meninas, abrimos a limpeza da lista de livros! 📚\n\nCada uma marca de '+(sel.min||10)+' a '+(sel.max||20)+' livros que não leria de jeito nenhum. Ninguém vê o que a outra marcou.\n\nDá para fazer aos poucos, fica tudo salvo. Vai até '+fmtAte(sel)+'.\n\nsociedadearcadia.com.br/limpeza','Convite copiado');
+        if(a==='mudar'||a==='reabrir'||a==='nova'){
+          $('mudarBox').innerHTML='<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">'+formAbrir()+'</div>';
+          if(a!=='nova'){$('fAte').value=sel.ate&&sel.ate>=L.hojeISO()?sel.ate:Z.somaDias(L.hojeISO(),7);$('fMin').value=sel.min||10;$('fMax').value=sel.max||20;
+            $('abrirB').textContent=a==='reabrir'?'Reabrir':'Salvar'}
+          ligarAbrir(a==='nova'?null:sel);return}
+        if(a==='encerrar'){if(!confirm('Encerrar a limpeza agora? As integrantes não conseguem mais marcar. O resultado continua aqui.'))return;
+          try{await col.doc(sel._id).update({encerrada:true});toast('Limpeza encerrada')}catch(er){console.warn(er);toast('Não foi possível: '+er.code)}return}
+        if(a==='apagar'){if(!confirm('Apagar esta limpeza e tudo o que as integrantes marcaram? Não dá para desfazer.'))return;
+          b.disabled=true;
+          try{const s=await col.doc(sel._id).collection('escolhas').get();const bt=db.batch();s.docs.forEach(d=>bt.delete(d.ref));bt.delete(col.doc(sel._id));await bt.commit();sel=null;toast('Limpeza apagada')}
+          catch(er){console.warn(er);toast('Não foi possível: '+er.code);b.disabled=false}}};}
+    function ligarAbrir(edit){$('abrirF').onsubmit=async ev=>{ev.preventDefault();const v=lerForm();if(!v)return;const b=$('abrirB');b.disabled=true;
+      try{if(edit){if(edit.max!==v.max&&escolhas.some(x=>(x.livros||[]).length>v.max)&&!confirm('Alguém já marcou mais de '+v.max+' livros. Ela vai precisar desmarcar alguns para salvar de novo. Continuar?')){b.disabled=false;return}
+          await col.doc(edit._id).update(Object.assign(v,{encerrada:false}));toast('Salvo')}
+        else{const r=await col.add(Object.assign(v,{titulo:'Limpeza da lista',encerrada:false,criadoEm:FV.serverTimestamp()}));sel={_id:r.id};ouvir();toast('Limpeza aberta ✨')}}
+      catch(e){console.warn(e);toast('Não foi possível salvar: '+e.code)}
+      b.disabled=false}}
+
+    /* ---------- quem já marcou ---------- */
+    function quem(){const p=$('quemP');p.hidden=!sel;if(!sel)return;
+      const por=new Map(escolhas.map(e=>[e._id,e]));
+      const nomes=MEMBROS.slice();escolhas.forEach(e=>{if(!nomes.some(n=>slug(n)===e._id))nomes.push(e.nome||e._id)});
+      const sit=e=>!e?'nada':e.pronta?'pronta':'andamento';
+      const c={pronta:0,andamento:0,nada:0};nomes.forEach(n=>c[sit(por.get(slug(n)))]++);
+      $('resumo').innerHTML='<div><b>'+c.pronta+'</b><span>terminaram</span></div><div><b>'+c.andamento+'</b><span>marcando</span></div><div><b>'+c.nada+'</b><span>não começaram</span></div>';
+      const ordem={pronta:0,andamento:1,nada:2};
+      $('pessoas').innerHTML=nomes.sort((a,b)=>ordem[sit(por.get(slug(a)))]-ordem[sit(por.get(slug(b)))]||a.localeCompare(b,'pt-BR')).map(n=>{const e=por.get(slug(n)),s=sit(e),k=(e&&e.livros||[]).length;
+        return '<li data-id="'+esc(slug(n))+'"><span><b>'+esc(n)+'</b> <span class="q">'+(e?k+(k===1?' livro':' livros'):'')+'</span></span><span class="st '+s+'">'+({pronta:'Terminou',andamento:'Marcando',nada:'Não começou'})[s]+'</span>'+
+          (e?'<div class="ed">'+(e.liberado?'<span class="muted small">Liberada para outro aparelho</span>':'<button class="lnk" type="button" data-a="liberar">Liberar outro aparelho</button>')+'<button class="del" type="button" data-a="zerar">Apagar o que marcou</button></div>':'')+'</li>'}).join('')}
+    $('pessoas').onclick=async e=>{const b=e.target.closest('[data-a]');if(!b||!sel)return;const id=b.closest('[data-id]').dataset.id;const x=escolhas.find(v=>v._id===id);if(!x)return;
+      const r=col.doc(sel._id).collection('escolhas').doc(id);
+      try{if(b.dataset.a==='liberar'){if(!confirm('Liberar '+x.nome+' para continuar em outro aparelho? Ela abre a página no aparelho novo e escolhe o nome. O que já marcou continua.'))return;
+          await r.update({liberado:true});toast('Liberado. Ela já pode continuar no outro aparelho.')}
+        else{if(!confirm('Apagar tudo o que '+x.nome+' marcou? Ela pode começar de novo depois.'))return;await r.delete();toast('Apagado')}}
+      catch(er){console.warn(er);toast('Não foi possível: '+er.code)}};
+
+    /* ---------- resultado ---------- */
+    function contagem(){const m=new Map();
+      escolhas.forEach(e=>(e.livros||[]).forEach(l=>{if(!m.has(l.id))m.set(l.id,Object.assign({},l,{quem:[]}));m.get(l.id).quem.push(e.nome||e._id)}));
+      return [...m.values()].map(x=>Object.assign(x,{quem:x.quem.sort((a,b)=>a.localeCompare(b,'pt-BR'))})).sort((a,b)=>b.quem.length-a.quem.length||L.ordem(a,b))}
+    function resultado(){const p=$('resP');p.hidden=!sel;if(!sel||!lista)return;
+      const todos=contagem(),na=new Set(lista.map(l=>l._id));
+      const max=Math.max(1,...todos.map(x=>x.quem.length));
+      const ops=[[1,'Todos']];for(let i=2;i<=Math.min(max,6);i++)ops.push([i,i+' ou mais']);
+      if(!ops.some(o=>o[0]===rf))rf=1;
+      $('rFiltro').innerHTML=ops.map(([k,t])=>'<button type="button" class="chip" data-f="'+k+'" aria-pressed="'+(rf===k)+'">'+t+'<b>'+todos.filter(x=>x.quem.length>=k).length+'</b></button>').join('');
+      const ls=todos.filter(x=>x.quem.length>=rf);
+      $('votos').innerHTML=ls.length?ls.map(x=>{const n=x.quem.length,dentro=na.has(x.id);
+        return '<li class="g-'+L.genero(x.genero)+(dentro?'':' fora')+(n>=3?' forte':'')+'" data-id="'+esc(x.id)+'"><span class="n">'+n+'<small>'+(n===1?'voto':'votos')+'</small></span>'+
+          '<h3>'+esc(x.titulo)+'</h3>'+(x.autor?'<p class="au">'+esc(x.autor)+'</p>':'<p class="au"></p>')+
+          '<p class="quem">'+esc(x.quem.join(', '))+'</p>'+
+          '<div class="pe">'+L.tag(x.genero)+(dentro?'<button class="del" type="button" data-a="tirar">Tirar da lista</button>':'<span class="muted small">Já saiu da lista</span>')+'</div></li>'}).join('')
+        :'<li class="vazio muted small">'+(escolhas.length?'Nenhum livro com '+rf+' votos ou mais.':'Ninguém marcou nada ainda.')+'</li>'}
+    $('rFiltro').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;rf=+b.dataset.f;LSset('lf',rf);resultado()};
+    $('votos').onclick=async e=>{const b=e.target.closest('[data-a=tirar]');if(!b)return;const id=b.closest('[data-id]').dataset.id;const l=(lista||[]).find(x=>x._id===id);if(!l)return;
+      if(!confirm('Tirar “'+l.titulo+'” da lista oficial? Ele some da página de livros e do sorteio.'))return;
+      b.disabled=true;tirou=true;try{await db.collection('sugestoes').doc(id).delete();publicar();toast('Tirado da lista')}catch(er){console.warn(er);toast('Não foi possível: '+er.code);b.disabled=false}};
+    $('copiar').onclick=()=>{if(!sel)return;const ls=contagem().filter(x=>x.quem.length>=rf);
+      const t='Limpeza da lista · resultado'+(rf>1?' ('+rf+' votos ou mais)':'')+'\n'+escolhas.length+' integrantes participaram\n\n'+
+        (ls.length?ls.map(x=>x.quem.length+' · '+x.titulo+(x.autor?' ('+x.autor+')':'')+'\n    '+x.quem.join(', ')).join('\n'):'Nenhum livro.');
+      copiar(t,'Resultado copiado')};
+
+    /* depois de tirar livros, atualiza a cópia pública da lista (a de /lista-de-espera) */
+    let pubT=null;
+    function publicar(){if(!tirou||!lista)return;clearTimeout(pubT);pubT=setTimeout(async()=>{
+      const itens=lista.map(l=>({titulo:String(l.titulo||''),autor:String(l.autor||''),genero:L.genero(l.genero)}));
+      try{await db.collection('publico').doc('livros').set({itens,em:FV.serverTimestamp()})}catch(e){console.warn('lista pública',e)}},1500)}
+  }
+})();
+</script>
+</body>
+</html>

@@ -57,6 +57,13 @@
     </div>
   </section>
 
+  <section class="panel" id="limpezaP" hidden>
+    <p class="lbl">Aberta até <span id="limpezaAte"></span></p>
+    <h2>Limpeza da lista</h2>
+    <p class="muted small" style="margin:-6px 0 12px">Marque os livros que você não leria de jeito nenhum. Só a administração vê.</p>
+    <a class="btn wide" href="/limpeza/" style="display:block;text-align:center;text-decoration:none">Marcar meus livros</a>
+  </section>
+
   <section class="panel">
     <p class="lbl" id="listaLbl">Lista para o sorteio</p>
     <h2 id="totalT">Livros da lista</h2>
@@ -163,6 +170,10 @@
     history.replaceState(null,'',aba==='oficial'?location.pathname:'#'+aba);$('busca').value='';tudo()};
   function tudo(){abas();desenhar();estavaAberto=null;formulario();checar();desenharMinhas()}
 
+  /* limpeza da lista aberta? (aviso com o botão) */
+  db.collection('limpezas').onSnapshot(s=>{const agora=Date.now();
+    const l=s.docs.map(d=>d.data()).filter(x=>!x.encerrada&&x.fechaEm&&x.fechaEm.toMillis()>=agora).sort((a,b)=>b.fechaEm.toMillis()-a.fechaEm.toMillis())[0];
+    $('limpezaP').hidden=!l;if(l)$('limpezaAte').textContent=L.dataLonga(l.ate)},e=>console.warn(e));
   db.collection('sugestoes').where('status','==','lista').onSnapshot(s=>{
     todos=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort(L.ordem);
     carregou=true;$('carregando').hidden=true;$('listaBox').hidden=false;desenhar();checar()
