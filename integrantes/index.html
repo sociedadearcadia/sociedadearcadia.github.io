@@ -21,7 +21,7 @@
   background:rgba(23,15,51,.55);border:1px solid var(--line);transition:border-color .2s,background .2s}
 .atalhos a:hover,.atalhos a:focus-visible{border-color:var(--gold);background:rgba(43,23,72,.75);outline:none}
 .atalhos .ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;
-  background:radial-gradient(circle at 35% 30%,rgba(232,139,214,.35),rgba(23,15,51,.8));box-shadow:0 0 0 1px rgba(214,180,108,.5)}
+  background:radial-gradient(circle at 35% 30%,rgba(120,72,190,.55),rgba(23,15,51,.92) 70%);box-shadow:0 0 0 1px rgba(214,180,108,.55),inset 0 0 8px rgba(214,180,108,.18)}
 .atalhos .tx{display:flex;flex-direction:column;min-width:0}
 .atalhos b{font:600 16px var(--display)}
 .atalhos small{color:var(--muted);font-size:13px;line-height:1.35}
@@ -70,6 +70,7 @@
 <script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
 <script src="/fx.js"></script>
 <script src="/config.js"></script>
+<script src="/icones.js"></script>
 <script>
 (async function(){
   const $=id=>document.getElementById(id);
@@ -78,29 +79,29 @@
   /* para incluir uma página nova, coloque uma linha no grupo certo */
   const GRUPOS=[
     {t:'Leitura do mês',itens:[
-      {ic:'📖',n:'Atualização de leitura',d:'Quanto você já leu do livro do mês',u:'/leitura/'},
-      {ic:'❓',n:'Questionário do mês',d:'Perguntas sobre o livro do mês',u:'/leitura/questionario/'},
-      {ic:'🗳️',n:'Votação do livro do mês',d:'Escolha entre os livros sorteados',u:'/votacao/'},
-      {ic:'📚',n:'Livros sugeridos',d:'Lista para o sorteio e as LCs extras',u:'/livros/'},
-      {ic:'🧹',n:'Limpeza da lista de livros',d:'Marque os livros que você não leria',u:'/limpeza/',limpeza:1}]},
+      {ic:'livro',n:'Atualização de leitura',d:'Quanto você já leu do livro do mês',u:'/leitura/'},
+      {ic:'pergunta',n:'Questionário do mês',d:'Perguntas sobre o livro do mês',u:'/leitura/questionario/'},
+      {ic:'carta',n:'Votação do livro do mês',d:'Escolha entre os livros sorteados',u:'/votacao/'},
+      {ic:'estante',n:'Livros sugeridos',d:'Lista para o sorteio e as LCs extras',u:'/livros/'},
+      {ic:'vassoura',n:'Limpeza da lista de livros',d:'Marque os livros que você não leria',u:'/limpeza/',limpeza:1}]},
     {t:'Encontros e leituras juntas',itens:[
-      {ic:'🗓️',n:'Agenda',d:'Encontros e confirmação de presença',u:'/agenda/'},
-      {ic:'⏳',n:'Sprint de leitura',d:'Ler junto com o cronômetro e o ranking',u:'/sprint/'},
-      {ic:'💡',n:'Ideias de encontros',d:'Sugira oficinas e encontros extras',u:'/ideias/'}]},
+      {ic:'calendario',n:'Agenda',d:'Encontros e confirmação de presença',u:'/agenda/'},
+      {ic:'ampulheta',n:'Sprint de leitura',d:'Ler junto com o cronômetro e o ranking',u:'/sprint/'},
+      {ic:'lanterna',n:'Ideias de encontros',d:'Sugira oficinas e encontros extras',u:'/ideias/'}]},
     {t:'Jogos',itens:[
-      {ic:'🎲',n:'Bingo',d:'Sua cartela e os desafios',u:'/bingo/'},
-      {ic:'👑',n:'Arcadiana do Ano',d:'Ranking de pontos do ano',u:'/arcadiana/'}]},
+      {ic:'cartela',n:'Bingo',d:'Sua cartela e os desafios',u:'/bingo/'},
+      {ic:'coroa',n:'Arcadiana do Ano',d:'Ranking de pontos do ano',u:'/arcadiana/'}]},
     {t:'Divulgação',itens:[
-      {ic:'✨',n:'Sugestões para as redes',d:'Mande ideias para o Instagram',u:'/redes/'},
-      {ic:'🖼️',n:'Artes do clube',d:'Baixar artes e montar stories',u:'/artes/'}]},
+      {ic:'brilho',n:'Sugestões para as redes',d:'Mande ideias para o Instagram',u:'/redes/'},
+      {ic:'moldura',n:'Artes do clube',d:'Baixar artes e montar stories',u:'/artes/'}]},
     {t:'Ajuda',itens:[
-      {ic:'🧭',n:'Guia do site',d:'Passo a passo de cada página',u:'/guia/'}]}
+      {ic:'bussola',n:'Guia do site',d:'Passo a passo de cada página',u:'/guia/'}]}
   ];
   let limpezaAberta=false;
   function desenhar(){
     $('grupos').innerHTML=GRUPOS.map(g=>{const its=g.itens.filter(i=>!i.limpeza||limpezaAberta);if(!its.length)return'';
       return '<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p><ul class="atalhos">'+its.map(i=>
-        '<li><a href="'+esc(i.u)+'"><span class="ic" aria-hidden="true">'+i.ic+'</span><span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span>'+
+        '<li><a href="'+esc(i.u)+'"><span class="ic" aria-hidden="true">'+ARC_ICONE(i.ic)+'</span><span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span>'+
         (i.limpeza?'<span class="novo">Aberta</span>':'')+'<span class="seta" aria-hidden="true">›</span></a></li>').join('')+'</ul></section>'}).join('')}
 
   const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});

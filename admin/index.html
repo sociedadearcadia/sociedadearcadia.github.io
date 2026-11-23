@@ -21,7 +21,7 @@
   background:rgba(23,15,51,.55);border:1px solid var(--line);transition:border-color .2s,background .2s}
 .atalhos a:hover,.atalhos a:focus-visible{border-color:var(--gold);background:rgba(43,23,72,.75);outline:none}
 .atalhos .ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;
-  background:radial-gradient(circle at 35% 30%,rgba(232,139,214,.35),rgba(23,15,51,.8));box-shadow:0 0 0 1px rgba(214,180,108,.5)}
+  background:radial-gradient(circle at 35% 30%,rgba(120,72,190,.55),rgba(23,15,51,.92) 70%);box-shadow:0 0 0 1px rgba(214,180,108,.55),inset 0 0 8px rgba(214,180,108,.18)}
 .atalhos .tx{display:flex;flex-direction:column;min-width:0}
 .atalhos b{font:600 16px var(--display)}
 .atalhos small{color:var(--muted);font-size:13px;line-height:1.35}
@@ -81,6 +81,7 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
 <script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
 <script src="/fx.js"></script>
 <script src="/config.js"></script>
+<script src="/icones.js"></script>
 <script>
 (async function(){
   const $=id=>document.getElementById(id),st=$('state');
@@ -89,22 +90,22 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
   /* Todas as áreas de administração do site. Página nova de administração: acrescente uma linha aqui. */
   const GRUPOS=[
     {t:'Leitura do mês',itens:[
-      {ic:'📖',n:'Livro do mês e questionário',d:'Definir o livro, sortear, acompanhar a leitura e o questionário',u:'/leitura/admin/'},
-      {ic:'🗳️',n:'Votação do livro do mês',d:'Criar votação, ver contagem e quem votou',u:'/votacao/admin/'},
-      {ic:'📚',n:'Livros sugeridos e LCs',d:'Aprovar sugestões, lista oficial e LCs extras',u:'/livros/admin/',c:1},
-      {ic:'🧹',n:'Limpeza da lista de livros',d:'Abrir a limpeza, ver quem marcou e os livros mais votados para sair',u:'/limpeza/admin/',c:1}]},
+      {ic:'livro',n:'Livro do mês e questionário',d:'Definir o livro, sortear, acompanhar a leitura e o questionário',u:'/leitura/admin/'},
+      {ic:'carta',n:'Votação do livro do mês',d:'Criar votação, ver contagem e quem votou',u:'/votacao/admin/'},
+      {ic:'estante',n:'Livros sugeridos e LCs',d:'Aprovar sugestões, lista oficial e LCs extras',u:'/livros/admin/',c:1},
+      {ic:'vassoura',n:'Limpeza da lista de livros',d:'Abrir a limpeza, ver quem marcou e os livros mais votados para sair',u:'/limpeza/admin/',c:1}]},
     {t:'Encontros e jogos',itens:[
-      {ic:'🗓️',n:'Agenda',d:'Adicionar encontros e ver confirmações',u:'/agenda/admin/',c:1},
-      {ic:'💡',n:'Ideias de encontros',d:'Aprovar ou recusar ideias',u:'/ideias/admin/',c:1},
-      {ic:'👑',n:'Arcadiana do Ano',d:'Lançar pontos e ver o ranking',u:'/arcadiana/admin/'},
-      {ic:'🎲',n:'Bingo',d:'Tabela, cartelas, códigos e provas para conferir',u:'/bingo/admin/',c:1}]},
+      {ic:'calendario',n:'Agenda',d:'Adicionar encontros e ver confirmações',u:'/agenda/admin/',c:1},
+      {ic:'lanterna',n:'Ideias de encontros',d:'Aprovar ou recusar ideias',u:'/ideias/admin/',c:1},
+      {ic:'coroa',n:'Arcadiana do Ano',d:'Lançar pontos e ver o ranking',u:'/arcadiana/admin/'},
+      {ic:'cartela',n:'Bingo',d:'Tabela, cartelas, códigos e provas para conferir',u:'/bingo/admin/',c:1}]},
     {t:'Divulgação',itens:[
-      {ic:'✨',n:'Sugestões para as redes',d:'Avaliar e marcar como publicadas',u:'/redes/admin/',c:1},
-      {ic:'🖼️',n:'Artes do clube',d:'Adicionar ou tirar artes da galeria',u:'/artes/admin/',c:1},
-      {ic:'✉️',n:'Respostas da lista de espera',d:'Ver quem quer entrar no clube',u:'/lista-de-espera/respostas/'}]},
+      {ic:'brilho',n:'Sugestões para as redes',d:'Avaliar e marcar como publicadas',u:'/redes/admin/',c:1},
+      {ic:'moldura',n:'Artes do clube',d:'Adicionar ou tirar artes da galeria',u:'/artes/admin/',c:1},
+      {ic:'envelope',n:'Respostas da lista de espera',d:'Ver quem quer entrar no clube',u:'/lista-de-espera/respostas/'}]},
     {t:'Fora do site',itens:[
-      {ic:'🔥',n:'Firebase',d:'Dados, regras e quem é administradora',u:'https://console.firebase.google.com/project/sprint-arcadia/firestore',ext:1},
-      {ic:'🐙',n:'GitHub do clube',d:'Pedidos de alteração do site (PRs)',u:'https://github.com/sociedadearcadia',ext:1}]}
+      {ic:'chama',n:'Firebase',d:'Dados, regras e quem é administradora',u:'https://console.firebase.google.com/project/sprint-arcadia/firestore',ext:1},
+      {ic:'codigo',n:'GitHub do clube',d:'Pedidos de alteração do site (PRs)',u:'https://github.com/sociedadearcadia',ext:1}]}
   ];
 
   let papel='admin';
@@ -115,7 +116,7 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
       const its=g.itens.filter(i=>(papel==='admin'||i.c)).filter(i=>!q||(i.n+' '+i.d+' '+g.t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(q));
       total+=its.length;if(!its.length)return'';
       return '<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p><ul class="atalhos">'+its.map(i=>
-        '<li><a href="'+esc(i.u)+'"'+(i.ext?' target="_blank" rel="noopener"':'')+'><span class="ic" aria-hidden="true">'+i.ic+'</span>'+
+        '<li><a href="'+esc(i.u)+'"'+(i.ext?' target="_blank" rel="noopener"':'')+'><span class="ic" aria-hidden="true">'+ARC_ICONE(i.ic)+'</span>'+
         '<span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span><span class="seta" aria-hidden="true">'+(i.ext?'↗':'›')+'</span></a></li>').join('')+'</ul></section>'}).join('');
     $('nada').hidden=total>0}
   $('filtro').addEventListener('input',e=>desenhar(e.target.value));
