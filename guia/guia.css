@@ -27,3 +27,7 @@ ol.passos li::before{content:counter(p);position:absolute;left:0;top:0;width:24p
 .dica::before{content:"Dica: ";font-weight:700;color:#f6d38d}
 .secao p.txt{margin:8px 0 6px;font-size:14.5px}
 .nada{text-align:center}
+.secao .cab>div{flex:1;min-width:0}
+.secao .cab .ic{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;margin-top:2px;
+  background:radial-gradient(circle at 35% 30%,rgba(120,72,190,.55),rgba(23,15,51,.92) 70%);box-shadow:0 0 0 1px rgba(214,180,108,.55),inset 0 0 8px rgba(214,180,108,.18)}
+.secao .cab .ic .arc-ic{width:24px;height:24px}
