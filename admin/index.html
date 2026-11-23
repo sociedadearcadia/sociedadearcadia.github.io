@@ -61,6 +61,17 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
   <div id="area" hidden style="display:flex;flex-direction:column;gap:16px">
     <input class="busca-adm" type="search" id="filtro" placeholder="Procurar uma área" aria-label="Procurar uma área da administração" autocomplete="off">
     <div id="grupos" style="display:flex;flex-direction:column;gap:16px"></div>
+    <section class="panel" id="regrasP" hidden>
+      <p class="lbl">Só você vê</p>
+      <h2>Regras do Firebase</h2>
+      <p class="muted small" style="margin:0 0 12px">Sempre que eu avisar que as regras mudaram: toque em "Copiar regras", abra o Firebase, apague tudo o que está lá, cole e toque em Publicar. Aqui sempre vem a versão mais nova.</p>
+      <p class="muted small" id="regrasInfo" style="margin:0 0 10px">Carregando a versão mais nova…</p>
+      <div class="row" style="gap:10px;flex-wrap:wrap">
+        <button class="btn" type="button" id="regrasCopiar">Copiar regras</button>
+        <a class="btn ghost" id="regrasAbrir" href="https://console.firebase.google.com/project/sprint-arcadia/firestore/rules" target="_blank" rel="noopener">Abrir o Firebase</a>
+      </div>
+      <textarea id="regrasTxt" readonly hidden style="width:100%;height:160px;margin-top:12px;font:12px/1.4 monospace;border-radius:8px;padding:8px;box-sizing:border-box"></textarea>
+    </section>
     <section class="panel" id="conselhoP" hidden>
       <p class="lbl">Só você vê</p>
       <h2>Conselho</h2>
@@ -148,12 +159,26 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
     papel=admin?'admin':'conselho';
     st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+(admin?'':' (conselho)')+'</p>';
     desenhar($('filtro').value);$('area').hidden=false;
-    $('conselhoP').hidden=!admin;
+    $('conselhoP').hidden=!admin;$('regrasP').hidden=!admin;if(admin)regrasBusca();
     if(admin)offC=db.collection('conselho').onSnapshot(s=>{
       const l=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort((a,b)=>String(a.nome||a._id).localeCompare(String(b.nome||b._id),'pt-BR'));
       $('cLista').innerHTML=l.length?l.map(c=>'<li><span class="tx"><b>'+esc(c.nome||'Sem nome')+'</b><small>'+esc(c._id)+'</small></span><button type="button" data-tirar="'+esc(c._id)+'">Tirar</button></li>').join('')
         :'<li><span class="tx"><small>Ninguém do conselho ainda.</small></span></li>'},e=>{console.warn(e);$('cLista').innerHTML='<li><span class="tx"><small>Não foi possível ler a lista ('+esc(e.code)+'). Confira se as regras novas do Firebase já foram publicadas.</small></span></li>'});
   });
+
+  /* regras do Firebase: sempre a versão publicada do repositório do sprint */
+  let regras=null,regrasP=null;
+  function regrasBusca(){regrasP=fetch('/sprint/firestore.rules?v='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()})
+    .then(t=>{regras=t;const n=(t.match(/match \//g)||[]).length;$('regrasInfo').textContent='Versão mais nova pronta para copiar ('+t.split('\n').length+' linhas, '+n+' áreas).';return t})
+    .catch(e=>{console.warn(e);$('regrasInfo').textContent='Não deu para carregar as regras agora. Recarregue a página.';throw e});return regrasP}
+  function regrasMostra(){const t=$('regrasTxt');t.value=regras||'';t.hidden=false;t.focus();t.select();t.setSelectionRange(0,t.value.length)}
+  $('regrasCopiar').onclick=async()=>{
+    try{
+      if(regras){await navigator.clipboard.writeText(regras)}
+      else if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){await navigator.clipboard.write([new ClipboardItem({'text/plain':(regrasP||regrasBusca()).then(t=>new Blob([t],{type:'text/plain'}))})])}
+      else{await (regrasP||regrasBusca());await navigator.clipboard.writeText(regras)}
+      toast('Regras copiadas! Agora abra o Firebase e cole.')}
+    catch(e){console.warn(e);if(regras){regrasMostra();toast('Copie o texto selecionado abaixo.')}else toast('Não deu para copiar. Recarregue a página.')}};
 
   $('cForm').addEventListener('submit',async ev=>{ev.preventDefault();
     const email=$('cEmail').value.trim().toLowerCase(),nome=$('cNome').value.trim().slice(0,40);
