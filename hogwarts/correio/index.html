@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Correio-Coruja · Salão Principal de Hogwarts</title>
+<meta name="theme-color" content="#0b1730">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="/hogwarts/hg.css">
+<style>
+.carta{position:relative;border:1px solid #b8955a;border-radius:6px;padding:22px 18px 18px;background:repeating-linear-gradient(180deg,rgba(255,251,240,.92) 0 31px,rgba(170,130,70,.18) 31px 32px);box-shadow:0 6px 18px rgba(60,40,10,.25)}
+.carta::after{content:"";position:absolute;right:16px;top:-14px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#c8433a,#7d1a14);box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.carta .hg-in{background:rgba(255,255,255,.55)}
+.aviso{background:#7d1a14;color:#fff3e6;border-radius:12px;padding:10px 14px;font:800 14px var(--ui);letter-spacing:.06em;text-transform:uppercase;text-align:center}
+.com{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:12px;background:rgba(255,250,236,.75);border:1px solid #d7bd86}
+.com .cab{display:flex;justify-content:space-between;gap:8px;font:700 14px var(--ui);color:#4a2f0f;flex-wrap:wrap}
+.com .cab small{font-weight:500;color:#6b5333}
+.com .acoes{display:flex;gap:12px}
+.com .acoes button{background:none;border:0;padding:0;color:#7a4a12;font:700 13px var(--ui);cursor:pointer;text-decoration:underline}
+.resps{margin-left:16px;border-left:2px solid #d7bd86;padding-left:10px;display:flex;flex-direction:column;gap:8px}
+.minha p+p{margin-top:6px}
+</style>
+</head>
+<body>
+<div class="hg-fundo" aria-hidden="true"></div>
+<main class="hg-wrap">
+  <a class="hg-voltar" href="/hogwarts/">← Salão Principal</a>
+  <div id="app" class="hg-form"><section class="hg-perg"><p class="hg-centro hg-muted" id="estado">Carregando…</p></section></div>
+</main>
+<script src="/config.js"></script>
+<script src="/hogwarts/hg.js"></script>
+<script>
+(async()=>{
+  const {$,esc,icone,janela,fmtD,fmtDH,fmtH,nomeCasa}=HG;HG.neve();
+  let ctx;try{ctx=await HG.entrar()}catch(e){$('estado').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+  const db=ctx.db,D=ctx.datas,app=$('app'),j1=janela(D,'correio','correioFim'),j2=D.coruja?janela(D,'coruja','corujaFim'):{antes:true,txt:'Em breve'};
+  const PQ1=['Qual cena do primeiro livro você mais quer ver na série?','Qual personagem está mais curiosa para conhecer nessa nova versão?','O que você gostaria que a adaptação explorasse melhor?','Existe algum detalhe do livro que você não gostaria que fosse deixado de fora?'];
+  const PQ2=['O primeiro episódio correspondeu às suas expectativas?','Qual foi sua cena favorita?','O que mais chamou sua atenção nessa nova adaptação?','Depois de assistir, você mudaria alguma coisa na carta que escreveu?'];
+  const pega=async c=>{try{const d=await db.collection(c).doc(ctx.pid).get();return d.exists?d.data():null}catch(e){return null}};
+  let carta=await pega('hgCartas'),imp=await pega('hgCoruja');
+  const TOPO=`<div class="hg-topo"><span style="color:#7a4a12">${icone('coruja','hg-ic-grande')}</span><p class="hg-lbl" style="color:#7a4a12">Cartas à Nova Hogwarts</p><h1 style="color:#4a2f0f">Correio-Coruja</h1></div>
+    <p class="hg-centro">Uma nova Hogwarts está chegando às telas! Antes da estreia, escreva sua carta contando o que espera dessa adaptação. Depois, volte para descobrir se suas expectativas foram atendidas.</p>`;
+  const lerCarta=c=>`<div class="minha">${PQ1.map((p,i)=>c['r'+(i+1)]?`<p><b>${esc(p)}</b><br>${esc(c['r'+(i+1)])}</p>`:'').join('')||'<p class="hg-muted">Carta em branco.</p>'}</div>`;
+  function inicio(){
+    let h=`<section class="hg-perg hg-form">${TOPO}
+      <p class="hg-instr"><b>Como funciona:</b> 1) Até ${esc(fmtDH(D.correioFim))}, escreva sua carta de expectativas (você pode editar até o prazo). 2) Depois do primeiro episódio da série, a coruja volta e abre o espaço para contar o que achou e comentar com as outras. A participação é livre.</p></section>`;
+    h+=`<section class="hg-perg hg-form"><h2>Etapa 1 — Uma carta à Nova Hogwarts</h2>`;
+    if(j1.antes)h+=`<p class="hg-centro"><span class="hg-tag">${esc(j1.txt)}</span></p>`;
+    else if(j1.aberta)h+=carta?`<p class="hg-tag ok" style="align-self:flex-start">Carta enviada</p>${lerCarta(carta)}<div class="hg-btns"><button class="hg-btn sec" id="edita">Editar minha carta</button></div>`:`<div class="hg-btns"><button class="hg-btn" id="edita">Escrever minha carta</button></div>`;
+    else h+=carta?`<p class="hg-muted hg-small">Prazo encerrado. Esta é a carta que você enviou:</p>${lerCarta(carta)}`:`<p class="hg-centro"><span class="hg-tag fim">Encerrado</span></p>`;
+    h+=`</section><section class="hg-perg hg-form"><h2>Etapa 2 — A Coruja Voltou!</h2>`;
+    if(j2.antes)h+=`<p>Abre no dia da estreia (${esc(fmtD(HG.T(2026,12,25)))}), depois que o primeiro episódio estiver disponível.${D.coruja?' Horário: '+esc(fmtDH(D.coruja))+'.':' O horário será confirmado pela administração.'}</p><p class="hg-centro"><span class="hg-tag">${icone('cadeado')} Em breve</span></p>`;
+    else if(j2.aberta||j2.fim)h+=`<div class="hg-btns"><button class="hg-btn" id="coruja">${j2.fim?'Ver comentários':imp?'Continuar':'Abrir a carta da coruja'}</button></div>`;
+    h+='</section>';app.innerHTML=h;
+    if($('edita'))$('edita').onclick=escrever;if($('coruja'))$('coruja').onclick=alerta;scrollTo(0,0)}
+  function form(titulo,txt,PQ,dados,botao,salvar){app.innerHTML=`<section class="hg-perg hg-form"><h2 class="hg-centro">${esc(titulo)}</h2><p class="hg-centro">${esc(txt)}</p>
+    <form class="carta hg-form" id="f">${PQ.map((p,i)=>`<label class="hg-campo"><span>${i+1}. ${esc(p)}</span><textarea class="hg-in" name="r${i+1}" maxlength="2000"></textarea></label>`).join('')}
+    <p class="hg-erro" id="erro" hidden></p><div class="hg-btns"><button class="hg-btn" id="bt">${esc(botao)}</button><button type="button" class="hg-btn sec" id="vt">Voltar</button></div></form></section>`;
+    const f=$('f');if(dados)PQ.forEach((_,i)=>f['r'+(i+1)].value=dados['r'+(i+1)]||'');$('vt').onclick=inicio;
+    f.onsubmit=async ev=>{ev.preventDefault();const v={};PQ.forEach((_,i)=>v['r'+(i+1)]=f['r'+(i+1)].value.trim());
+      if(!Object.values(v).some(Boolean)){$('erro').textContent='Responda pelo menos uma pergunta.';$('erro').hidden=false;return}
+      $('bt').disabled=true;try{await salvar(Object.assign({nome:ctx.nome,em:Date.now()},v))}catch(e){console.warn(e);$('erro').textContent='Não deu para enviar agora. Confira a internet e tente de novo.';$('erro').hidden=false;$('bt').disabled=false}};scrollTo(0,0)}
+  function escrever(){form('Uma carta à Nova Hogwarts','Antes de conhecermos a nova versão de Harry Potter e a Pedra Filosofal, queremos saber o que você espera encontrar nessa adaptação.',PQ1,carta,'Enviar pelo Correio-Coruja',
+    async v=>{await db.collection('hgCartas').doc(ctx.pid).set(v);carta=v;
+      app.innerHTML=`<section class="hg-perg hg-form hg-centro"><div class="hg-topo"><span style="color:#7a4a12">${icone('coruja','hg-ic-grande')}</span></div><p style="font-size:19px">Sua carta foi enviada! Agora é esperar a estreia para descobrir o que a nova Hogwarts nos reserva.</p><div class="hg-btns"><button class="hg-btn" id="vt">Voltar</button></div></section>`;$('vt').onclick=inicio})}
+  function alerta(){app.innerHTML=`<section class="hg-perg hg-form hg-centro"><div class="hg-topo"><span style="color:#7a4a12">${icone('coruja','hg-ic-grande')}</span><h1 style="color:#4a2f0f">A Coruja Voltou!</h1></div>
+    <p class="aviso">Atenção: spoilers da nova série!</p><p>Já assistiu ao primeiro episódio? A partir daqui, vamos comentar a nova adaptação.</p>
+    <div class="hg-btns"><button class="hg-btn" id="sim">Já assisti. Quero entrar!</button><button class="hg-btn sec" id="nao">Ainda não assisti</button></div></section>`;
+    $('nao').onclick=inicio;$('sim').onclick=coruja}
+  let unsub=null,casas={};
+  function coruja(){const aberta=j2.aberta;
+    app.innerHTML=`<section class="hg-perg hg-form"><h2>Sua carta original</h2>${carta?lerCarta(carta):'<p class="hg-muted">Você não escreveu uma carta antes da estreia, mas pode contar suas impressões agora.</p>'}</section>
+      <section class="hg-perg hg-form"><h2>Suas impressões</h2>${imp?`<p class="hg-tag ok" style="align-self:flex-start">Impressões enviadas</p><div class="minha">${PQ2.map((p,i)=>imp['r'+(i+1)]?`<p><b>${esc(p)}</b><br>${esc(imp['r'+(i+1)])}</p>`:'').join('')}</div>`:''}
+        ${aberta?`<div class="hg-btns"><button class="hg-btn${imp?' sec':''}" id="imp">${imp?'Editar minhas impressões':'Contar minhas impressões'}</button></div>`:''}</section>
+      <section class="hg-perg hg-form"><h2>Comentários sobre a série</h2><p class="hg-muted hg-small">Só quem está no Salão vê. Toque em "Responder" para responder alguém.</p>
+        ${aberta?`<form class="hg-form" id="cf"><p class="hg-small" id="respA" hidden></p><textarea class="hg-in" id="ct" maxlength="1500" placeholder="Escreva seu comentário…" required></textarea><div class="hg-btns" style="justify-content:flex-start"><button class="hg-btn peq">Publicar</button><button type="button" class="hg-btn peq sec" id="cancResp" hidden>Cancelar resposta</button></div></form>`:''}
+        <div id="lista" class="hg-form" style="gap:10px"><p class="hg-muted">Carregando…</p></div></section>
+      <div class="hg-btns"><button class="hg-btn sec" id="vt">Voltar</button></div>`;
+    $('vt').onclick=()=>{if(unsub)unsub();unsub=null;inicio()};
+    if($('imp'))$('imp').onclick=()=>{if(unsub)unsub();unsub=null;form('A Coruja Voltou!','Conte o que achou do primeiro episódio.',PQ2,imp,'Enviar minhas impressões',async v=>{await db.collection('hgCoruja').doc(ctx.pid).set(v);imp=v;HG.toast('Impressões enviadas!');coruja()})};
+    let resp='';const setResp=(id,nome)=>{resp=id;$('respA').hidden=!id;$('cancResp').hidden=!id;if(id){$('respA').textContent='Respondendo a '+nome;$('ct').focus()}};
+    if($('cf')){$('cancResp').onclick=()=>setResp('','');
+      $('cf').onsubmit=async ev=>{ev.preventDefault();const t=$('ct').value.trim();if(!t)return;
+        try{await db.collection('hgComentarios').add({pid:ctx.pid,nome:ctx.nome,texto:t,resp,em:Date.now()});$('ct').value='';setResp('','')}catch(e){console.warn(e);HG.toast('Não deu para publicar agora.')}}}
+    HG.casasAoVivo(ctx,m=>{casas=m;try{desenha()}catch(e){}});
+    let msgs=[];const desenha=()=>{const L=$('lista');if(!L)return;const top=msgs.filter(m=>!m.resp||!msgs.some(x=>x._id===m.resp));
+      if(!msgs.length){L.innerHTML='<p class="hg-muted">Nenhum comentário ainda. Comece a conversa!</p>';return}
+      const um=m=>`<div class="com"><div class="cab">${nomeCasa(m.nome,casas[m.pid])}<small>${esc(fmtD(m.em))} ${esc(fmtH(m.em))}</small></div><p>${esc(m.texto)}</p><div class="acoes">${aberta?`<button data-r="${m._id}" data-n="${esc(m.nome)}">Responder</button>`:''}${m.pid===ctx.pid?`<button data-x="${m._id}">Apagar</button>`:''}</div></div>`;
+      L.innerHTML=top.map(m=>{const rs=msgs.filter(x=>x.resp===m._id);return um(m)+(rs.length?`<div class="resps">${rs.map(um).join('')}</div>`:'')}).join('');
+      L.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>setResp(b.dataset.r,b.dataset.n));
+      L.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(confirm('Apagar este comentário?'))try{await db.collection('hgComentarios').doc(b.dataset.x).delete()}catch(e){HG.toast('Não deu para apagar.')}})};
+    unsub=db.collection('hgComentarios').orderBy('em').onSnapshot(q=>{msgs=q.docs.map(d=>Object.assign({_id:d.id},d.data()));desenha()},e=>{console.warn(e);$('lista').innerHTML='<p class="hg-muted">Não deu para carregar os comentários.</p>'})}
+  inicio();
+})();
+</script>
+</body>
+</html>
