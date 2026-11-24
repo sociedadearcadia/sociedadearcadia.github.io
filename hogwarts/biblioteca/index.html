@@ -873,7 +873,7 @@ function periodStats(p){const now=new Date();let from;
     label:{hoje:'hoje',semana:'nesta semana',mes:'neste mês'}[p]}}
 
 $('copyBtn').onclick=async()=>{const t=periodStats('hoje'),w=periodStats('semana');
-  const txt=`✦ Sprint · LC Especial de Natal (Biblioteca de Hogwarts)\n${me?me.name+': ':''}${t.n} ${t.n===1?'sprint':'sprints'} hoje (${t.min} min${t.pages?`, ${t.pages} págs.`:''})\nNa semana: ${w.min} min de leitura`+(t.books.length?`\nLendo: ${t.books.join(', ')}`:'');
+  const txt=`✦ Sprint · LC Especial de Natal: Harry Potter e a Pedra Filosofal\n${me?me.name+': ':''}${t.n} ${t.n===1?'sprint':'sprints'} hoje (${t.min} min${t.pages?`, ${t.pages} págs.`:''})\nNa semana: ${w.min} min de leitura`+(t.books.length?`\nLendo: ${t.books.join(', ')}`:'');
   try{await navigator.clipboard.writeText(txt);toast('Resumo copiado. É só colar no grupo!')}catch{toast('Não deu para copiar neste aparelho')}};
 
 /* ---------- imagem para stories ---------- */
@@ -889,7 +889,7 @@ function storyBase(x){const W=1080,H=1920;
   let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;x.fillStyle='#fff4ff';for(let i=0;i<160;i++){x.globalAlpha=.25+rnd()*.6;x.beginPath();x.arc(rnd()*W,rnd()*H,rnd()*2.2+.5,0,6.28);x.fill()}x.globalAlpha=1;
   x.strokeStyle='rgba(214,180,108,.75)';x.lineWidth=4;x.beginPath();x.moveTo(110,1700);x.lineTo(110,760);x.bezierCurveTo(110,420,970,420,970,760);x.lineTo(970,1700);x.closePath();x.stroke();
   x.fillStyle='rgba(11,23,48,.55)';x.fill()}
-function storyFoot(x){x.shadowBlur=0;x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('✦ BIBLIOTECA DE HOGWARTS ✦',540,1800);x.letterSpacing='0px';
+function storyFoot(x){x.shadowBlur=0;x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('✦ BIBLIOTECA DE HOGWARTS ✦',540,1790);x.letterSpacing='0px';x.fillStyle='#f4e8da';x.font='italic 500 38px Lora,Georgia,serif';x.fillText('Harry Potter e a Pedra Filosofal',540,1850);
   try{const SEL=sealImg;x.save();x.shadowColor='rgba(10,4,20,.65)';x.shadowBlur=16;x.beginPath();x.arc(540,1700,46,0,6.28);x.fillStyle='#f4e8da';x.fill();x.restore();x.save();x.beginPath();x.arc(540,1700,46,0,6.28);x.clip();x.drawImage(SEL,494,1654,92,92);x.restore();x.strokeStyle='#d6b46c';x.lineWidth=2.5;x.beginPath();x.arc(540,1700,47.5,0,6.28);x.stroke()}catch{}}
 function drawStory(){const x=$('story').getContext('2d');storyBase(x);
   const s=periodStats(storyP);x.textAlign='center';x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
