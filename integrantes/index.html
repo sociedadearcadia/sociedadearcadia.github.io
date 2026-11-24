@@ -91,6 +91,8 @@
       {ic:'calendario',n:'Agenda',d:'Encontros e confirmação de presença',u:'/agenda/'},
       {ic:'ampulheta',n:'Sprint de leitura',d:'Ler junto com o cronômetro e o ranking',u:'/sprint/'},
       {ic:'lanterna',n:'Ideias de encontros',d:'Sugira oficinas e encontros extras',u:'/ideias/'}]},
+    {t:'LC Especial de Natal',itens:[
+      {ic:'chama',n:'Salão Principal de Hogwarts',d:'LC Especial de Natal — Harry Potter e a Pedra Filosofal. Um espaço exclusivo para nossas missões, sprints e atividades de leitura.',u:'/hogwarts/',hg:1}]},
     {t:'Jogos',itens:[
       {ic:'cartela',n:'Bingo',d:'Sua cartela e os desafios',u:'/bingo/'},
       {ic:'coroa',n:'Arcadiana do Ano',d:'Ranking de pontos do ano',u:'/arcadiana/'}]},
@@ -102,8 +104,10 @@
       {ic:'bussola',n:'Guia do site',d:'Passo a passo de cada página',u:'/guia/'}]}
   ];
   let limpezaAberta=false;
+  /* Salão Principal de Hogwarts: o botão só aparece no aparelho de quem já entrou com a senha do Salão e o código pessoal (a primeira entrada é pelo link que a administração manda) */
+  let hgOk=false;try{hgOk=!!localStorage.getItem('hogwarts:pid')}catch(e){}
   function desenhar(){
-    $('grupos').innerHTML=GRUPOS.map(g=>{const its=g.itens.filter(i=>!i.limpeza||limpezaAberta);if(!its.length)return'';
+    $('grupos').innerHTML=GRUPOS.map(g=>{const its=g.itens.filter(i=>(!i.limpeza||limpezaAberta)&&(!i.hg||hgOk));if(!its.length)return'';
       return '<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p><ul class="atalhos">'+its.map(i=>
         '<li><a href="'+esc(i.u)+'"><span class="ic" aria-hidden="true">'+ARC_ICONE(i.ic)+'</span><span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span>'+
         (i.limpeza?'<span class="novo">Aberta</span>':'')+'<span class="seta" aria-hidden="true">›</span></a></li>').join('')+'</ul></section>'}).join('')}
