@@ -16,10 +16,10 @@ const DATAS_PADRAO={
   espelho:T(2026,12,11),espelhoFim:T(2026,12,18,23,59),
   correio:T(2026,12,19),correioFim:T(2026,12,24,23,59),
   coruja:0,corujaFim:T(2027,1,31,23,59),
-  questionarioFim:T(2026,12,18,23,59)};
+  questionario:T(2026,12,17),questionarioFim:T(2026,12,18,23,59)};
 const DATAS_NOMES={chapeu:'Chapéu Seletor',biblioteca:'Biblioteca de Hogwarts',r1:'Rodada 1 (caps. 1 a 4)',r2:'Rodada 2 (caps. 5 a 7)',r3:'Rodada 3 (caps. 8 a 12)',r4:'Rodada 4 (caps. 13 a 17)',
   misteriosFim:'Fim dos Mistérios',protecoes:'Sete Proteções (abre)',protecoesFim:'Sete Proteções (fecha)',espelho:'Espelho de Ojesed (abre)',espelhoFim:'Espelho de Ojesed (prazo)',
-  correio:'Correio-Coruja: carta (abre)',correioFim:'Correio-Coruja: carta (prazo)',coruja:'A Coruja Voltou (abre após a estreia)',corujaFim:'A Coruja Voltou (fecha)',questionarioFim:'Questionário oficial (prazo; o lembrete some depois)'};
+  correio:'Correio-Coruja: carta (abre)',correioFim:'Correio-Coruja: carta (prazo)',coruja:'A Coruja Voltou (abre após a estreia)',corujaFim:'A Coruja Voltou (fecha)',questionario:'Cerimônia de Encerramento: questionário (abre)',questionarioFim:'Cerimônia de Encerramento: questionário (prazo)'};
 const CASAS={grifinoria:{n:'Grifinória',a:'leão'},sonserina:{n:'Sonserina',a:'serpente'},corvinal:{n:'Corvinal',a:'águia'},lufalufa:{n:'Lufa-Lufa',a:'texugo'}};
 const PERSONAGENS={harry:'Harry Potter',hermione:'Hermione Granger',rony:'Rony Weasley',draco:'Draco Malfoy',neville:'Neville Longbottom',hagrid:'Rúbeo Hagrid',snape:'Severo Snape',dumbledore:'Alvo Dumbledore'};
 const GERAL_PADRAO={sala:'',org:11,leitura:31,prosa:11};

@@ -1,5 +1,6 @@
 /* Salão Principal de Hogwarts: identidade provisória (noite de inverno em Hogwarts, azul + dourado das lanternas, pergaminho).
    Cores, fundos e fontes definitivos serão escolhidos pela administração: troque as variáveis abaixo. */
+[hidden]{display:none!important}
 :root{
   --noite:#0b1730;--azul:#16284d;--azul2:#21396a;--ouro:#e6be6e;--ouro2:#f6dc9c;--neve:#eef3ff;--texto:#f3ecdc;--suave:#b9c6e2;
   --perg:#f4e7c8;--perg2:#e9d6a8;--tinta:#3a2812;--linha:rgba(230,190,110,.45);--erro:#ff9a9a;--ok:#a8e6bd;

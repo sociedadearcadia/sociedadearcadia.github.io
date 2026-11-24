@@ -57,7 +57,7 @@ body{font-family:var(--ui);font-size:15px}
 <script src="/config.js"></script>
 <script src="/hogwarts/hg.js"></script>
 <script src="/hogwarts/admin/conteudo.js"></script>
-<script src="/leitura/questionario/quiz.js"></script>
+<script src="/hogwarts/questionario/cerimonia.js"></script>
 <script>
 (async()=>{
 const {$,esc,CASAS,PERSONAGENS,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,casaIc,fmtDH,toast}=HG;
@@ -85,7 +85,7 @@ const novoCodigo=pid=>{const r=crypto.getRandomValues(new Uint32Array(4));return
 async function copiar(t){try{await navigator.clipboard.writeText(t);toast('Copiado!')}catch(e){prompt('Copie o texto:',t)}}
 
 /* ---------- abas ---------- */
-const ABAS=[['pessoas','Participantes'],['senha','Senha'],['datas','Datas'],['chapeu','Chapéu Seletor'],['bib','Biblioteca'],['figs','Figurinhas'],['quiz','Mistérios'],['espelho','Espelho'],['correio','Correio-Coruja'],['questionario','Questionário']];
+const ABAS=[['pessoas','Participantes'],['senha','Senha'],['datas','Datas'],['chapeu','Chapéu Seletor'],['bib','Biblioteca'],['figs','Figurinhas'],['quiz','Mistérios'],['espelho','Espelho'],['correio','Correio-Coruja'],['questionario','Cerimônia (questionário)']];
 let aba=HG.LS.get('admAba','pessoas');
 function abas(){$('abas').hidden=false;$('abas').innerHTML=ABAS.map(([k,n])=>`<button type="button" data-a="${k}" aria-pressed="${k===aba}">${n}</button>`).join('');
   $('abas').querySelectorAll('button').forEach(b=>b.onclick=()=>{aba=b.dataset.a;HG.LS.set('admAba',aba);abas();mostra()})}
@@ -97,6 +97,7 @@ async function semear(){const fz=[];
   if(!await pega('hgConfig','datas'))fz.push(col('hgConfig').doc('datas').set(DATAS_PADRAO));
   if(!await pega('hgConfig','geral'))fz.push(col('hgConfig').doc('geral').set(GERAL_PADRAO));
   for(const r of ['r1','r2','r3','r4','protecoes'])if(!await pega('hgQuiz',r))fz.push(col('hgQuiz').doc(r).set(HG_CONTEUDO[r]));
+  if(!await pega('hgQuestionario','oficial'))fz.push(col('hgQuestionario').doc('oficial').set({perguntas:HG_CERIMONIA.perguntas,aberto:true,em:firebase.firestore.FieldValue.serverTimestamp()}));
   if(!(await lista('hgEncontros')).length){[['2026-11-29','Primeiro sprint coletivo',''],['2026-12-06','Segundo sprint coletivo',''],['2026-12-13','Terceiro sprint coletivo','Opcional']].forEach(([d,t,n])=>fz.push(col('hgEncontros').add({data:d,titulo:t,hora:'',nota:n,cancelado:false})))}
   await Promise.all(fz);return fz.length}
 async function iniciar(){try{const n=await semear();if(n)toast('Configurações iniciais gravadas.')}catch(e){console.warn(e);toast('Não deu para gravar a configuração inicial. As regras novas já foram publicadas?')}abas();mostra()}
@@ -244,32 +245,45 @@ async function espelho(){const L=(await lista('hgEspelho')).sort((a,b)=>(a.ordem
       el.querySelector('[data-o]').onchange=async e=>{x.ordem=Math.max(1,Math.min(99,+e.target.value||99));try{await col('hgEspelho').doc(id).update({ordem:x.ordem})}catch(er){toast('Não deu.')}};
       el.querySelector('[data-l]').onchange=async e=>{x.lida=e.target.checked;try{await col('hgEspelho').doc(id).update({lida:x.lida})}catch(er){toast('Não deu.')}}})};desenha()}
 
-/* ---------- Questionário oficial (separado dos jogos) ---------- */
-async function questionario(){const Q=window.QUIZ,ref=col('hgQuestionario').doc('oficial');
-  const [q,gab,ps]=await Promise.all([pega('hgQuestionario','oficial'),(async()=>{try{const d=await ref.collection('gabarito').doc('certas').get();return d.exists?d.data().c:[]}catch(e){return []}})(),lista('hgPessoas')]);
+/* ---------- Cerimônia de Encerramento: questionário oficial (separado dos jogos) ---------- */
+async function questionario(){const CE=window.HG_CERIMONIA,P=CE.perguntas,ref=col('hgQuestionario').doc('oficial');
+  const [q,cfg,ps,Dt]=await Promise.all([pega('hgQuestionario','oficial'),pega('hgConfig','questionario'),lista('hgPessoas'),pega('hgConfig','datas')]);
+  const D=Object.assign({},DATAS_PADRAO,Dt||{});let gab=[];try{const d=await ref.collection('gabarito').doc('certas').get();gab=d.exists?d.data().c||[]:[]}catch(e){}
   let rs=[];try{rs=(await ref.collection('respostas').get()).docs.map(d=>Object.assign({_id:d.id},d.data()))}catch(e){console.warn(e)}
-  const P=(q&&q.perguntas)||[],faltam=ps.filter(p=>!rs.some(r=>r._id===p._id)).map(p=>p.nome);
-  C().innerHTML=`<section class="hg-painel sec"><h2>Questionário oficial da LC</h2>
-    <p class="hg-muted">Fica em /hogwarts/questionario, dentro do Salão, separado dos Mistérios. Cada participante responde uma vez, até ${esc(fmtDH(Object.assign({},DATAS_PADRAO,await pega('hgConfig','datas')||{}).questionarioFim))} (muda na aba Datas, linha do questionário). As participantes não veem a nota nem o gabarito.</p>
-    <p><b>Situação:</b> ${P.length?(q.aberto?'aberto':'fechado')+', '+P.length+' perguntas':'ainda sem perguntas'}</p>
-    ${P.length?`<div><button class="hg-btn sec peq" id="ab">${q.aberto?'Fechar questionário':'Abrir questionário'}</button></div>`:''}
-    <label class="hg-campo"><span>Perguntas (número e ponto, opções com a) b) c), a certa termina com *; pergunta sem opções = resposta escrita)</span><textarea class="hg-in" id="txt" rows="14" placeholder="1. Pergunta&#10;a) opção&#10;b) opção certa *&#10;c) opção">${esc(Q.texto(P,gab))}</textarea></label>
-    <p class="hg-erro" id="qe" hidden></p>
-    <div><button class="hg-btn" id="sv">Salvar perguntas</button></div>
-    ${rs.length?'<p class="hg-muted hg-small">Já tem respostas. Se mudar as perguntas agora, as notas antigas podem ficar erradas.</p>':''}</section>
-    <section class="hg-painel sec"><h2>Respostas (${rs.length} de ${ps.length})</h2>
-    ${faltam.length?`<p class="hg-muted">Faltam: ${esc(faltam.join(', '))}</p>`:''}
-    ${rs.map(r=>{const n=Q.nota(P,gab,r.r);return `<div class="resp" data-r="${r._id}"><div class="cab"><span>${esc(r.nome)}</span><span>${n.acertos} de ${n.total} (${n.pct}%)</span></div>
-      <details><summary>Ver respostas</summary>${P.map((p,i)=>{const x=r.r[i],mcq=(p.o||[]).length;return `<p><b>${i+1}. ${esc(p.p)}</b><br>${esc(mcq?(p.o[x]==null?'':p.o[x]):x)}${mcq?(x===gab[i]?' <span class="ok">certa</span>':' <span class="hg-erro">errada</span>'):''}</p>`}).join('')}</details>
-      <button class="lnk perigo" data-x>Apagar (deixa ela responder de novo)</button></div>`}).join('')||'<p class="hg-muted">Nenhuma resposta ainda.</p>'}</section>`;
-  if($('ab'))$('ab').onclick=async()=>{try{await ref.update({aberto:!q.aberto});toast(q.aberto?'Questionário fechado':'Questionário aberto');questionario()}catch(e){console.warn(e);toast('Não deu para mudar.')}};
-  $('sv').onclick=async()=>{const r=Q.ler($('txt').value);$('qe').hidden=true;
-    if(r.erros.length){$('qe').textContent=r.erros.join(' ');$('qe').hidden=false;return}
-    try{await ref.set({perguntas:r.perguntas,aberto:q?!!q.aberto:false,em:firebase.firestore.FieldValue.serverTimestamp()});await ref.collection('gabarito').doc('certas').set({c:r.certas});
-      toast('Perguntas salvas.'+(q&&q.aberto?'':' Clique em Abrir questionário quando quiser liberar.'));questionario()}
-    catch(e){console.warn(e);toast('Não deu para salvar. As regras novas já foram publicadas?')}};
+  rs.sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+  const lib=(cfg&&cfg.liberadas)||[],nomeDe=id=>(ps.find(p=>p._id===id)||{}).nome||id;
+  const quando=r=>r.em&&r.em.toDate?fmtDH(r.em.toDate().getTime()):'';
+  const rot=(qq,v)=>qq.tipo==='estrelas'?(v>=0?(v+1)+' ★ — '+qq.o[v]:''):qq.tipo==='texto'?(v||''):(qq.o[v]==null?'':'ABCD'[v]+') '+qq.o[v]);
+  const I1=P.map((x,i)=>i).filter(i=>P[i].sec===0),I2=P.map((x,i)=>i).filter(i=>P[i].sec===1&&P[i].tipo==='op'),IE=P.findIndex(x=>x.tipo==='estrelas'),IT=P.map((x,i)=>i).filter(i=>P[i].tipo==='texto');
+  const acertos=r=>gab.length?I1.filter(i=>r.r[i]===gab[i]).length:null;
+  const media=rs.length?(rs.reduce((s,r)=>s+(r.r[IE]+1),0)/rs.length).toFixed(1):'';
+  C().innerHTML=`<section class="hg-painel sec"><h2>Cerimônia de Encerramento — questionário oficial</h2>
+    <p class="hg-muted">Fica em /hogwarts/questionario e no card do Salão. Abre para todas em ${esc(fmtDH(D.questionario))} e fecha em ${esc(fmtDH(D.questionarioFim))} (muda na aba Datas). Separado dos Mistérios, sem ranking. As participantes não veem gabarito nem acertos.</p>
+    ${q?`<p><b>Envios:</b> ${q.aberto?'aceitando':'pausados'} <button class="hg-btn sec peq" id="ab">${q.aberto?'Pausar envios':'Voltar a aceitar envios'}</button></p>`:'<p class="hg-erro">O questionário ainda não foi gravado. Recarregue o painel.</p>'}
+    <h3>Liberar antes para quem já terminou o livro</h3>
+    <div class="linha">${ps.map(p=>`<label><input type="checkbox" data-lib="${p._id}" ${lib.includes(p._id)?'checked':''}> ${esc(p.nome)}</label>`).join('')||'<span class="hg-muted">Cadastre as participantes primeiro.</span>'}</div>
+    <h3>Gabarito da Parte I (só você vê)</h3>
+    ${I1.map(i=>`<label class="hg-campo"><span>${i+1}. ${esc(P[i].p)}</span><select class="hg-in" data-g="${i}"><option value="">Escolha a certa</option>${P[i].o.map((o,j)=>`<option value="${j}" ${gab[i]===j?'selected':''}>${'ABCD'[j]}) ${esc(o)}</option>`).join('')}</select></label>`).join('')}
+    <div><button class="hg-btn peq" id="sg">Salvar gabarito</button></div></section>
+    <section class="hg-painel sec"><h2>Quem respondeu (${rs.length} de ${ps.length})</h2>
+    <div class="rolar"><table class="tab"><tr><th>Nome</th><th>Status</th><th>Enviado em</th><th>Parte I</th><th>Estrelas</th></tr>
+    ${ps.map(p=>{const r=rs.find(x=>x._id===p._id);return `<tr><td>${esc(p.nome)}</td><td>${r?'<span class="ok">Concluído</span>':'Não enviou'}</td><td>${r?esc(quando(r)):''}</td><td>${r?(acertos(r)==null?'marque o gabarito':acertos(r)+' de '+I1.length):''}</td><td>${r?(r.r[IE]+1)+' ★':''}</td></tr>`}).join('')}</table></div>
+    ${rs.map(r=>`<div class="resp" data-r="${r._id}"><details><summary><b>${esc(r.nome)}</b> — todas as respostas</summary>${P.map((qq,i)=>`<p><b>${i+1}. ${esc(qq.p)}</b><br>${esc(rot(qq,r.r[i]))||'<i>(sem resposta)</i>'}${qq.sec===0&&gab[i]!=null?(r.r[i]===gab[i]?' <span class="ok">certa</span>':' <span class="hg-erro">errada</span>'):''}</p>`).join('')}</details>
+      <button class="lnk perigo" data-x>Apagar envio (ela poderá responder de novo)</button></div>`).join('')}</section>
+    <section class="hg-painel sec"><h2>Impressões agrupadas (para o encontro)</h2>
+    ${rs.length?`<p><b>Avaliação média:</b> ${media} ★ (${rs.length} ${rs.length===1?'resposta':'respostas'})</p>
+    ${[...I2,IE].map(i=>`<h3>${i+1}. ${esc(P[i].p)}</h3><ul>${P[i].o.map((o,j)=>{const quem=rs.filter(r=>r.r[i]===j).map(r=>r.nome);return `<li>${P[i].tipo==='estrelas'?(j+1)+' ★ — ':'ABCD'[j]+') '}${esc(o)}: <b>${quem.length}</b>${quem.length?' ('+esc(quem.join(', '))+')':''}</li>`}).join('')}</ul>`).join('')}
+    ${IT.map(i=>{const L=rs.filter(r=>String(r.r[i]||'').trim());return `<h3>${i+1}. ${esc(P[i].p)}</h3>${L.map(r=>`<p><b>${esc(r.nome)}:</b> ${esc(r.r[i])}</p>`).join('')||'<p class="hg-muted">Ninguém respondeu.</p>'}`}).join('')}
+    <div><button class="hg-btn sec peq" id="cp">Copiar impressões (texto)</button></div>`:'<p class="hg-muted">Nenhuma resposta ainda.</p>'}</section>`;
+  if($('ab'))$('ab').onclick=async()=>{try{await ref.update({aberto:!q.aberto});toast(q.aberto?'Envios pausados':'Aceitando envios');questionario()}catch(e){console.warn(e);toast('Não deu. As regras novas já foram coladas no Firebase?')}};
+  C().querySelectorAll('[data-lib]').forEach(cb=>cb.onchange=async()=>{const L=[...C().querySelectorAll('[data-lib]:checked')].map(x=>x.dataset.lib);
+    try{await col('hgConfig').doc('questionario').set({liberadas:L});toast(cb.checked?nomeDe(cb.dataset.lib)+' já pode responder':'Liberação tirada')}catch(e){toast('Não deu para salvar.')}});
+  $('sg').onclick=async()=>{const c=P.map((x,i)=>{const s=C().querySelector(`[data-g="${i}"]`);return s&&s.value!==''?+s.value:-1});
+    if(I1.some(i=>c[i]<0))return toast('Escolha a resposta certa das 6 perguntas.');
+    try{await ref.collection('gabarito').doc('certas').set({c});toast('Gabarito salvo.');questionario()}catch(e){console.warn(e);toast('Não deu. As regras novas já foram coladas no Firebase?')}};
+  if($('cp'))$('cp').onclick=()=>copiar(`Avaliação média: ${media} estrelas\n\n`+[...I2,IE].map(i=>`${P[i].p}\n`+P[i].o.map((o,j)=>{const quem=rs.filter(r=>r.r[i]===j).map(r=>r.nome);return `- ${P[i].tipo==='estrelas'?(j+1)+' estrelas, ':''}${o}: ${quem.length}${quem.length?' ('+quem.join(', ')+')':''}`}).join('\n')).join('\n\n')+'\n\n'+IT.map(i=>`${P[i].p}\n`+rs.filter(r=>String(r.r[i]||'').trim()).map(r=>`- ${r.nome}: ${r.r[i]}`).join('\n')).join('\n\n'));
   C().querySelectorAll('[data-r]').forEach(el=>el.querySelector('[data-x]').onclick=async()=>{const r=rs.find(y=>y._id===el.dataset.r);
-    if(!confirm('Apagar as respostas de '+r.nome+'? Ela vai poder responder de novo.'))return;
+    if(!confirm('Apagar o envio de '+r.nome+'? Ela vai poder responder de novo.'))return;
     try{await ref.collection('respostas').doc(r._id).delete();toast('Apagado.');questionario()}catch(e){toast('Não deu para apagar.')}})}
 
 /* ---------- Correio-Coruja ---------- */

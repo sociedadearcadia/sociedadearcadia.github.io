@@ -39,7 +39,6 @@
     <p>Nossa última LC especial de 2026 tem algumas surpresas além das páginas do livro. Aqui vocês encontram as missões, os sprints e as atividades preparadas para essa viagem.</p>
   </section>
   <div class="hg-cards" id="cards" hidden></div>
-  <section class="hg-perg lembrete" id="quest" hidden></section>
 </main>
 <script src="/config.js"></script>
 <script src="/hogwarts/hg.js"></script>
@@ -52,7 +51,7 @@
   const D=ctx.datas,db=ctx.db,pid=ctx.pid;
   /* o que cada uma já fez */
   const pega=p=>p.then(d=>d&&d.exists?d.data():null).catch(()=>null);
-  const [sort,esp,carta,cor,...prog]=await Promise.all([pega(db.collection('hgSorteio').doc(pid).get()),pega(db.collection('hgEspelho').doc(pid).get()),
+  const [qOf,qCfg,sort,esp,carta,cor,...prog]=await Promise.all([pega(db.collection('hgQuestionario').doc('oficial').collection('respostas').doc(pid).get()),pega(db.collection('hgConfig').doc('questionario').get()),pega(db.collection('hgSorteio').doc(pid).get()),pega(db.collection('hgEspelho').doc(pid).get()),
     pega(db.collection('hgCartas').doc(pid).get()),pega(db.collection('hgCoruja').doc(pid).get()),
     ...['r1','r2','r3','r4','protecoes'].map(r=>pega(db.collection('hgProgresso').doc(pid+'_'+r).get()))]);
   const feitas=prog.filter((p,i)=>p&&p.feito&&i<4).length,proFeito=prog[4]&&prog[4].feito,comecou=prog.some(p=>p);
@@ -68,14 +67,14 @@
       u:'/hogwarts/espelho/',j:janela(D,'espelho','espelhoFim'),rot:esp?'Ver ou editar':'Participar',st:esp?['Concluído','ok']:null},
     {ic:'coruja',t:'Correio-Coruja — Cartas à Nova Hogwarts',d:'Antes da estreia da nova série, escreva suas expectativas. Depois do primeiro episódio, volte para contar o que achou!',
       u:'/hogwarts/correio/',j:(()=>{const a=janela(D,'correio','correioFim'),b=D.coruja?janela(D,'coruja','corujaFim'):{antes:true};return a.antes?a:(b.aberta||a.aberta)?{aberta:true}:a})(),
-      rot:cor?'Continuar':carta?'Ver minha carta':'Participar',st:cor?['Concluído','ok']:carta?['Carta enviada','ok']:null}];
+      rot:cor?'Continuar':carta?'Ver minha carta':'Participar',st:cor?['Concluído','ok']:carta?['Carta enviada','ok']:null},
+    {ic:'pergaminho',t:'Cerimônia de Encerramento — Questionário Oficial',d:'Concluiu Harry Potter e a Pedra Filosofal? Registre suas impressões sobre a história antes de encerrarmos nosso primeiro ano em Hogwarts! Prazo: '+HG.fmtDH(D.questionarioFim)+'.',
+      u:'/hogwarts/questionario/',j:(()=>{const a=janela(D,'questionario','questionarioFim');return a.antes&&((qCfg&&qCfg.liberadas)||[]).includes(pid)?{aberta:true}:a})(),antesTxt:'Após a leitura · '+fmtD(D.questionario),rot:qOf?'Ver':'Iniciar cerimônia',st:qOf?['Concluído','ok']:null}];
   $('cards').innerHTML=CARDS.map(c=>{const j=c.j,bloq=!j.aberta&&!(j.fim&&c.st);
     const tag=j.antes?`<span class="hg-tag">${esc(c.antesTxt||j.txt)}</span>`:j.fim?`<span class="hg-tag fim">Encerrado</span>`:c.st?`<span class="hg-tag ${c.st[1]}">${esc(c.st[0])}</span>`:`<span class="hg-tag">Aberto</span>`;
     const bt=j.antes?`<span class="hg-btn peq" aria-disabled="true" style="opacity:.55">${icone('cadeado')} Em breve</span>`:`<a class="hg-btn peq" href="${c.u}">${esc(j.fim?'Ver':c.rot)}</a>`;
     return `<article class="hg-card${bloq?' bloq':''}"><div class="cab"><span class="selo">${icone(c.ic)}</span><h3>${esc(c.t)}</h3></div><p>${esc(c.d)}</p><div class="pe">${tag}${bt}</div></article>`}).join('');
   $('boas').hidden=false;$('cards').hidden=false;
-  /* lembrete do questionário oficial (continua separado dos jogos) */
-  if(Date.now()<=D.questionarioFim){$('quest').innerHTML=`${icone('pergaminho')}<div class="hg-form" style="gap:8px"><h3>Questionário oficial da LC</h3><p>Concluiu Harry Potter e a Pedra Filosofal? Não se esqueça de responder ao questionário oficial até ${fmtD(D.questionarioFim)}!</p><div><a class="hg-btn peq" href="/hogwarts/questionario/">Acessar questionário</a></div></div>`;$('quest').hidden=false}
 })();
 </script>
 </body>
