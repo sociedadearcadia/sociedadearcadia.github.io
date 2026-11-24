@@ -22,7 +22,7 @@ const DATAS_NOMES={chapeu:'Chapéu Seletor',biblioteca:'Biblioteca de Hogwarts',
   correio:'Correio-Coruja: carta (abre)',correioFim:'Correio-Coruja: carta (prazo)',coruja:'A Coruja Voltou (abre após a estreia)',corujaFim:'A Coruja Voltou (fecha)',questionarioFim:'Lembrete do questionário oficial (some depois)'};
 const CASAS={grifinoria:{n:'Grifinória',a:'leão'},sonserina:{n:'Sonserina',a:'serpente'},corvinal:{n:'Corvinal',a:'águia'},lufalufa:{n:'Lufa-Lufa',a:'texugo'}};
 const PERSONAGENS={harry:'Harry Potter',hermione:'Hermione Granger',rony:'Rony Weasley',draco:'Draco Malfoy',neville:'Neville Longbottom',hagrid:'Rúbeo Hagrid',snape:'Severo Snape',dumbledore:'Alvo Dumbledore'};
-const GERAL_PADRAO={questionario:'/leitura/questionario/',sala:'',org:11,leitura:31,pausa:17,prosa:11};
+const GERAL_PADRAO={questionario:'/leitura/questionario/',sala:'',org:11,leitura:31,prosa:11};
 
 /* ---------- ícones (traço dourado fino, grade 32x32) ---------- */
 const juba=(()=>{let d='';const n=22;for(let i=0;i<=n;i++){const a=i/n*Math.PI*2-Math.PI/2,r=i%2?11.6:13.6,x=16+r*Math.cos(a),y=16.5+r*Math.sin(a);d+=(i?(i%2?' Q':' '):'M')+x.toFixed(1)+' '+y.toFixed(1)}return d})();

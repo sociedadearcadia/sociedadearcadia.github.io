@@ -162,11 +162,11 @@ async function bib(){const G=Object.assign({},GERAL_PADRAO,await pega('hgConfig'
   enc.sort((a,b)=>String(a.data).localeCompare(String(b.data)));const pres={};await Promise.all(enc.map(async e=>{pres[e._id]=await lista('hgEncontros/'+e._id+'/presencas')}));
   leit.sort((a,b)=>(b.min||0)-(a.min||0));
   C().innerHTML=`<section class="hg-painel sec"><h2>Tempos dos cronômetros</h2>
-    <form class="sec" id="tf"><div class="linha">${[['org','Organização'],['leitura','Leitura'],['pausa','Pausa prolongada'],['prosa','Prosa']].map(([k,n])=>`<label class="hg-campo"><span>${n} (min)</span><input class="hg-in" type="number" min="1" max="180" name="${k}" value="${G[k]}"></label>`).join('')}</div>
+    <form class="sec" id="tf"><div class="linha">${[['org','Organização'],['leitura','Leitura'],['prosa','Prosa']].map(([k,n])=>`<label class="hg-campo"><span>${n} (min)</span><input class="hg-in" type="number" min="1" max="180" name="${k}" value="${G[k]}"></label>`).join('')}</div>
     <label class="hg-campo"><span>Link da sala de vídeo da Biblioteca (Daily ou Google Meet)</span><input class="hg-in" name="sala" value="${esc(G.sala)}" placeholder="https://sociedadearcadia.daily.co/hogwarts"></label>
     <label class="hg-campo"><span>Link do questionário oficial da LC</span><input class="hg-in" name="questionario" value="${esc(G.questionario)}"></label>
     <div><button class="hg-btn">Salvar</button></div></form>
-    <p class="hg-muted hg-small">Padrão: 11, 31, 17 e 11. A sala da Biblioteca é separada da sala geral, mas as duas usam os mesmos minutos gratuitos do Daily.</p></section>
+    <p class="hg-muted hg-small">Padrão: 11, 31 e 11. A sala da Biblioteca é separada da sala geral, mas as duas usam os mesmos minutos gratuitos do Daily.</p></section>
     <section class="hg-painel sec"><h2>Sprints coletivos programados</h2>
     <div class="rolar"><table class="tab"><tr><th>Data</th><th>Horário</th><th>Título</th><th>Observação</th><th>Confirmadas</th><th></th></tr>
     ${enc.map(e=>`<tr data-e="${e._id}"><td><input type="date" name="data" value="${esc(e.data)}"></td><td><input type="time" name="hora" value="${esc(e.hora||'')}" title="Vazio = horário a definir"></td><td><input name="titulo" value="${esc(e.titulo||'')}" maxlength="60"></td><td><input name="nota" value="${esc(e.nota||'')}" maxlength="120"></td>
@@ -178,7 +178,7 @@ async function bib(){const G=Object.assign({},GERAL_PADRAO,await pega('hgConfig'
     <table class="tab">${leit.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.nome)}</td><td>${Math.floor((l.min||0)/60)}h ${String((l.min||0)%60).padStart(2,'0')}min</td><td>${l.sprints||0} sprints</td></tr>`).join('')||'<tr><td class="hg-muted">Ninguém leu ainda.</td></tr>'}</table>
     <p class="hg-muted hg-small">Para apagar mensagens do chat ou tirar alguém do coletivo, abra a Biblioteca e toque em "Administração" (no painel do sprint coletivo).</p></section>`;
   $('tf').onsubmit=async ev=>{ev.preventDefault();const f=$('tf'),n={sala:f.sala.value.trim(),questionario:f.questionario.value.trim()||'/leitura/questionario/'};
-    for(const k of ['org','leitura','pausa','prosa'])n[k]=Math.max(1,Math.min(180,Math.round(+f[k].value||GERAL_PADRAO[k])));
+    for(const k of ['org','leitura','prosa'])n[k]=Math.max(1,Math.min(180,Math.round(+f[k].value||GERAL_PADRAO[k])));
     if(n.sala&&!/^https:\/\/([a-z0-9-]+\.daily\.co\/[\w-]+|meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3})$/i.test(n.sala))return toast('O link da sala precisa ser do Daily (https://nome.daily.co/sala) ou do Google Meet.');
     try{await col('hgConfig').doc('geral').set(n);toast('Salvo!')}catch(e){toast('Não deu para salvar.')}};
   C().querySelectorAll('[data-e]').forEach(tr=>{const id=tr.dataset.e,v=n=>tr.querySelector(`[name=${n}]`).value.trim(),e=enc.find(x=>x._id===id);
