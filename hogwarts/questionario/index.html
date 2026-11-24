@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Questionário oficial · Salão Principal de Hogwarts</title>
+<meta name="theme-color" content="#0b1730">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="/hogwarts/hg.css">
+<style>
+.qs{display:flex;flex-direction:column;gap:14px}
+.q{padding:14px;border-radius:14px;border:1px solid #c9a865;background:rgba(255,250,236,.55)}
+.q h2{font:600 19px/1.35 'EB Garamond',serif;color:#3a2509;margin:4px 0 10px}
+.ops{display:flex;flex-direction:column;gap:8px}
+.ops label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;border:1px solid #c9a865;background:rgba(255,250,236,.8);cursor:pointer}
+.ops input{margin-top:5px;accent-color:#7a4a12}
+.resp{margin:6px 0 0;color:#3a2509}
+</style>
+</head>
+<body>
+<div class="hg-fundo" aria-hidden="true"></div>
+<main class="hg-wrap">
+  <a class="hg-voltar" href="/hogwarts/">← Salão Principal</a>
+  <section class="hg-perg hg-form" id="app"><p class="hg-centro hg-muted" id="estado">Carregando…</p></section>
+</main>
+<script src="/config.js"></script>
+<script src="/hogwarts/hg.js"></script>
+<script src="/leitura/questionario/quiz.js"></script>
+<script>
+(async()=>{
+  const {$,esc,icone,fmtDH}=HG;HG.neve();
+  let ctx;try{ctx=await HG.entrar()}catch(e){$('estado').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+  const db=ctx.db,D=ctx.datas,app=$('app'),Q=window.QUIZ;
+  const doc=db.collection('hgQuestionario').doc('oficial'),ref=doc.collection('respostas').doc(ctx.pid);
+  const topo=`<div class="hg-topo"><span style="color:#7a4a12">${icone('pergaminho','hg-ic-grande')}</span><p class="hg-lbl" style="color:#7a4a12">LC Especial de Natal</p><h1 style="color:#4a2f0f">Questionário oficial</h1></div>
+    <p class="hg-centro">Harry Potter e a Pedra Filosofal</p>`;
+  const msg=t=>app.innerHTML=topo+`<p class="hg-centro"><span class="hg-tag">${esc(t)}</span></p>`;
+  let quiz=null,minha=null;
+  try{const d=await doc.get();quiz=d.exists?d.data():null}catch(e){console.warn(e);return msg('Não deu para carregar. Recarregue a página.')}
+  try{const d=await ref.get();minha=d.exists?d.data():null}catch(e){console.warn(e)}
+  if(minha){
+    const P=(quiz&&quiz.perguntas)||[];
+    app.innerHTML=topo+`<div class="hg-instr" style="font-size:18px">Suas respostas foram enviadas. Obrigada por ler com a gente!</div>
+      ${P.length?'<p class="hg-lbl" style="color:#7a4a12">Suas respostas</p>'+P.map((q,i)=>{const r=minha.r[i];return `<div><b>${i+1}. ${esc(q.p)}</b><p class="resp">${esc((q.o||[]).length?(q.o[r]==null?'':q.o[r]):r)}</p></div>`}).join(''):''}
+      <div class="hg-btns"><a class="hg-btn" href="/hogwarts/">Voltar ao Salão Principal</a></div>`;return}
+  if(!quiz||!(quiz.perguntas||[]).length)return msg('O questionário ainda não está pronto');
+  if(Date.now()>D.questionarioFim)return msg('Encerrado em '+fmtDH(D.questionarioFim));
+  if(!quiz.aberto)return msg('O questionário está fechado no momento');
+  const P=quiz.perguntas,K='hgQuestRasc',rasc=HG.LS.get(K,{}),mc=P.filter(q=>(q.o||[]).length).length,ab=P.length-mc;
+  app.innerHTML=topo+`<p class="hg-instr">${P.length} perguntas sobre o livro${ab?' ('+ab+' para responder com suas palavras)':''}. Você só pode enviar uma vez, então responda com calma. Não vale consultar o livro nem a internet. Prazo: ${esc(fmtDH(D.questionarioFim))}.<br><br>Este questionário é separado dos Mistérios e das Sete Proteções.</p>
+    <form class="qs" id="f">${P.map((q,i)=>{const ops=q.o||[];
+      return `<section class="q" id="p${i}"><p class="hg-lbl" style="color:#7a4a12">Pergunta ${i+1} de ${P.length}</p><h2>${esc(q.p)}</h2>`+(ops.length
+        ?'<div class="ops">'+Q.ordem(ops.length,ctx.pid+'|hg|'+i).map(j=>`<label><input type="radio" name="q${i}" value="${j}"${rasc[i]===j?' checked':''}><span>${esc(ops[j])}</span></label>`).join('')+'</div>'
+        :`<textarea class="hg-in" name="q${i}" rows="3" maxlength="600" placeholder="Escreva aqui">${esc(typeof rasc[i]==='string'?rasc[i]:'')}</textarea>`)+'</section>'}).join('')}
+      <p class="hg-muted hg-small" id="falta"></p><p class="hg-erro" id="erro" hidden></p>
+      <div class="hg-btns"><button class="hg-btn" id="bt">Enviar respostas</button></div></form>`;
+  const f=$('f');
+  const ler=()=>P.map((q,i)=>{if((q.o||[]).length){const m=f.querySelector(`input[name="q${i}"]:checked`);return m?+m.value:-1}const t=f.querySelector(`textarea[name="q${i}"]`);return t?t.value.trim().slice(0,600):''});
+  const contar=()=>{const r=ler(),n=r.filter(x=>x===-1||x==='').length;$('falta').textContent=n?`Faltam ${n} ${n>1?'perguntas':'pergunta'}.`:'Tudo respondido. Confira antes de enviar.';HG.LS.set(K,r)};
+  f.addEventListener('change',contar);f.addEventListener('input',contar);contar();
+  f.onsubmit=ev=>{ev.preventDefault();const r=ler(),i=r.findIndex(x=>x===-1||x==='');
+    if(i>=0){HG.toast('Falta responder a pergunta '+(i+1));$('p'+i).scrollIntoView({behavior:'smooth',block:'center'});return}
+    const d=HG.dialogo(`<div class="hg-form"><h2 style="margin:0">Enviar respostas?</h2><p>Depois de enviar não dá para mudar.</p><div class="hg-btns"><button class="hg-btn" data-ok>Enviar</button><button class="hg-btn sec" data-nao>Voltar</button></div></div>`);
+    d.querySelector('[data-nao]').onclick=()=>d.remove();
+    d.querySelector('[data-ok]').onclick=async()=>{d.remove();const bt=$('bt');bt.disabled=true;$('erro').hidden=true;
+      try{await ref.set({nome:ctx.nome,r,uid:ctx.uid,em:firebase.firestore.FieldValue.serverTimestamp()});HG.LS.set(K,{});location.reload()}
+      catch(e){console.warn(e);bt.disabled=false;$('erro').textContent=e.code==='permission-denied'?'Não deu para enviar. O questionário pode ter fechado, ou você já enviou.':'Não deu para enviar. Confira a internet e tente de novo.';$('erro').hidden=false}}};
+})();
+</script>
+</body>
+</html>

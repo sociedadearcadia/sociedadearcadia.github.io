@@ -75,7 +75,7 @@
     return `<article class="hg-card${bloq?' bloq':''}"><div class="cab"><span class="selo">${icone(c.ic)}</span><h3>${esc(c.t)}</h3></div><p>${esc(c.d)}</p><div class="pe">${tag}${bt}</div></article>`}).join('');
   $('boas').hidden=false;$('cards').hidden=false;
   /* lembrete do questionário oficial (continua separado dos jogos) */
-  if(Date.now()<=D.questionarioFim){$('quest').innerHTML=`${icone('pergaminho')}<div class="hg-form" style="gap:8px"><h3>Questionário oficial da LC</h3><p>Concluiu Harry Potter e a Pedra Filosofal? Não se esqueça de responder ao questionário oficial até ${fmtD(D.questionarioFim)}!</p><div><a class="hg-btn peq" href="${esc(ctx.geral.questionario||'/leitura/questionario/')}">Acessar questionário</a></div></div>`;$('quest').hidden=false}
+  if(Date.now()<=D.questionarioFim){$('quest').innerHTML=`${icone('pergaminho')}<div class="hg-form" style="gap:8px"><h3>Questionário oficial da LC</h3><p>Concluiu Harry Potter e a Pedra Filosofal? Não se esqueça de responder ao questionário oficial até ${fmtD(D.questionarioFim)}!</p><div><a class="hg-btn peq" href="/hogwarts/questionario/">Acessar questionário</a></div></div>`;$('quest').hidden=false}
 })();
 </script>
 </body>

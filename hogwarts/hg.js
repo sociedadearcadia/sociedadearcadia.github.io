@@ -19,10 +19,10 @@ const DATAS_PADRAO={
   questionarioFim:T(2026,12,18,23,59)};
 const DATAS_NOMES={chapeu:'Chapéu Seletor',biblioteca:'Biblioteca de Hogwarts',r1:'Rodada 1 (caps. 1 a 4)',r2:'Rodada 2 (caps. 5 a 7)',r3:'Rodada 3 (caps. 8 a 12)',r4:'Rodada 4 (caps. 13 a 17)',
   misteriosFim:'Fim dos Mistérios',protecoes:'Sete Proteções (abre)',protecoesFim:'Sete Proteções (fecha)',espelho:'Espelho de Ojesed (abre)',espelhoFim:'Espelho de Ojesed (prazo)',
-  correio:'Correio-Coruja: carta (abre)',correioFim:'Correio-Coruja: carta (prazo)',coruja:'A Coruja Voltou (abre após a estreia)',corujaFim:'A Coruja Voltou (fecha)',questionarioFim:'Lembrete do questionário oficial (some depois)'};
+  correio:'Correio-Coruja: carta (abre)',correioFim:'Correio-Coruja: carta (prazo)',coruja:'A Coruja Voltou (abre após a estreia)',corujaFim:'A Coruja Voltou (fecha)',questionarioFim:'Questionário oficial (prazo; o lembrete some depois)'};
 const CASAS={grifinoria:{n:'Grifinória',a:'leão'},sonserina:{n:'Sonserina',a:'serpente'},corvinal:{n:'Corvinal',a:'águia'},lufalufa:{n:'Lufa-Lufa',a:'texugo'}};
 const PERSONAGENS={harry:'Harry Potter',hermione:'Hermione Granger',rony:'Rony Weasley',draco:'Draco Malfoy',neville:'Neville Longbottom',hagrid:'Rúbeo Hagrid',snape:'Severo Snape',dumbledore:'Alvo Dumbledore'};
-const GERAL_PADRAO={questionario:'/leitura/questionario/',sala:'',org:11,leitura:31,prosa:11};
+const GERAL_PADRAO={sala:'',org:11,leitura:31,prosa:11};
 
 /* ---------- ícones (traço dourado fino, grade 32x32) ---------- */
 const juba=(()=>{let d='';const n=22;for(let i=0;i<=n;i++){const a=i/n*Math.PI*2-Math.PI/2,r=i%2?11.6:13.6,x=16+r*Math.cos(a),y=16.5+r*Math.sin(a);d+=(i?(i%2?' Q':' '):'M')+x.toFixed(1)+' '+y.toFixed(1)}return d})();
