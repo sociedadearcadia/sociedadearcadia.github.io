@@ -348,7 +348,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
       <p class="muted" style="font-size:12.5px;margin:6px 0 0">Toque no nome para chamar para ler junto.</p></div>
     <div class="row">
       <label class="f" id="grupoRodadasBox" style="flex:1 1 100%">Quantas rodadas de leitura?<select id="grupoRodadas">
-        <option value="1" id="opR1">1 rodada</option><option value="2" id="opR2">2 rodadas</option></select></label>
+        <option value="0">Livre (até todas saírem)</option><option value="1" id="opR1">1 rodada</option><option value="2" id="opR2">2 rodadas</option></select></label>
       <button class="btn primary" id="grupoStart" type="button">Começar sprint coletivo</button>
       <button class="btn primary" id="grupoJoin" type="button" hidden>Entrar no sprint coletivo</button>
       <button class="btn ghost" id="grupoLeave" type="button" hidden>Sair do coletivo</button>
@@ -584,7 +584,6 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
     <p>Até nossos cronômetros têm referências a Harry Potter e a Pedra Filosofal!</p>
     <p><b>11 minutos</b> representam os 11 anos de Harry e a partida do Expresso às 11 horas.</p>
     <p><b>31 minutos</b> fazem referência ao aniversário dele, em 31 de julho.</p>
-    <p><b>17 minutos</b> representam os 17 capítulos do primeiro livro.</p>
     <p class="muted" id="temposSeq" style="font-size:14px"></p>
     <button class="btn primary" id="temposOk" type="button">Fechar</button>
   </div>
@@ -730,7 +729,7 @@ function render(){
   $('state').textContent=mode==='prosa'?(running?'Hora da prosa':'Intervalo para conversar')
     :running?'Lendo':remaining<total?'Sprint pausado':(me?`Pronta para ler, ${me.name}?`:'Pronta para ler?');
   if(grupoOn()){const g=grupo,now=Date.now();$('startBtn').textContent='Sair do coletivo';
-    if(now<g.startAt)$('state').textContent='Organização e prosa inicial · leitura às '+hm(g.startAt);else{const f=gFase(g,now),n=gCiclos(g)>1?` · rodada ${f.n} de ${gCiclos(g)}`:'';$('state').textContent=(mode==='prosa'?(f.ult?'Prosa final':'Pausa prolongada'):'Lendo juntas')+n}}
+    if(now<g.startAt)$('state').textContent='Organização e prosa inicial · leitura às '+hm(g.startAt);else{const f=gFase(g,now),n=gCiclos(g)>1?` · rodada ${f.n} de ${gCiclos(g)}`:'';$('state').textContent=(mode==='prosa'?(f.ult?'Prosa final':'Prosa'):'Lendo juntas')+n}}
   document.title=running?`${fmt(remaining)} · ${mode==='prosa'?'Prosa':'Leitura'} · Hogwarts`:'Biblioteca de Hogwarts';
   {const st=$('salaTempo');if(st)st.textContent=running?'· '+(mode==='prosa'?'Prosa ':'Leitura ')+fmt(remaining):''}
   $('hello').textContent=me?`Boa leitura, ${me.name}`:'Biblioteca de Hogwarts';
@@ -1121,7 +1120,7 @@ function hm(t){const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes
 function grupoUI(){const p=$('grupoPanel');if(!db){p.hidden=true;return}p.hidden=false;resgateUI();chatLiga();const a=grupoAtivo(),on=grupoOn();p.classList.toggle('on',on);
   $('grupoStart').hidden=a;$('grupoRodadasBox').hidden=a;$('grupoJoin').hidden=!a||on;$('grupoLeave').hidden=!on;$('grupoCancel').hidden=!(a&&grupo.dono===uid);$('grupoHelp').hidden=a;
   if(a){const g=grupo,f=gFase(g,Date.now());
-    $('grupoInfo').textContent=`Sprint coletivo de ${g.por}: ${seqTxt(g)}, tudo sozinho, sem precisar clicar. `+(f.ph==='abertura'?`Organização e prosa inicial até ${hm(g.startAt)}. `:f.ph==='read'?`Agora: leitura até ${hm(f.until)}. `:f.ult?`Agora: prosa final até ${hm(f.until)}. `:`Agora: pausa prolongada até ${hm(f.until)}. `)+`Termina às ${hm(gFim(g))}.`}
+    $('grupoInfo').textContent=`Sprint coletivo de ${g.por}: ${seqTxt(g)}, tudo sozinho, sem precisar clicar. `+(f.ph==='abertura'?`Organização e prosa inicial até ${hm(g.startAt)}. `:f.ph==='read'?`Agora: leitura até ${hm(f.until)}. `:f.ult?`Agora: prosa final até ${hm(f.until)}. `:`Agora: prosa até ${hm(f.until)}. `)+(g.livre?'Sem hora para acabar: termina quando todas saírem do coletivo.':`Termina às ${hm(gFim(g))}.`)}
   else $('grupoInfo').textContent='Nenhum sprint coletivo agora. Comece um e chame as meninas no grupo.';
   const lista=a?grupoQuem.filter(q=>q.startAt===grupo.startAt):[],nomes=lista.map(q=>q.nome);$('grupoQuem').innerHTML='';
   lista.forEach(q=>{const sp=document.createElement('span');nomeIc(sp,q.nome);
@@ -1137,7 +1136,7 @@ function grupoSync(){if(!grupoOn()){if(grupoJoined&&!grupoAtivo())grupoEnd();{co
   const g=grupo,now=Date.now(),f=gFase(g,now),ph=f.ph==='read'?'read':'prosa',key=g.startAt+':'+f.n+':'+f.ph;
   if(key!==gKey||!endAt){const troca=gKey&&gKey.startsWith(g.startAt+':')&&key!==gKey,naHora=now-f.ini<90000;gKey=key;
     if(troca){if(naHora)chime(false,ph==='prosa'?'Hora da prosa!':'Hora de ler!');
-      if(mode==='read'&&ph==='prosa'){if(readSecs>=30&&$('sealDlg').hidden)openSeal(true,true);if(f.n<gCiclos(g))presPede(g.startAt,f.until);toast(f.ult?'Hora da prosa final!':`Pausa prolongada! A leitura volta às ${hm(f.until)}.`)}
+      if(mode==='read'&&ph==='prosa'){if(readSecs>=30&&$('sealDlg').hidden)openSeal(true,true);if(f.n<gCiclos(g))presPede(g.startAt,f.until);toast(f.ult?'Hora da prosa final!':`Hora da prosa! A leitura volta às ${hm(f.until)}.`)}
       else if(ph==='read')aviso('Hora de ler!',(gCiclos(g)>1?`Leitura ${f.n} de ${gCiclos(g)}. `:'')+'A leitura vai até '+hm(f.until)+'.','Vamos ler',frase())}
     if(mode!==ph){mode=ph;if(ph==='prosa')newQ()}
     total=f.ph==='abertura'?Math.max(1,ABERTURA*60,(g.startAt-now)/1000):Math.max(1,(f.until-f.ini)/1000);
@@ -1159,8 +1158,8 @@ async function grupoLeave(){presFecha();const was=grupoJoined;
   if(was)toast('Você saiu do sprint coletivo');grupoUI();render()}
 function grupoEnd(){if(grupo&&grupo.startAt&&grupo.startAt===grupoJoined)LS.set('colUltimo',{startAt:grupo.startAt,read:grupo.read,prosa:grupo.prosa,pausa:grupo.pausa,ciclos:gCiclos(grupo),por:grupo.por});if(grupo&&grupo.startAt&&Date.now()-gFim(grupo)<90000)chime(false,'Fim do sprint coletivo!');gKey=null;grupoJoined=0;LS.set('grupoJoined',0);clearInterval(tick);endAt=null;aviso('Sprint coletivo encerrado','Obrigada por ler junto! Se faltou salvar algum tempo, use "Resgatar meus minutos do coletivo".','Fechar');setMode('read');grupoUI()}
 $('grupoStart').onclick=async()=>{if(!me)return askName();if(!db||!uid)return toast('O sprint coletivo precisa de internet');
-  const rod=+$('grupoRodadas').value||1;LS.set('rodadas',rod);
-  const g={startAt:Date.now()+Math.max(1,ABERTURA)*60000,read:COL_LER,prosa:COL_PROSA,pausa:COL_PAUSA,ciclos:Math.max(1,Math.min(2,rod||1)),por:me.name,dono:uid};
+  const rod=+$('grupoRodadas').value||0;LS.set('rodadas',rod);
+  const g={startAt:Date.now()+Math.max(1,ABERTURA)*60000,read:COL_LER,prosa:COL_PROSA,ciclos:rod?Math.min(2,rod):12,por:me.name,dono:uid};if(!rod)g.livre=true;
   try{await db.collection('hgColetivo').doc('atual').set(g);grupo=g;grupoJoin()}catch(e){console.warn(e);toast('Não deu para começar. Talvez já exista um sprint coletivo.')}};
 $('grupoJoin').onclick=grupoJoin;$('grupoLeave').onclick=grupoLeave;
 $('grupoCancel').onclick=async()=>{try{await db.collection('hgColetivo').doc('atual').set({startAt:0,read:1,prosa:0,por:me?me.name:'',dono:uid});toast('Sprint coletivo cancelado')}catch{toast('Não deu para cancelar')}};
@@ -1345,15 +1344,15 @@ $('salaClose').onclick=salaFecha;
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3500)}
 
 /* ---------- tempos de Hogwarts ---------- */
-function seqTxt(g){const n=gCiclos(g);let s=`organização ${ABERTURA} min`;for(let k=0;k<n;k++){s+=`, leitura ${g.read} min`;s+=k<n-1?`, pausa prolongada ${gIntervalo(g,k)} min`:`, prosa final ${g.prosa} min`}return s}
-function totalMin(n){const g={read:COL_LER,prosa:COL_PROSA,pausa:COL_PAUSA,ciclos:n};let t=ABERTURA;for(let k=0;k<n;k++)t+=g.read+gIntervalo(g,k);return t}
+function seqTxt(g){if(g.livre)return `organização ${ABERTURA} min, depois leitura de ${g.read} min e prosa de ${g.prosa} min, repetindo`;const n=gCiclos(g);let s=`organização ${ABERTURA} min`;for(let k=0;k<n;k++){s+=`, leitura ${g.read} min`;s+=`, prosa ${gIntervalo(g,k)} min`}return s}
+function totalMin(n){const g={read:COL_LER,prosa:COL_PROSA,ciclos:n};let t=ABERTURA;for(let k=0;k<n;k++)t+=g.read+gIntervalo(g,k);return t}
 $('opR1').textContent=`1 rodada (${totalMin(1)} min no total)`;$('opR2').textContent=`2 rodadas (${totalMin(2)} min no total)`;
-$('grupoHelp').textContent=`Começa com ${ABERTURA} minutos de organização e prosa inicial. Com 1 rodada: leitura de ${COL_LER} min e prosa final de ${COL_PROSA} min. Com 2 rodadas: leitura de ${COL_LER}, pausa prolongada de ${COL_PAUSA}, leitura de ${COL_LER} e prosa final de ${COL_PROSA}. Tudo passa sozinho, igual para todas, e os minutos de leitura contam no ranking da LC.`;
-$('temposSeq').textContent=`Sprint de uma rodada: organização ${ABERTURA} min, leitura ${COL_LER} min, prosa ${COL_PROSA} min (${totalMin(1)} min). Sprint de duas rodadas: organização ${ABERTURA}, leitura ${COL_LER}, pausa prolongada ${COL_PAUSA}, leitura ${COL_LER}, prosa final ${COL_PROSA} (${totalMin(2)} min). No sprint individual você pode ajustar os tempos nas configurações.`;
+$('grupoHelp').textContent=`Começa com ${ABERTURA} minutos de organização e prosa inicial. Depois, leitura de ${COL_LER} min e prosa de ${COL_PROSA} min. No modo livre isso se repete até todas saírem do coletivo. Também dá para escolher 1 ou 2 rodadas. Tudo passa sozinho, igual para todas, e os minutos de leitura contam no ranking da LC.`;
+$('temposSeq').textContent=`Sprint coletivo: organização ${ABERTURA} min, depois leitura ${COL_LER} min e prosa ${COL_PROSA} min. No modo livre, leitura e prosa se repetem até todas saírem. No sprint individual você pode ajustar os tempos nas configurações.`;
 $('temposBtn').onclick=()=>{$('temposDlg').hidden=false};$('temposOk').onclick=()=>{$('temposDlg').hidden=true};
 $('temposDlg').addEventListener('click',e=>{if(e.target.id==='temposDlg')$('temposDlg').hidden=true});
 /* ---------- início ---------- */
-setMode('read');restaura();{const r=LS.get('rodadas',1);if($('grupoRodadas'))$('grupoRodadas').value=String(r===2?2:1)}{const r=$('grupoRitmo');if(r)r.textContent=`rodadas de ${COL_LER} minutos de leitura`+(COL_PROSA?` e ${COL_PROSA} de prosa`:'')}drawGrim();rankRender();
+setMode('read');restaura();{const r=LS.get('rodadas',0);if($('grupoRodadas'))$('grupoRodadas').value=String(r===1||r===2?r:0)}{const r=$('grupoRitmo');if(r)r.textContent=`rodadas de ${COL_LER} minutos de leitura`+(COL_PROSA?` e ${COL_PROSA} de prosa`:'')}drawGrim();rankRender();
 if(!$('salaRow').hidden&&!SALA_MEET&&me&&Date.now()-LS.get('sala',0)<4*3600e3)$('salaBtn').click();
 }).catch(e=>{console.warn(e);const c=document.getElementById('hgCarrega');if(c)c.innerHTML='<p style="padding:20px;text-align:center">Sem conexão agora. Verifique a internet e recarregue a página.</p>'});
 </script>
