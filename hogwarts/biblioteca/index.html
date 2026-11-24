@@ -238,7 +238,8 @@ body.leve *{-webkit-backdrop-filter:none !important;backdrop-filter:none !import
   --line:rgba(230,190,110,.28);--gold:#e6be6e;--lilac:#b9cbef;--rose:#f0b37a;--plum:#1d3566;--cream:#f3ecdc;--muted:#a9b8d8;--ok:#9fe0b8;
   --display:"Cinzel","Lora",Georgia,serif}
 body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
-#bgArt,#bgArt{background:url("/hogwarts/img/caminho.webp") center top/cover no-repeat,#0b1730!important}
+#bgArt,#bgArt{background:url("/hogwarts/img/trio.webp") center 60%/cover no-repeat,#0b1730!important}
+@media (min-aspect-ratio:1/1){#bgArt,#bgArt{background-image:url("/hogwarts/img/trio-largo.webp")!important;background-position:center 50%!important}}
 #bgArt::after{background:rgba(8,16,36,calc(.35 + var(--dim,0)))}
 #topSeal{display:none}
 .hg-topic{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:var(--gold);background:radial-gradient(circle at 35% 30%,rgba(60,90,150,.7),rgba(10,20,44,.95) 70%);box-shadow:0 0 0 1px rgba(230,190,110,.6)}
@@ -410,7 +411,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
   <section class="panel" aria-labelledby="hBg">
     <div class="head"><span class="eyebrow">Plano de fundo</span><h2 id="hBg">Combine com o seu livro</h2></div>
     <div class="swatches" id="swatches">
-      <button class="sw" data-bg="arcadia" aria-pressed="true"><i style="background-image:url('/hogwarts/img/caminho-mini.webp')"></i>Hogwarts</button>
+      <button class="sw" data-bg="arcadia" aria-pressed="true"><i style="background-image:url('/hogwarts/img/trio-mini.webp')"></i>Hogwarts</button>
       <button class="sw" data-bg="noite" aria-pressed="false"><i style="background:radial-gradient(circle at 50% 0,#3a2a78,#170f33)"></i>Noite</button>
       <button class="sw" data-bg="lilas" aria-pressed="false"><i style="background:radial-gradient(circle at 50% 0,#8a63c9,#2a1950)"></i>Lilás</button>
       <button class="sw" data-bg="rosa" aria-pressed="false"><i style="background:radial-gradient(circle at 50% 0,#b0479a,#2b0f33)"></i>Rosa</button>
@@ -872,14 +873,14 @@ function periodStats(p){const now=new Date();let from;
     label:{hoje:'hoje',semana:'nesta semana',mes:'neste mês'}[p]}}
 
 $('copyBtn').onclick=async()=>{const t=periodStats('hoje'),w=periodStats('semana');
-  const txt=`✦ Biblioteca de Hogwarts · LC de Natal\n${me?me.name+': ':''}${t.n} ${t.n===1?'sprint':'sprints'} hoje (${t.min} min${t.pages?`, ${t.pages} págs.`:''})\nNa semana: ${w.min} min de leitura`+(t.books.length?`\nLendo: ${t.books.join(', ')}`:'');
+  const txt=`✦ Sprint · LC Especial de Natal (Biblioteca de Hogwarts)\n${me?me.name+': ':''}${t.n} ${t.n===1?'sprint':'sprints'} hoje (${t.min} min${t.pages?`, ${t.pages} págs.`:''})\nNa semana: ${w.min} min de leitura`+(t.books.length?`\nLendo: ${t.books.join(', ')}`:'');
   try{await navigator.clipboard.writeText(txt);toast('Resumo copiado. É só colar no grupo!')}catch{toast('Não deu para copiar neste aparelho')}};
 
 /* ---------- imagem para stories ---------- */
 const sealImg=new Image();sealImg.src=$('topSeal').src;let storyP='hoje';
 function wrapText(x,text,cx,y,maxW,lh){const words=text.split(' ');let line='',lines=[];for(const w of words){const t=line?line+' '+w:w;if(x.measureText(t).width>maxW&&line){lines.push(line);line=w}else line=t}if(line)lines.push(line);lines.forEach((l,i)=>x.fillText(l,cx,y+i*lh));return lines.length}
-const FUNDOS=[['caminho'],['neve'],['expresso'],['trio']];
-const LEITORAS=FUNDOS.map(f=>`/hogwarts/img/${f[0]}.webp`);let storyPick=Math.max(0,Math.min(FUNDOS.length-1,+LS.get('storyFundo',0)||0));const storyImgs={};
+const FUNDOS=[['trio'],['neve'],['expresso'],['caminho']];
+const LEITORAS=FUNDOS.map(f=>`/hogwarts/img/${f[0]}.webp`);let storyPick=Math.max(0,Math.min(FUNDOS.length-1,+LS.get('storyFundo2',0)||0));const storyImgs={};
 function storyImg(i){if(!storyImgs[i]){const im=new Image();im.onload=()=>{if(!$('storyDlg').hidden)drawStory();if(!$('colStDlg').hidden)drawColStory()};im.src=LEITORAS[i];storyImgs[i]=im}return storyImgs[i]}
 function storyBase(x){const W=1080,H=1920;
   x.fillStyle='#1a0b2e';x.fillRect(0,0,W,H);
@@ -892,7 +893,7 @@ function storyFoot(x){x.shadowBlur=0;x.fillStyle='#d6b46c';x.font='600 30px "Nun
   try{const SEL=sealImg;x.save();x.shadowColor='rgba(10,4,20,.65)';x.shadowBlur=16;x.beginPath();x.arc(540,1700,46,0,6.28);x.fillStyle='#f4e8da';x.fill();x.restore();x.save();x.beginPath();x.arc(540,1700,46,0,6.28);x.clip();x.drawImage(SEL,494,1654,92,92);x.restore();x.strokeStyle='#d6b46c';x.lineWidth=2.5;x.beginPath();x.arc(540,1700,47.5,0,6.28);x.stroke()}catch{}}
 function drawStory(){const x=$('story').getContext('2d');storyBase(x);
   const s=periodStats(storyP);x.textAlign='center';x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
-  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText(s.col?'SPRINT COLETIVO · LC DE NATAL':'SPRINT DE LEITURA · LC DE NATAL',540,720);x.letterSpacing='0px';
+  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('LC ESPECIAL DE NATAL',540,650);x.fillStyle='#f4e8da';x.font='600 34px "Nunito Sans",sans-serif';x.fillText(s.col?'SPRINT COLETIVO':'SPRINT DE LEITURA',540,712);x.letterSpacing='0px';
   x.fillStyle='#f4e8da';x.font='italic 500 64px Lora,Georgia,serif';x.fillText(me?me.name:'Leitora da Arcádia',540,820);
   x.font='500 230px Lora,Georgia,serif';x.fillText(String(s.min),540,1080);
   x.fillStyle='#c9b6f2';x.font='italic 48px Lora,Georgia,serif';x.fillText(`minutos de leitura ${s.label}`,540,1150);
@@ -907,7 +908,7 @@ function drawStory(){const x=$('story').getContext('2d');storyBase(x);
 $('storyBtn').onclick=()=>{{const l=log[log.length-1];if(l&&l.coletivo&&Date.now()-l.t<6*3600e3){storyP='sprint';$('storySeg').querySelectorAll('button').forEach(o=>o.setAttribute('aria-pressed',o.dataset.p==='sprint'))}}fundosUI();if(window.ArcVideo)vidReset();$('storyDlg').hidden=false;drawStory()};
 function fundosUI(){const el=$('storyFundos');if(!el.children.length)el.innerHTML=FUNDOS.map((f,i)=>`<button type="button" data-i="${i}" aria-label="Fundo ${i+1}"><img src="/hogwarts/img/${f[0]}-mini.webp" alt="" loading="lazy"></button>`).join('');
   el.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===storyPick))}
-$('storyFundos').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;storyPick=+b.dataset.i;LS.set('storyFundo',storyPick);fundosUI();drawStory();vidReset()};
+$('storyFundos').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;storyPick=+b.dataset.i;LS.set('storyFundo2',storyPick);fundosUI();drawStory();vidReset()};
 $('storyClose').onclick=()=>$('storyDlg').hidden=true;
 $('storyMsg').addEventListener('input',e=>{$('storyCount').textContent=e.target.value.length+'/140';drawStory()});
 $('storySeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{storyP=b.dataset.p;$('storySeg').querySelectorAll('button').forEach(o=>o.setAttribute('aria-pressed',o===b));drawStory()});
@@ -989,7 +990,7 @@ async function colStCarrega(){if(!admDb)return toast('Entre na administração p
 function drawColStory(){const x=$('colStory').getContext('2d');const sp=storyPick;storyPick=colStPick;storyBase(x);storyPick=sp;
   const rows=Object.values(colSt).filter(r=>r.min>0).sort((a,b)=>b.min-a.min||a.nome.localeCompare(b.nome));const tot=rows.reduce((a,r)=>a+r.min,0);
   x.textAlign='center';x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
-  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('SPRINT COLETIVO',540,690);x.letterSpacing='0px';
+  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('LC ESPECIAL DE NATAL',540,630);x.fillStyle='#f4e8da';x.font='600 34px "Nunito Sans",sans-serif';x.fillText('SPRINT COLETIVO',540,692);x.letterSpacing='0px';
   const per=$('colStPer').value.trim();if(per){x.fillStyle='#f4e8da';x.font='italic 500 52px Lora,Georgia,serif';x.fillText(per,540,780)}
   const big=tot<60?`${tot}`:`${Math.floor(tot/60)}h${tot%60?pad(tot%60):''}`;
   x.fillStyle='#f4e8da';x.font=`500 ${big.length>5?170:200}px Lora,Georgia,serif`;x.fillText(big,540,990);
