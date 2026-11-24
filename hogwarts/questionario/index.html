@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Questionário oficial · Salão Principal de Hogwarts</title>
+<title>Cerimônia de Encerramento · Salão Principal de Hogwarts</title>
 <meta name="theme-color" content="#0b1730">
 <link rel="icon" type="image/png" href="/selo-arcadia.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,13 +12,32 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="/hogwarts/hg.css">
 <style>
-.qs{display:flex;flex-direction:column;gap:14px}
+.info{display:grid;gap:2px;text-align:center;font:600 14px var(--ui);color:#5a3a12}
+.barra{height:8px;border-radius:99px;background:rgba(169,125,54,.18);overflow:hidden}
+.barra i{display:block;height:100%;background:linear-gradient(90deg,#c99a45,#e6be6e);transition:width .3s}
+.passo{font:700 12px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:#7a4a12;display:flex;justify-content:space-between;gap:8px}
 .q{padding:14px;border-radius:14px;border:1px solid #c9a865;background:rgba(255,250,236,.55)}
+.q .n{font:700 12px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:#7a4a12;margin:0}
 .q h2{font:600 19px/1.35 'EB Garamond',serif;color:#3a2509;margin:4px 0 10px}
+.q .tt{font:600 16px 'Cinzel',serif;color:#4a2f0f;margin:2px 0 0}
+.q.falta{border-color:#b4462f;box-shadow:0 0 0 2px rgba(180,70,47,.25)}
 .ops{display:flex;flex-direction:column;gap:8px}
 .ops label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;border:1px solid #c9a865;background:rgba(255,250,236,.8);cursor:pointer}
 .ops input{margin-top:5px;accent-color:#7a4a12}
-.resp{margin:6px 0 0;color:#3a2509}
+.estrelas{display:flex;gap:6px;justify-content:center}
+.estrelas label{cursor:pointer;padding:4px}
+.estrelas input{position:absolute;opacity:0;pointer-events:none}
+.estrelas svg{width:42px;height:42px;fill:none;stroke:#a97d36;stroke-width:1.6;transition:fill .15s}
+.estrelas label.on svg{fill:#e6be6e;stroke:#8a5a18}
+.estrelas input:focus-visible+svg{outline:2px solid #7a4a12;border-radius:6px}
+.est-txt{text-align:center;font:600 15px var(--ui);color:#5a3a12;min-height:1.4em;margin:6px 0 0}
+.rev{display:flex;flex-direction:column;gap:12px}
+.rev .item{border-bottom:1px solid rgba(169,125,54,.3);padding-bottom:10px}
+.rev .item b{display:block;color:#3a2509}
+.rev .item span{color:#5a3a12}
+.rev h3{font:600 17px 'Cinzel',serif;color:#4a2f0f;margin:8px 0 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rev h3 button{font:700 12px var(--ui);background:none;border:1px solid #c9a865;border-radius:99px;padding:5px 10px;color:#7a4a12;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.barra i{transition:none}}
 </style>
 </head>
 <body>
@@ -29,46 +48,77 @@
 </main>
 <script src="/config.js"></script>
 <script src="/hogwarts/hg.js"></script>
-<script src="/leitura/questionario/quiz.js"></script>
+<script src="/hogwarts/questionario/cerimonia.js"></script>
 <script>
 (async()=>{
-  const {$,esc,icone,fmtDH}=HG;HG.neve();
+  const {$,esc,icone,fmtDH,fmtD}=HG;HG.neve();
   let ctx;try{ctx=await HG.entrar()}catch(e){$('estado').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
-  const db=ctx.db,D=ctx.datas,app=$('app'),Q=window.QUIZ;
+  const db=ctx.db,D=ctx.datas,app=$('app'),C=window.HG_CERIMONIA,P=C.perguntas,S=C.secoes;
   const doc=db.collection('hgQuestionario').doc('oficial'),ref=doc.collection('respostas').doc(ctx.pid);
-  const topo=`<div class="hg-topo"><span style="color:#7a4a12">${icone('pergaminho','hg-ic-grande')}</span><p class="hg-lbl" style="color:#7a4a12">LC Especial de Natal</p><h1 style="color:#4a2f0f">Questionário oficial</h1></div>
-    <p class="hg-centro">Harry Potter e a Pedra Filosofal</p>`;
+  const ENCONTRO='19/12/2026';
+  const topo=`<div class="hg-topo"><span style="color:#7a4a12">${icone('pergaminho','hg-ic-grande')}</span><p class="hg-lbl" style="color:#7a4a12">${esc(C.sub)}</p><h1 style="color:#4a2f0f">${esc(C.titulo)}</h1></div>
+    <div class="info"><span>Questionário Oficial de Conclusão de Leitura</span><span>Sociedade Arcádia · LC Especial de Natal</span><span>Livro: Harry Potter e a Pedra Filosofal</span><span>Prazo para responder: ${esc(fmtDH(D.questionarioFim))}</span><span>Encontro de encerramento: ${ENCONTRO}</span></div>`;
+  const pega=p=>p.then(d=>d&&d.exists?d.data():null).catch(e=>{console.warn(e);return null});
+  const [quiz,minha,cfg]=await Promise.all([pega(doc.get()),pega(ref.get()),pega(db.collection('hgConfig').doc('questionario').get())]);
+  const rotulo=(q,v)=>q.tipo==='estrelas'?(v>=0?`${v+1} ${v?'estrelas':'estrela'} — ${q.o[v]}`:''):q.tipo==='texto'?(v||'(sem resposta)'):(q.o[v]==null?'':q.o[v]);
+
+  const conclusao=r=>{app.innerHTML=`<div class="hg-topo"><span style="color:#7a4a12">${icone('brilho','hg-ic-grande')}</span><h1 style="color:#4a2f0f">Cerimônia concluída!</h1></div>
+    ${C.conclusao.map(t=>`<p class="hg-centro">${esc(t)}</p>`).join('')}<p class="hg-centro"><b>Encontro de encerramento: ${ENCONTRO}</b></p>
+    <div class="hg-btns"><a class="hg-btn" href="/hogwarts/">Voltar ao Salão Principal</a>${r?'<button class="hg-btn sec" id="ver">Ver minhas respostas</button>':''}</div><div id="minhas"></div>`;
+    if(r)$('ver').onclick=()=>{$('ver').remove();$('minhas').innerHTML='<div class="rev">'+P.map((q,i)=>`<div class="item"><b>${i+1}. ${esc(q.p)}</b><span>${esc(rotulo(q,r[i]))}</span></div>`).join('')+'</div>'}};
+  if(minha)return conclusao(minha.r);
+
   const msg=t=>app.innerHTML=topo+`<p class="hg-centro"><span class="hg-tag">${esc(t)}</span></p>`;
-  let quiz=null,minha=null;
-  try{const d=await doc.get();quiz=d.exists?d.data():null}catch(e){console.warn(e);return msg('Não deu para carregar. Recarregue a página.')}
-  try{const d=await ref.get();minha=d.exists?d.data():null}catch(e){console.warn(e)}
-  if(minha){
-    const P=(quiz&&quiz.perguntas)||[];
-    app.innerHTML=topo+`<div class="hg-instr" style="font-size:18px">Suas respostas foram enviadas. Obrigada por ler com a gente!</div>
-      ${P.length?'<p class="hg-lbl" style="color:#7a4a12">Suas respostas</p>'+P.map((q,i)=>{const r=minha.r[i];return `<div><b>${i+1}. ${esc(q.p)}</b><p class="resp">${esc((q.o||[]).length?(q.o[r]==null?'':q.o[r]):r)}</p></div>`}).join(''):''}
-      <div class="hg-btns"><a class="hg-btn" href="/hogwarts/">Voltar ao Salão Principal</a></div>`;return}
-  if(!quiz||!(quiz.perguntas||[]).length)return msg('O questionário ainda não está pronto');
+  const liberada=((cfg&&cfg.liberadas)||[]).includes(ctx.pid),abre=+D.questionario||0;
   if(Date.now()>D.questionarioFim)return msg('Encerrado em '+fmtDH(D.questionarioFim));
-  if(!quiz.aberto)return msg('O questionário está fechado no momento');
-  const P=quiz.perguntas,K='hgQuestRasc',rasc=HG.LS.get(K,{}),mc=P.filter(q=>(q.o||[]).length).length,ab=P.length-mc;
-  app.innerHTML=topo+`<p class="hg-instr">${P.length} perguntas sobre o livro${ab?' ('+ab+' para responder com suas palavras)':''}. Você só pode enviar uma vez, então responda com calma. Não vale consultar o livro nem a internet. Prazo: ${esc(fmtDH(D.questionarioFim))}.<br><br>Este questionário é separado dos Mistérios e das Sete Proteções.</p>
-    <form class="qs" id="f">${P.map((q,i)=>{const ops=q.o||[];
-      return `<section class="q" id="p${i}"><p class="hg-lbl" style="color:#7a4a12">Pergunta ${i+1} de ${P.length}</p><h2>${esc(q.p)}</h2>`+(ops.length
-        ?'<div class="ops">'+Q.ordem(ops.length,ctx.pid+'|hg|'+i).map(j=>`<label><input type="radio" name="q${i}" value="${j}"${rasc[i]===j?' checked':''}><span>${esc(ops[j])}</span></label>`).join('')+'</div>'
-        :`<textarea class="hg-in" name="q${i}" rows="3" maxlength="600" placeholder="Escreva aqui">${esc(typeof rasc[i]==='string'?rasc[i]:'')}</textarea>`)+'</section>'}).join('')}
-      <p class="hg-muted hg-small" id="falta"></p><p class="hg-erro" id="erro" hidden></p>
-      <div class="hg-btns"><button class="hg-btn" id="bt">Enviar respostas</button></div></form>`;
-  const f=$('f');
-  const ler=()=>P.map((q,i)=>{if((q.o||[]).length){const m=f.querySelector(`input[name="q${i}"]:checked`);return m?+m.value:-1}const t=f.querySelector(`textarea[name="q${i}"]`);return t?t.value.trim().slice(0,600):''});
-  const contar=()=>{const r=ler(),n=r.filter(x=>x===-1||x==='').length;$('falta').textContent=n?`Faltam ${n} ${n>1?'perguntas':'pergunta'}.`:'Tudo respondido. Confira antes de enviar.';HG.LS.set(K,r)};
-  f.addEventListener('change',contar);f.addEventListener('input',contar);contar();
-  f.onsubmit=ev=>{ev.preventDefault();const r=ler(),i=r.findIndex(x=>x===-1||x==='');
-    if(i>=0){HG.toast('Falta responder a pergunta '+(i+1));$('p'+i).scrollIntoView({behavior:'smooth',block:'center'});return}
-    const d=HG.dialogo(`<div class="hg-form"><h2 style="margin:0">Enviar respostas?</h2><p>Depois de enviar não dá para mudar.</p><div class="hg-btns"><button class="hg-btn" data-ok>Enviar</button><button class="hg-btn sec" data-nao>Voltar</button></div></div>`);
-    d.querySelector('[data-nao]').onclick=()=>d.remove();
-    d.querySelector('[data-ok]').onclick=async()=>{d.remove();const bt=$('bt');bt.disabled=true;$('erro').hidden=true;
-      try{await ref.set({nome:ctx.nome,r,uid:ctx.uid,em:firebase.firestore.FieldValue.serverTimestamp()});HG.LS.set(K,{});location.reload()}
-      catch(e){console.warn(e);bt.disabled=false;$('erro').textContent=e.code==='permission-denied'?'Não deu para enviar. O questionário pode ter fechado, ou você já enviou.':'Não deu para enviar. Confira a internet e tente de novo.';$('erro').hidden=false}}};
+  if(Date.now()<abre&&!liberada)return app.innerHTML=topo+C.abertura.map(t=>`<p class="hg-centro">${esc(t)}</p>`).join('')+`<p class="hg-centro"><span class="hg-tag">Disponível em ${esc(fmtD(abre))}, depois da conclusão da leitura</span></p><p class="hg-centro hg-muted hg-small">Terminou antes? Avise a administração, que pode liberar para você.</p>`;
+  if(!quiz||!quiz.aberto)return msg('O questionário está fechado no momento');
+
+  const K='hgCerimoniaRasc',r=(()=>{const x=HG.LS.get(K,null);return Array.isArray(x)&&x.length===P.length?x:P.map(q=>q.tipo==='texto'?'':-1)})();
+  const salva=()=>HG.LS.set(K,r);
+  const falta=i=>{const q=P[i];return !q.opc&&(q.tipo==='texto'?!String(r[i]).trim():!(r[i]>=0))};
+  const obrig=P.filter(q=>!q.opc).length,feitas=()=>P.filter((q,i)=>!q.opc&&!falta(i)).length;
+  const ESTRELA='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>';
+  let etapa=-1;
+
+  function inicio(){etapa=-1;app.innerHTML=topo+C.abertura.map(t=>`<p class="hg-centro">${esc(t)}</p>`).join('')+`<div class="hg-btns"><button class="hg-btn" id="ini">Iniciar cerimônia</button></div>`;$('ini').onclick=()=>passo(0)}
+
+  function cab(){const tot=S.length+1,pct=Math.round(feitas()/obrig*100);
+    return `<div class="passo"><span>${etapa<S.length?'Etapa '+(etapa+1)+' de '+tot:'Revisão'}</span><span id="cont">${feitas()} de ${obrig} obrigatórias</span></div><div class="barra" aria-hidden="true"><i id="bar" style="width:${pct}%"></i></div>`}
+  const atualiza=()=>{const c=$('cont');if(c)c.textContent=`${feitas()} de ${obrig} obrigatórias`;const b=$('bar');if(b)b.style.width=Math.round(feitas()/obrig*100)+'%'};
+
+  function campo(q,i){
+    if(q.tipo==='texto')return `<textarea class="hg-in" data-i="${i}" rows="4" maxlength="1500" placeholder="Escreva aqui (opcional)">${esc(r[i])}</textarea>`;
+    if(q.tipo==='estrelas')return `<div class="estrelas" role="radiogroup" aria-label="${esc(q.p)}">${q.o.map((o,j)=>`<label class="${r[i]>=j?'on':''}" title="${j+1} ${j?'estrelas':'estrela'} — ${esc(o)}"><input type="radio" name="q${i}" value="${j}" data-i="${i}" ${r[i]===j?'checked':''} aria-label="${j+1} ${j?'estrelas':'estrela'}: ${esc(o)}">${ESTRELA}</label>`).join('')}</div><p class="est-txt" id="et${i}">${r[i]>=0?esc(rotulo(q,r[i])):'Toque nas estrelas para dar sua nota'}</p>`;
+    return `<div class="ops">${q.o.map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}" data-i="${i}" ${r[i]===j?'checked':''}><span>${'ABCD'[j]}) ${esc(o)}</span></label>`).join('')}</div>`}
+
+  function passo(n){etapa=n;const s=S[n],idx=P.map((q,i)=>i).filter(i=>P[i].sec===n);
+    app.innerHTML=cab()+`<div class="hg-topo" style="gap:4px"><h2 style="color:#4a2f0f;margin:0">${esc(s.t)}</h2><p class="hg-centro" style="margin:0">${esc(s.d)}</p></div>`+
+      idx.map(i=>{const q=P[i];return `<section class="q" id="p${i}"><p class="n">Pergunta ${i+1} de ${P.length}${q.opc?' · opcional':''}</p><p class="tt">${esc(q.t)}</p><h2>${esc(q.p)}</h2>${campo(q,i)}</section>`}).join('')+
+      `<p class="hg-erro" id="erro" hidden></p><div class="hg-btns">${n?'<button class="hg-btn sec" id="volta">Voltar</button>':'<button class="hg-btn sec" id="volta">Início</button>'}<button class="hg-btn" id="seg">${n<S.length-1?'Próxima etapa':'Revisar respostas'}</button></div>`;
+    app.querySelectorAll('[data-i]').forEach(el=>{const i=+el.dataset.i;
+      const ev=el.tagName==='TEXTAREA'?'input':'change';el.addEventListener(ev,()=>{r[i]=el.tagName==='TEXTAREA'?el.value.slice(0,1500):+el.value;salva();atualiza();$('p'+i).classList.remove('falta');
+        if(P[i].tipo==='estrelas'){app.querySelectorAll(`input[name=q${i}]`).forEach((x,j)=>x.parentNode.classList.toggle('on',j<=r[i]));$('et'+i).textContent=rotulo(P[i],r[i])}})});
+    $('volta').onclick=()=>n?passo(n-1):inicio();
+    $('seg').onclick=()=>{const f=idx.filter(falta);if(f.length){f.forEach(i=>$('p'+i).classList.add('falta'));$('erro').textContent=f.length>1?`Faltam ${f.length} perguntas nesta etapa.`:'Falta uma pergunta nesta etapa.';$('erro').hidden=false;$('p'+f[0]).scrollIntoView({behavior:'smooth',block:'center'});return}
+      n<S.length-1?passo(n+1):revisao()};
+    scrollTo({top:0,behavior:'smooth'})}
+
+  function revisao(){etapa=S.length;
+    app.innerHTML=cab()+`<div class="hg-topo" style="gap:4px"><h2 style="color:#4a2f0f;margin:0">Revise suas respostas</h2><p class="hg-centro" style="margin:0">Confira tudo antes de enviar. Depois do envio não dá para mudar.</p></div><div class="rev">`+
+      S.map((s,n)=>`<h3>${esc(s.t)}<button type="button" data-ed="${n}">Editar</button></h3>`+P.map((q,i)=>q.sec===n?`<div class="item"><b>${i+1}. ${esc(q.p)}</b><span>${esc(rotulo(q,r[i]))}</span></div>`:'').join('')).join('')+
+      `</div><p class="hg-erro" id="erro" hidden></p><div class="hg-btns"><button class="hg-btn sec" id="volta">Voltar</button><button class="hg-btn" id="env">Enviar respostas</button></div>`;
+    app.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>passo(+b.dataset.ed));
+    $('volta').onclick=()=>passo(S.length-1);
+    $('env').onclick=()=>{const f=P.map((q,i)=>i).filter(falta);if(f.length)return passo(P[f[0]].sec);
+      const d=HG.dialogo(`<div class="hg-form"><h2 style="margin:0">Enviar respostas?</h2><p>Você só pode enviar uma vez. Depois do envio não dá para mudar.</p><div class="hg-btns"><button class="hg-btn" data-ok>Enviar</button><button class="hg-btn sec" data-fecha>Voltar</button></div></div>`);
+      d.querySelector('[data-ok]').onclick=async()=>{d.remove();const bt=$('env');bt.disabled=true;$('erro').hidden=true;
+        const env=r.map((x,i)=>P[i].tipo==='texto'?String(x).trim().slice(0,1500):x);
+        try{await ref.set({nome:ctx.nome,r:env,uid:ctx.uid,em:firebase.firestore.FieldValue.serverTimestamp()});HG.LS.set(K,null);conclusao(env);scrollTo({top:0,behavior:'smooth'})}
+        catch(e){console.warn(e);bt.disabled=false;$('erro').textContent=e.code==='permission-denied'?'Não deu para enviar. O questionário pode ter fechado, ou você já enviou.':'Não deu para enviar. Confira a internet e tente de novo.';$('erro').hidden=false}}};
+    scrollTo({top:0,behavior:'smooth'})}
+
+  inicio();
 })();
 </script>
 </body>
