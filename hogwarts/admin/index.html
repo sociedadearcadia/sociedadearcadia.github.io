@@ -100,7 +100,9 @@ async function semear(){const fz=[];
   if(!await pega('hgQuestionario','oficial'))fz.push(col('hgQuestionario').doc('oficial').set({perguntas:HG_CERIMONIA.perguntas,aberto:true,em:firebase.firestore.FieldValue.serverTimestamp()}));
   if(!(await lista('hgEncontros')).length){[['2026-11-29','Primeiro sprint coletivo',''],['2026-12-06','Segundo sprint coletivo',''],['2026-12-13','Terceiro sprint coletivo','Opcional']].forEach(([d,t,n])=>fz.push(col('hgEncontros').add({data:d,titulo:t,hora:'',nota:n,cancelado:false})))}
   await Promise.all(fz);return fz.length}
-async function iniciar(){try{const n=await semear();if(n)toast('Configurações iniciais gravadas.')}catch(e){console.warn(e);toast('Não deu para gravar a configuração inicial. As regras novas já foram publicadas?')}abas();mostra()}
+function iniciar(){abas();mostra();
+  /* grava o que falta em segundo plano, sem travar o painel */
+  Promise.race([semear(),new Promise((_,no)=>setTimeout(()=>no(new Error('demorou')),20000))]).then(n=>{if(n){toast('Configurações iniciais gravadas.');mostra()}}).catch(e=>{console.warn(e);toast('Não deu para gravar a configuração inicial. As regras novas já foram coladas no Firebase?')})}
 
 /* ---------- participantes e códigos ---------- */
 async function pessoas(){const [ps,pv,perf]=await Promise.all([lista('hgPessoas'),lista('hgPrivado'),lista('hgPerfis')]);
