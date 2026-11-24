@@ -57,6 +57,7 @@ body{font-family:var(--ui);font-size:15px}
 <script src="/config.js"></script>
 <script src="/hogwarts/hg.js"></script>
 <script src="/hogwarts/admin/conteudo.js"></script>
+<script src="/leitura/questionario/quiz.js"></script>
 <script>
 (async()=>{
 const {$,esc,CASAS,PERSONAGENS,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,casaIc,fmtDH,toast}=HG;
@@ -84,12 +85,12 @@ const novoCodigo=pid=>{const r=crypto.getRandomValues(new Uint32Array(4));return
 async function copiar(t){try{await navigator.clipboard.writeText(t);toast('Copiado!')}catch(e){prompt('Copie o texto:',t)}}
 
 /* ---------- abas ---------- */
-const ABAS=[['pessoas','Participantes'],['senha','Senha'],['datas','Datas'],['chapeu','Chapéu Seletor'],['bib','Biblioteca'],['figs','Figurinhas'],['quiz','Mistérios'],['espelho','Espelho'],['correio','Correio-Coruja']];
+const ABAS=[['pessoas','Participantes'],['senha','Senha'],['datas','Datas'],['chapeu','Chapéu Seletor'],['bib','Biblioteca'],['figs','Figurinhas'],['quiz','Mistérios'],['espelho','Espelho'],['correio','Correio-Coruja'],['questionario','Questionário']];
 let aba=HG.LS.get('admAba','pessoas');
 function abas(){$('abas').hidden=false;$('abas').innerHTML=ABAS.map(([k,n])=>`<button type="button" data-a="${k}" aria-pressed="${k===aba}">${n}</button>`).join('');
   $('abas').querySelectorAll('button').forEach(b=>b.onclick=()=>{aba=b.dataset.a;HG.LS.set('admAba',aba);abas();mostra()})}
 const C=()=>$('conteudo');
-function mostra(){C().innerHTML='<section class="hg-painel"><p class="hg-muted">Carregando…</p></section>';({pessoas,senha,datas,chapeu,bib,figs,quiz,espelho,correio})[aba]().catch(e=>{console.warn(e);C().innerHTML='<section class="hg-painel"><p class="hg-erro">Não deu para carregar. Confira se as regras novas foram publicadas no Firebase.</p></section>'})}
+function mostra(){C().innerHTML='<section class="hg-painel"><p class="hg-muted">Carregando…</p></section>';({pessoas,senha,datas,chapeu,bib,figs,quiz,espelho,correio,questionario}[aba]||pessoas)().catch(e=>{console.warn(e);C().innerHTML='<section class="hg-painel"><p class="hg-erro">Não deu para carregar. Confira se as regras novas foram publicadas no Firebase.</p></section>'})}
 
 /* primeira vez: grava as datas, os tempos, as perguntas e os encontros padrão */
 async function semear(){const fz=[];
@@ -164,7 +165,6 @@ async function bib(){const G=Object.assign({},GERAL_PADRAO,await pega('hgConfig'
   C().innerHTML=`<section class="hg-painel sec"><h2>Tempos dos cronômetros</h2>
     <form class="sec" id="tf"><div class="linha">${[['org','Organização'],['leitura','Leitura'],['prosa','Prosa']].map(([k,n])=>`<label class="hg-campo"><span>${n} (min)</span><input class="hg-in" type="number" min="1" max="180" name="${k}" value="${G[k]}"></label>`).join('')}</div>
     <label class="hg-campo"><span>Link da sala de vídeo da Biblioteca (Daily ou Google Meet)</span><input class="hg-in" name="sala" value="${esc(G.sala)}" placeholder="https://sociedadearcadia.daily.co/hogwarts"></label>
-    <label class="hg-campo"><span>Link do questionário oficial da LC</span><input class="hg-in" name="questionario" value="${esc(G.questionario)}"></label>
     <div><button class="hg-btn">Salvar</button></div></form>
     <p class="hg-muted hg-small">Padrão: 11, 31 e 11. A sala da Biblioteca é separada da sala geral, mas as duas usam os mesmos minutos gratuitos do Daily.</p></section>
     <section class="hg-painel sec"><h2>Sprints coletivos programados</h2>
@@ -177,7 +177,7 @@ async function bib(){const G=Object.assign({},GERAL_PADRAO,await pega('hgConfig'
     <section class="hg-painel sec"><h2>Ranking da LC (só da Biblioteca)</h2>
     <table class="tab">${leit.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.nome)}</td><td>${Math.floor((l.min||0)/60)}h ${String((l.min||0)%60).padStart(2,'0')}min</td><td>${l.sprints||0} sprints</td></tr>`).join('')||'<tr><td class="hg-muted">Ninguém leu ainda.</td></tr>'}</table>
     <p class="hg-muted hg-small">Para apagar mensagens do chat ou tirar alguém do coletivo, abra a Biblioteca e toque em "Administração" (no painel do sprint coletivo).</p></section>`;
-  $('tf').onsubmit=async ev=>{ev.preventDefault();const f=$('tf'),n={sala:f.sala.value.trim(),questionario:f.questionario.value.trim()||'/leitura/questionario/'};
+  $('tf').onsubmit=async ev=>{ev.preventDefault();const f=$('tf'),n={sala:f.sala.value.trim()};
     for(const k of ['org','leitura','prosa'])n[k]=Math.max(1,Math.min(180,Math.round(+f[k].value||GERAL_PADRAO[k])));
     if(n.sala&&!/^https:\/\/([a-z0-9-]+\.daily\.co\/[\w-]+|meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3})$/i.test(n.sala))return toast('O link da sala precisa ser do Daily (https://nome.daily.co/sala) ou do Google Meet.');
     try{await col('hgConfig').doc('geral').set(n);toast('Salvo!')}catch(e){toast('Não deu para salvar.')}};
@@ -243,6 +243,34 @@ async function espelho(){const L=(await lista('hgEspelho')).sort((a,b)=>(a.ordem
     C().querySelectorAll('[data-r]').forEach(el=>{const id=el.dataset.r,x=L.find(y=>y._id===id);
       el.querySelector('[data-o]').onchange=async e=>{x.ordem=Math.max(1,Math.min(99,+e.target.value||99));try{await col('hgEspelho').doc(id).update({ordem:x.ordem})}catch(er){toast('Não deu.')}};
       el.querySelector('[data-l]').onchange=async e=>{x.lida=e.target.checked;try{await col('hgEspelho').doc(id).update({lida:x.lida})}catch(er){toast('Não deu.')}}})};desenha()}
+
+/* ---------- Questionário oficial (separado dos jogos) ---------- */
+async function questionario(){const Q=window.QUIZ,ref=col('hgQuestionario').doc('oficial');
+  const [q,gab,ps]=await Promise.all([pega('hgQuestionario','oficial'),(async()=>{try{const d=await ref.collection('gabarito').doc('certas').get();return d.exists?d.data().c:[]}catch(e){return []}})(),lista('hgPessoas')]);
+  let rs=[];try{rs=(await ref.collection('respostas').get()).docs.map(d=>Object.assign({_id:d.id},d.data()))}catch(e){console.warn(e)}
+  const P=(q&&q.perguntas)||[],faltam=ps.filter(p=>!rs.some(r=>r._id===p._id)).map(p=>p.nome);
+  C().innerHTML=`<section class="hg-painel sec"><h2>Questionário oficial da LC</h2>
+    <p class="hg-muted">Fica em /hogwarts/questionario, dentro do Salão, separado dos Mistérios. Cada participante responde uma vez, até ${esc(fmtDH(Object.assign({},DATAS_PADRAO,await pega('hgConfig','datas')||{}).questionarioFim))} (muda na aba Datas, linha do questionário). As participantes não veem a nota nem o gabarito.</p>
+    <p><b>Situação:</b> ${P.length?(q.aberto?'aberto':'fechado')+', '+P.length+' perguntas':'ainda sem perguntas'}</p>
+    ${P.length?`<div><button class="hg-btn sec peq" id="ab">${q.aberto?'Fechar questionário':'Abrir questionário'}</button></div>`:''}
+    <label class="hg-campo"><span>Perguntas (número e ponto, opções com a) b) c), a certa termina com *; pergunta sem opções = resposta escrita)</span><textarea class="hg-in" id="txt" rows="14" placeholder="1. Pergunta&#10;a) opção&#10;b) opção certa *&#10;c) opção">${esc(Q.texto(P,gab))}</textarea></label>
+    <p class="hg-erro" id="qe" hidden></p>
+    <div><button class="hg-btn" id="sv">Salvar perguntas</button></div>
+    ${rs.length?'<p class="hg-muted hg-small">Já tem respostas. Se mudar as perguntas agora, as notas antigas podem ficar erradas.</p>':''}</section>
+    <section class="hg-painel sec"><h2>Respostas (${rs.length} de ${ps.length})</h2>
+    ${faltam.length?`<p class="hg-muted">Faltam: ${esc(faltam.join(', '))}</p>`:''}
+    ${rs.map(r=>{const n=Q.nota(P,gab,r.r);return `<div class="resp" data-r="${r._id}"><div class="cab"><span>${esc(r.nome)}</span><span>${n.acertos} de ${n.total} (${n.pct}%)</span></div>
+      <details><summary>Ver respostas</summary>${P.map((p,i)=>{const x=r.r[i],mcq=(p.o||[]).length;return `<p><b>${i+1}. ${esc(p.p)}</b><br>${esc(mcq?(p.o[x]==null?'':p.o[x]):x)}${mcq?(x===gab[i]?' <span class="ok">certa</span>':' <span class="hg-erro">errada</span>'):''}</p>`}).join('')}</details>
+      <button class="lnk perigo" data-x>Apagar (deixa ela responder de novo)</button></div>`}).join('')||'<p class="hg-muted">Nenhuma resposta ainda.</p>'}</section>`;
+  if($('ab'))$('ab').onclick=async()=>{try{await ref.update({aberto:!q.aberto});toast(q.aberto?'Questionário fechado':'Questionário aberto');questionario()}catch(e){console.warn(e);toast('Não deu para mudar.')}};
+  $('sv').onclick=async()=>{const r=Q.ler($('txt').value);$('qe').hidden=true;
+    if(r.erros.length){$('qe').textContent=r.erros.join(' ');$('qe').hidden=false;return}
+    try{await ref.set({perguntas:r.perguntas,aberto:q?!!q.aberto:false,em:firebase.firestore.FieldValue.serverTimestamp()});await ref.collection('gabarito').doc('certas').set({c:r.certas});
+      toast('Perguntas salvas.'+(q&&q.aberto?'':' Clique em Abrir questionário quando quiser liberar.'));questionario()}
+    catch(e){console.warn(e);toast('Não deu para salvar. As regras novas já foram publicadas?')}};
+  C().querySelectorAll('[data-r]').forEach(el=>el.querySelector('[data-x]').onclick=async()=>{const r=rs.find(y=>y._id===el.dataset.r);
+    if(!confirm('Apagar as respostas de '+r.nome+'? Ela vai poder responder de novo.'))return;
+    try{await ref.collection('respostas').doc(r._id).delete();toast('Apagado.');questionario()}catch(e){toast('Não deu para apagar.')}})}
 
 /* ---------- Correio-Coruja ---------- */
 async function correio(){const [cs,cr,cm]=await Promise.all([lista('hgCartas'),lista('hgCoruja'),lista('hgComentarios')]);cm.sort((a,b)=>a.em-b.em);
