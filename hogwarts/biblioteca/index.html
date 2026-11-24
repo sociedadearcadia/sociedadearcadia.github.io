@@ -872,7 +872,7 @@ function periodStats(p){const now=new Date();let from;
     label:{hoje:'hoje',semana:'nesta semana',mes:'neste mês'}[p]}}
 
 $('copyBtn').onclick=async()=>{const t=periodStats('hoje'),w=periodStats('semana');
-  const txt=`✦ Biblioteca de Hogwarts · LC de Natal\n${me?me.name+': ':''}${t.n} ${t.n===1?'sprint':'sprints'} hoje (${t.min} min${t.pages?`, ${t.pages} págs.`:''})\nNa semana: ${w.min} min de leitura`+(t.books.length?`\nLendo: ${t.books.join(', ')}`:'');
+  const txt=`✦ Sprint · LC Especial de Natal (Biblioteca de Hogwarts)\n${me?me.name+': ':''}${t.n} ${t.n===1?'sprint':'sprints'} hoje (${t.min} min${t.pages?`, ${t.pages} págs.`:''})\nNa semana: ${w.min} min de leitura`+(t.books.length?`\nLendo: ${t.books.join(', ')}`:'');
   try{await navigator.clipboard.writeText(txt);toast('Resumo copiado. É só colar no grupo!')}catch{toast('Não deu para copiar neste aparelho')}};
 
 /* ---------- imagem para stories ---------- */
@@ -892,7 +892,7 @@ function storyFoot(x){x.shadowBlur=0;x.fillStyle='#d6b46c';x.font='600 30px "Nun
   try{const SEL=sealImg;x.save();x.shadowColor='rgba(10,4,20,.65)';x.shadowBlur=16;x.beginPath();x.arc(540,1700,46,0,6.28);x.fillStyle='#f4e8da';x.fill();x.restore();x.save();x.beginPath();x.arc(540,1700,46,0,6.28);x.clip();x.drawImage(SEL,494,1654,92,92);x.restore();x.strokeStyle='#d6b46c';x.lineWidth=2.5;x.beginPath();x.arc(540,1700,47.5,0,6.28);x.stroke()}catch{}}
 function drawStory(){const x=$('story').getContext('2d');storyBase(x);
   const s=periodStats(storyP);x.textAlign='center';x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
-  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText(s.col?'SPRINT COLETIVO · LC DE NATAL':'SPRINT DE LEITURA · LC DE NATAL',540,720);x.letterSpacing='0px';
+  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('LC ESPECIAL DE NATAL',540,650);x.fillStyle='#f4e8da';x.font='600 34px "Nunito Sans",sans-serif';x.fillText(s.col?'SPRINT COLETIVO':'SPRINT DE LEITURA',540,712);x.letterSpacing='0px';
   x.fillStyle='#f4e8da';x.font='italic 500 64px Lora,Georgia,serif';x.fillText(me?me.name:'Leitora da Arcádia',540,820);
   x.font='500 230px Lora,Georgia,serif';x.fillText(String(s.min),540,1080);
   x.fillStyle='#c9b6f2';x.font='italic 48px Lora,Georgia,serif';x.fillText(`minutos de leitura ${s.label}`,540,1150);
@@ -989,7 +989,7 @@ async function colStCarrega(){if(!admDb)return toast('Entre na administração p
 function drawColStory(){const x=$('colStory').getContext('2d');const sp=storyPick;storyPick=colStPick;storyBase(x);storyPick=sp;
   const rows=Object.values(colSt).filter(r=>r.min>0).sort((a,b)=>b.min-a.min||a.nome.localeCompare(b.nome));const tot=rows.reduce((a,r)=>a+r.min,0);
   x.textAlign='center';x.shadowColor='rgba(10,4,20,.7)';x.shadowBlur=14;
-  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('SPRINT COLETIVO',540,690);x.letterSpacing='0px';
+  x.fillStyle='#d6b46c';x.font='600 30px "Nunito Sans",sans-serif';x.letterSpacing='8px';x.fillText('LC ESPECIAL DE NATAL',540,630);x.fillStyle='#f4e8da';x.font='600 34px "Nunito Sans",sans-serif';x.fillText('SPRINT COLETIVO',540,692);x.letterSpacing='0px';
   const per=$('colStPer').value.trim();if(per){x.fillStyle='#f4e8da';x.font='italic 500 52px Lora,Georgia,serif';x.fillText(per,540,780)}
   const big=tot<60?`${tot}`:`${Math.floor(tot/60)}h${tot%60?pad(tot%60):''}`;
   x.fillStyle='#f4e8da';x.font=`500 ${big.length>5?170:200}px Lora,Georgia,serif`;x.fillText(big,540,990);
