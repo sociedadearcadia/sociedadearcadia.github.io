@@ -55,9 +55,44 @@ function quadroHG(x,t,pontos){
   /* a vassoura atravessa a tela a cada 5 s, em alturas diferentes */
   const ciclo=5,n=Math.floor(t/ciclo),k=(t%ciclo)/ciclo;if(k<.8){const kk=k/.8;const ys=[470,1540,500,1580];vassoura(x,-260+kk*(W+520),ys[n%ys.length]+Math.sin(kk*6.28)*25,t)}
   x.globalAlpha=1}
+/* tema Arcádia (sprint geral): pétalas e brilhos + um dragãozinho atravessando a tela e estrelas cadentes */
+function dragao(x,X,Y,s,t){x.save();x.translate(X,Y);x.scale(s,s);x.rotate(Math.sin(t*2.2)*.06);
+  const bat=Math.sin(t*7);const cor='#2a1450',borda='rgba(240,212,142,.9)';
+  x.lineJoin='round';x.lineCap='round';
+  /* asa de trás */
+  x.save();x.translate(-6,-10);x.scale(1,.25+.75*Math.abs(bat));x.rotate(-.15);
+  x.fillStyle='#3d1f6e';x.strokeStyle=borda;x.lineWidth=2.5;x.beginPath();x.moveTo(0,0);x.lineTo(-30,-90);x.quadraticCurveTo(-10,-70,10,-80);x.quadraticCurveTo(18,-55,40,-62);x.quadraticCurveTo(38,-30,60,-30);x.quadraticCurveTo(30,-10,20,0);x.closePath();x.fill();x.stroke();x.restore();
+  /* cauda */
+  x.strokeStyle=cor;x.lineWidth=14;x.beginPath();x.moveTo(-40,6);x.bezierCurveTo(-90,10,-120,-10,-160,20+Math.sin(t*4)*10);x.stroke();
+  x.strokeStyle=borda;x.lineWidth=2;x.beginPath();x.moveTo(-40,0);x.bezierCurveTo(-90,4,-120,-16,-160,14+Math.sin(t*4)*10);x.stroke();
+  x.fillStyle=borda;x.beginPath();const ty=20+Math.sin(t*4)*10;x.moveTo(-158,ty);x.lineTo(-178,ty-12);x.lineTo(-172,ty+8);x.closePath();x.fill();
+  /* corpo e pescoço */
+  x.fillStyle=cor;x.strokeStyle=borda;x.lineWidth=2.5;x.beginPath();x.ellipse(0,4,46,20,0,0,6.28);x.fill();x.stroke();
+  x.beginPath();x.moveTo(30,-6);x.quadraticCurveTo(60,-30,78,-34);x.lineTo(84,-22);x.quadraticCurveTo(62,-12,40,12);x.closePath();x.fill();x.stroke();
+  /* cabeça com chifrinhos */
+  x.beginPath();x.ellipse(90,-30,20,12,-.15,0,6.28);x.fill();x.stroke();
+  x.beginPath();x.moveTo(104,-32);x.lineTo(122,-28);x.lineTo(104,-22);x.fill();
+  x.strokeStyle=borda;x.lineWidth=3;x.beginPath();x.moveTo(84,-40);x.lineTo(76,-56);x.moveTo(92,-41);x.lineTo(88,-58);x.stroke();
+  x.fillStyle='#ffd36b';x.beginPath();x.arc(96,-33,3,0,6.28);x.fill();
+  /* patinhas */
+  x.strokeStyle=cor;x.lineWidth=7;x.beginPath();x.moveTo(-14,20);x.lineTo(-20,36);x.moveTo(18,20);x.lineTo(14,36);x.stroke();
+  /* asa da frente */
+  x.save();x.translate(4,-8);x.scale(1,.25+.75*Math.abs(bat));
+  x.fillStyle='#4a2580';x.strokeStyle=borda;x.lineWidth=2.5;x.beginPath();x.moveTo(0,0);x.lineTo(-20,-110);x.quadraticCurveTo(0,-84,22,-98);x.quadraticCurveTo(30,-66,56,-74);x.quadraticCurveTo(52,-36,80,-36);x.quadraticCurveTo(40,-12,26,2);x.closePath();x.fill();x.stroke();
+  x.strokeStyle='rgba(240,212,142,.45)';x.lineWidth=1.5;x.beginPath();x.moveTo(0,0);x.lineTo(22,-98);x.moveTo(0,0);x.lineTo(56,-74);x.moveTo(0,0);x.lineTo(80,-36);x.stroke();x.restore();
+  x.restore()}
+const CADENTES=[{t0:1.2,x:860,y:260},{t0:4.4,x:980,y:560},{t0:8.1,x:760,y:180},{t0:11.6,x:1010,y:420},{t0:13.9,x:640,y:300}];
+function cadente(x,t){for(const c of CADENTES){const k=(t-c.t0)/1.1;if(k<0||k>1)continue;const X=c.x-k*520,Y=c.y+k*300;
+  const g=x.createLinearGradient(X,Y,X+170,Y-98);g.addColorStop(0,'rgba(255,246,220,'+(1-k)+')');g.addColorStop(1,'rgba(255,246,220,0)');
+  x.strokeStyle=g;x.lineWidth=4;x.lineCap='round';x.beginPath();x.moveTo(X,Y);x.lineTo(X+170,Y-98);x.stroke();brilho(x,X,Y,14*(1-k*.5),1-k,'#fffbe8')}}
+function quadroArc(x,t,pontos){quadro(x,t,pontos);cadente(x,t);
+  /* o dragão atravessa a cada 7 s, alternando a direção e a altura, por cima ou por baixo do texto */
+  const ciclo=7,n=Math.floor(t/ciclo),k=(t%ciclo)/ciclo;if(k<.85){const kk=k/.85,dir=n%2?-1:1,ys=[480,1520,430,1560];
+    const X=dir>0?-220+kk*(W+440):W+220-kk*(W+440);x.save();x.translate(X,ys[n%ys.length]+Math.sin(kk*6.28*1.5)*35);x.scale(dir,1);dragao(x,0,0,1.35,t);x.restore()}
+  x.globalAlpha=1}
 const tipo=(()=>{if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)return '';
   for(const t of['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm'])try{if(MediaRecorder.isTypeSupported(t))return t}catch(e){}return ''})();
-async function gravar(base,pontos,seg,tema){seg=seg||6;const desenha=tema==='hogwarts'?quadroHG:quadro;
+async function gravar(base,pontos,seg,tema){seg=seg||6;const desenha=tema==='hogwarts'?quadroHG:tema==='arcadia'?quadroArc:quadro;
   const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='position:fixed;left:-9999px;top:0;width:10px;height:10px';document.body.appendChild(c);
   const x=c.getContext('2d');x.drawImage(base,0,0,W,H);
   const st=c.captureStream(30),rec=new MediaRecorder(st,{mimeType:tipo,videoBitsPerSecond:16e6}),partes=[];
@@ -67,5 +102,5 @@ async function gravar(base,pontos,seg,tema){seg=seg||6;const desenha=tema==='hog
   rec.start(500);await new Promise(ok=>setTimeout(ok,seg*1000));rec.stop();await fim;on=false;st.getTracks().forEach(t=>t.stop());c.remove();
   const ty=tipo.split(';')[0],blob=new Blob(partes,{type:ty});if(!blob.size)throw new Error('vazio');
   return {blob,type:ty,ext:ty==='video/mp4'?'mp4':'webm'}}
-window.ArcVideo={suportado:!!tipo,gravar,quadro,quadroHG};
+window.ArcVideo={suportado:!!tipo,gravar,quadro,quadroHG,quadroArc};
 })();
