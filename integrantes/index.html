@@ -104,10 +104,9 @@
       {ic:'bussola',n:'Guia do site',d:'Passo a passo de cada página',u:'/guia/'}]}
   ];
   let limpezaAberta=false;
-  /* Salão Principal de Hogwarts: o botão só aparece no aparelho de quem já entrou com a senha do Salão e o código pessoal (a primeira entrada é pelo link que a administração manda) */
-  let hgOk=false;try{hgOk=!!localStorage.getItem('hogwarts:pid')}catch(e){}
+  /* Salão Principal de Hogwarts: botão sempre visível (a entrada continua protegida pela senha do Salão e o código pessoal) */
   function desenhar(){
-    $('grupos').innerHTML=GRUPOS.map(g=>{const its=g.itens.filter(i=>(!i.limpeza||limpezaAberta)&&(!i.hg||hgOk));if(!its.length)return'';
+    $('grupos').innerHTML=GRUPOS.map(g=>{const its=g.itens.filter(i=>(!i.limpeza||limpezaAberta));if(!its.length)return'';
       return '<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p><ul class="atalhos">'+its.map(i=>
         '<li><a href="'+esc(i.u)+'"><span class="ic" aria-hidden="true">'+ARC_ICONE(i.ic)+'</span><span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span>'+
         (i.limpeza?'<span class="novo">Aberta</span>':'')+'<span class="seta" aria-hidden="true">›</span></a></li>').join('')+'</ul></section>'}).join('')}
