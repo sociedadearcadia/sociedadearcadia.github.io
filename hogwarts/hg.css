@@ -100,3 +100,36 @@ textarea.hg-in{min-height:110px;resize:vertical;font-family:var(--corpo);font-si
 .hg-perg .hg-instr{color:#5b4220;border-color:#a87d36}
 .hg-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 @media (prefers-reduced-motion:reduce){#hgNeve{display:none}}
+/* ícones das casas (silhuetas douradas) e brasões */
+img.hg-ic{object-fit:contain;vertical-align:-5px;stroke:none}
+.hg-perg img.hg-casa-ic,.hg-dlg .hg-perg img.hg-casa-ic{filter:brightness(.6) saturate(1.5) contrast(1.1)}
+.hg-escudo{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
+.hg-casa .hg-escudo{width:72px;height:72px}
+/* brasão 3D */
+.b3d{position:relative;width:var(--t);height:var(--t);margin:0 auto;perspective:700px;cursor:pointer;touch-action:pan-y;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.b3d-gira{position:absolute;inset:0;transform-style:preserve-3d;animation:b3dBalanca 7s ease-in-out infinite alternate;transition:transform .35s ease-out;will-change:transform}
+.b3d-gira img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+.b3d-lado{filter:brightness(.38) sepia(.6) saturate(1.6)}
+.b3d-frente{transform:translateZ(0);filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
+.b3d-brilho{position:absolute;inset:0;transform:translateZ(.5px);pointer-events:none;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,246,210,.75) 48%,rgba(255,255,255,.15) 54%,transparent 62%) 0 0/300% 100% no-repeat;mix-blend-mode:screen;animation:b3dBrilho 7s ease-in-out infinite}
+.b3d.mao .b3d-gira{animation:none;transition:none}
+.b3d.gira .b3d-gira{animation:b3dGira 1.25s cubic-bezier(.3,.7,.3,1)}
+.b3d.pausa .b3d-gira,.b3d.pausa .b3d-brilho,.b3d.pausa .b3d-faiscas i{animation-play-state:paused}
+@keyframes b3dBalanca{0%{transform:rotateY(-22deg) rotateX(4deg)}100%{transform:rotateY(22deg) rotateX(-3deg)}}
+@keyframes b3dGira{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+@keyframes b3dBrilho{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.b3d-faiscas{position:absolute;inset:-8%;pointer-events:none}
+.b3d-faiscas i{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:radial-gradient(circle,#fff6d6 0,#f2c45a 45%,transparent 70%);
+  transform:rotate(var(--a)) translateY(calc(var(--t) * -.56)) scale(.2);opacity:0;animation:b3dFaisca 3.2s ease-in-out var(--d) infinite}
+@keyframes b3dFaisca{0%,100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--t) * -.5)) scale(.2)}50%{opacity:1;transform:rotate(calc(var(--a) + 14deg)) translateY(calc(var(--t) * -.6)) scale(1)}}
+/* velas flutuantes */
+.hg-velas{position:absolute;left:0;right:0;top:0;height:230px;pointer-events:none;z-index:2;overflow:hidden;opacity:.9}
+.vela{position:absolute;width:10px;height:44px;transform:scale(var(--s));animation:velaFlutua var(--d) ease-in-out var(--atr) infinite alternate}
+.vela::before{content:"";position:absolute;inset:12px 0 0;border-radius:3px 3px 2px 2px;background:linear-gradient(90deg,#d9cdb0,#fffaf0 45%,#cbbd9c)}
+.vela::after{content:"";position:absolute;left:50%;top:-22px;width:46px;height:46px;margin-left:-23px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,130,.45),rgba(255,190,90,.12) 45%,transparent 70%)}
+.vela b{position:absolute;left:50%;top:0;width:7px;height:13px;margin-left:-3.5px;border-radius:50% 50% 50% 50%/65% 65% 35% 35%;background:radial-gradient(circle at 50% 70%,#fff8d8,#ffc95a 45%,#ff8a2a 80%);
+  transform-origin:50% 90%;animation:velaChama 1.4s ease-in-out infinite alternate}
+@keyframes velaFlutua{0%{transform:translateY(0) scale(var(--s))}100%{transform:translateY(-16px) scale(var(--s))}}
+@keyframes velaChama{0%{transform:scale(1,1) rotate(-3deg)}50%{transform:scale(.88,1.08) rotate(2deg)}100%{transform:scale(1.05,.94) rotate(-1deg)}}
+@media (prefers-reduced-motion:reduce){.b3d-gira,.b3d-brilho,.b3d-faiscas i,.vela,.vela b{animation:none!important}}
