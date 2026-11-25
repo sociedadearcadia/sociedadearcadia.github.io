@@ -61,23 +61,37 @@
   async function carregaProg(){await carregaMinhas();await Promise.all([...R,'protecoes'].map(async r=>{try{const d=await db.collection('hgProgresso').doc(ctx.pid+'_'+r).get();prog[r]=d.exists?d.data():null}catch(e){prog[r]=null}}))}
   async function salva(r,atual,feito){const p=prog[r]||{vezes:0};const n={pid:ctx.pid,rodada:r,atual,feito:!!(feito||p.feito),vezes:(p.vezes||0)+(feito?1:0),em:Date.now()};
     try{await db.collection('hgProgresso').doc(ctx.pid+'_'+r).set(n);prog[r]=n}catch(e){console.warn(e);HG.toast('Não deu para salvar o progresso agora. Confira a internet.')}}
-  const fimJ=r=>r==='protecoes'?janela(D,'protecoes','protecoesFim'):janela(D,r,'misteriosFim');
+  let cap=0;try{const d=await db.collection('hgLido').doc(ctx.pid).get();cap=d.exists?(+d.data().cap||0):0}catch(e){}
+  const fimJ=r=>r==='protecoes'?janela(D,'protecoes','protecoesFim'):HG.rodadaAberta(D,r,cap);
+  const CF=HG.CAP_FIM;
+  /* "Até qual capítulo você já leu?": abre as rodadas cujo último capítulo ela já terminou */
+  function caixaCap(){const fimTudo=janela(D,'r1','misteriosFim').fim;if(fimTudo)return '';
+    return `<section class="hg-perg hg-form" id="capBox"><div class="hg-topo"><span style="color:#7a4a12">${icone('livro','hg-ic-grande')}</span><h2>Até qual capítulo você já leu?</h2></div>
+      <p class="hg-centro hg-small">Marque o último capítulo que você terminou. As rodadas desse trecho abrem na hora, sem esperar a data do cronograma.</p>
+      <label class="hg-campo"><span>Terminei até o capítulo</span><select class="hg-in" id="capSel"><option value="0">Ainda não terminei o capítulo 1</option>${Array.from({length:17},(_,k)=>`<option value="${k+1}" ${cap===k+1?'selected':''}>Capítulo ${k+1}${Object.values(CF).includes(k+1)?' (abre a Rodada '+(Object.values(CF).indexOf(k+1)+1)+')':''}</option>`).join('')}</select></label>
+      <div class="hg-btns"><button class="hg-btn" id="capOk" type="button">Salvar</button></div>
+      <p class="hg-muted hg-small hg-centro">Rodada 1 abre no capítulo 4, Rodada 2 no 7, Rodada 3 no 12 e Rodada 4 no 17. Quem não marcar recebe cada rodada na data do cronograma.</p></section>`}
+  async function salvaCap(){const v=+$('capSel').value||0,bt=$('capOk');if(v===cap)return HG.toast('Já está salvo.');bt.disabled=true;
+    try{await db.collection('hgLido').doc(ctx.pid).set({cap:v,em:Date.now()});const antes=R.filter(r=>fimJ(r).aberta).length;cap=v;const depois=R.filter(r=>fimJ(r).aberta).length;
+      HG.toast(depois>antes?'Salvo! Nova rodada liberada para você.':'Salvo!');menu()}
+    catch(e){console.warn(e);bt.disabled=false;HG.toast('Não deu para salvar agora. Confira a internet e tente de novo.')}}
   function menu(){location.hash='';$('voltar').href='/hogwarts/';$('voltar').textContent='← Salão Principal';
     const card=(r)=>{const i=INFO[r],j=fimJ(r),p=prog[r];
       const pr=r!=='protecoes',fr=pr?feitasR(r):0;
       const st=pr?(fr>=i.n?`<span class="hg-tag ok">Concluída · ${acertosR(r)} de ${i.n}</span>`:fr?`<span class="hg-tag">Pergunta ${fr+1} de ${i.n}</span>`:''):p&&p.feito?'<span class="hg-tag ok">Concluída</span>':p&&p.atual>0?`<span class="hg-tag">Pergunta ${p.atual+1} de ${i.n}</span>`:'';
-      const tag=j.antes?`<span class="hg-tag">${r==='protecoes'?'Disponível em '+esc(fmtDH(D.protecoes)):esc(j.txt)}</span>`:j.fim?'<span class="hg-tag fim">Encerrada</span>':st;
+      const tag=j.antes?`<span class="hg-tag">${r==='protecoes'?'Disponível em '+esc(fmtDH(D.protecoes)):'Abre ao terminar o capítulo '+CF[r]+' ou em '+esc(fmtD(D[r]))}</span>`:j.fim?'<span class="hg-tag fim">Encerrada</span>':st;
       const bt=j.aberta?`<button class="hg-btn peq" data-r="${r}">${r==='protecoes'?(p&&p.feito?'Refazer a aventura':p&&p.atual>0?'Continuar a aventura':'Começar a aventura'):(fr>=i.n?'Ver resultado':fr?'Continuar rodada':'Iniciar rodada')}</button>`
         :j.antes?`<span class="hg-btn peq" aria-disabled="true" style="opacity:.55">${icone('cadeado')} Em breve</span>`:'';
       return `<article class="hg-card${j.aberta?'':' bloq'}"><div class="cab"><span class="selo">${icone(r==='protecoes'?'pedra':'chave')}</span><div><h3>${esc(i.t)}</h3><p class="hg-small">${esc(i.caps)} · ${i.n} ${r==='protecoes'?'etapas':i.n===1?'pergunta':'perguntas'}</p></div></div><div class="pe">${tag||'<span></span>'}${bt}</div></article>`};
     app.innerHTML=`<section class="hg-perg hg-form"><div class="hg-topo"><span style="color:#7a4a12">${icone('chave','hg-ic-grande')}</span><h1 style="color:#4a2f0f">Primeiros Mistérios de Hogwarts</h1></div>
       <p class="hg-centro">Os segredos de Hogwarts estão sendo revelados aos poucos!</p><p class="hg-centro">Escolha uma etapa da nossa leitura e descubra quantos detalhes você conseguiu guardar.</p>
-      <p class="hg-instr">Cada rodada corresponde a um grupo de capítulos. Escolha os que já terminou para evitar spoilers!</p>
+      <p class="hg-instr">Cada rodada corresponde a um grupo de capítulos. Leu mais rápido? Marque abaixo até onde já terminou e a rodada abre na hora, enquanto a leitura está fresca.</p>
       <p class="hg-muted hg-small hg-centro">Uma pergunta por vez, com quatro alternativas. Pense bem antes de confirmar: a primeira resposta é a que vale e não dá para trocar. Depois de cada resposta você vê a explicação e quantas participantes acertaram, sem nomes. Sua pontuação só você vê. Pode parar e continuar depois. As rodadas ficam abertas até ${esc(fmtDH(D.misteriosFim))}.</p></section>
+      ${caixaCap()}
       <div class="hg-cards">${R.map(card).join('')}</div>
       <section class="hg-painel hg-form"><div class="hg-topo"><span class="hg-ouro">${icone('pedra','hg-ic-grande')}</span><p class="hg-lbl">Aventura bônus</p><h2>As Sete Proteções da Pedra Filosofal</h2></div>
       <p class="hg-centro hg-muted">Uma aventura separada, com sete obstáculos até a última câmara. Não precisa ter feito as rodadas antes.</p>${card('protecoes')}</section>`;
-    app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>abrir(b.dataset.r));scrollTo(0,0)}
+    app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>abrir(b.dataset.r));if($('capOk'))$('capOk').onclick=salvaCap;scrollTo(0,0)}
   const cache={};
   async function abrir(r){const j=fimJ(r);if(!j.aberta)return HG.toast(j.txt||'Ainda não está aberta');
     app.innerHTML='<section class="hg-perg"><p class="hg-centro hg-muted">Abrindo…</p></section>';

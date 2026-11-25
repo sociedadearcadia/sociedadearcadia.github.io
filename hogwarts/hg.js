@@ -21,7 +21,12 @@ const DATAS_NOMES={chapeu:'Chapéu Seletor',biblioteca:'Biblioteca de Hogwarts',
   misteriosFim:'Fim dos Mistérios',protecoes:'Sete Proteções (abre)',protecoesFim:'Sete Proteções (fecha)',espelho:'Espelho de Ojesed (abre)',espelhoFim:'Espelho de Ojesed (prazo)',
   correio:'Correio-Coruja: carta (abre)',correioFim:'Correio-Coruja: carta (prazo)',coruja:'A Coruja Voltou (abre após a estreia)',corujaFim:'A Coruja Voltou (fecha)',questionario:'Cerimônia de Encerramento: questionário (abre)',questionarioFim:'Cerimônia de Encerramento: questionário (prazo)'};
 const CASAS={grifinoria:{n:'Grifinória',a:'leão'},sonserina:{n:'Sonserina',a:'serpente'},corvinal:{n:'Corvinal',a:'águia'},lufalufa:{n:'Lufa-Lufa',a:'texugo'}};
-const PERSONAGENS={harry:'Harry Potter',hermione:'Hermione Granger',rony:'Rony Weasley',draco:'Draco Malfoy',neville:'Neville Longbottom',hagrid:'Rúbeo Hagrid',snape:'Severo Snape',dumbledore:'Alvo Dumbledore'};
+/* os 8 primeiros foram sorteados em 24-25/11; os outros 10 entraram para novas integrantes (ninguém repete personagem) */
+const PERSONAGENS={harry:'Harry Potter',hermione:'Hermione Granger',rony:'Rony Weasley',draco:'Draco Malfoy',neville:'Neville Longbottom',hagrid:'Rúbeo Hagrid',snape:'Severo Snape',dumbledore:'Alvo Dumbledore',
+  minerva:'Minerva McGonagall',quirrell:'Quirino Quirrell',valter:'Válter Dursley',petunia:'Petúnia Dursley',duda:'Duda Dursley',gemeos:'Fred e Jorge Weasley',percy:'Percy Weasley',olivio:'Olívio Wood',filch:'Argo Filch',firenze:'Firenze'};
+/* Primeiros Mistérios: cada rodada também abre para quem marcar que terminou o último capítulo dela */
+const CAP_FIM={r1:4,r2:7,r3:12,r4:17};
+function rodadaAberta(datas,r,cap){const j=janela(datas,r,'misteriosFim');if(j.antes&&CAP_FIM[r]&&(+cap||0)>=CAP_FIM[r])return{aberta:true,txt:'',porCap:true};return j}
 const GERAL_PADRAO={sala:'',org:11,leitura:31,prosa:11};
 
 /* ---------- ícones (traço dourado fino, grade 32x32) ---------- */
@@ -195,8 +200,39 @@ function magia(op){op=op||{};if(MG_CALMO)return;
       k.addEventListener('click',()=>{const r=k.getBoundingClientRect();faiscas(r.left+r.width/2,r.top+r.height/2,10);k.classList.add('foge');setTimeout(()=>{k.classList.remove('foge');k.style.left=(4+Math.random()*86).toFixed(1)+'%'},5200)});box.appendChild(k)}
     document.body.appendChild(box)}}
 
+/* páginas que não carregam hg.css (a Biblioteca) ganham só o estilo dos quadros. Sem isso, o quadro da casa
+   ficava sem cor e escondido no fim da página, e o toque na casa não mostrava nada. */
+function estiloDialogo(){if(document.getElementById('hgDlgCss')||[...document.styleSheets].some(x=>(x.href||'').includes('/hogwarts/hg.css')))return;
+  const st=document.createElement('style');st.id='hgDlgCss';st.textContent=`
+.hg-dlg [hidden]{display:none!important}
+.hg-dlg{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,10,24,.78);box-sizing:border-box}
+.hg-dlg *{box-sizing:border-box}
+.hg-dlg>div{width:100%;max-width:460px;max-height:90vh;overflow:auto;-webkit-overflow-scrolling:touch}
+.hg-dlg .hg-perg{background:linear-gradient(180deg,#f4e7c8,#e9d6a8);color:#3a2812;border:1px solid #c9a865;border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.4);font:400 17px/1.5 "EB Garamond",Georgia,serif;text-align:left}
+.hg-dlg .hg-form{display:flex;flex-direction:column;gap:14px}
+.hg-dlg .hg-topo{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.hg-dlg h2{font:600 clamp(19px,4.6vw,24px)/1.2 "Cinzel",Georgia,serif;letter-spacing:.04em;margin:0;color:#4a2f0f}
+.hg-dlg p{margin:0}
+.hg-dlg .hg-ic-grande{width:64px;height:64px}
+.hg-dlg .hg-centro{text-align:center}.hg-dlg .hg-small{font-size:15px}
+.hg-dlg .hg-casas{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hg-dlg .hg-casa{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:1px solid #c9a865;background:rgba(255,250,236,.7);color:#3a2812;cursor:pointer;font:700 15px "Nunito Sans",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+.hg-dlg .hg-casa small{font:500 13px "Nunito Sans",system-ui,sans-serif;color:#6b5333}
+.hg-dlg .hg-casa[aria-pressed="true"]{background:#fff6dc;box-shadow:0 0 0 3px #a87d36 inset}
+.hg-dlg .hg-escudo{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
+.hg-dlg .hg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 20px;border-radius:999px;border:1px solid #e6be6e;background:linear-gradient(180deg,#f1cf86,#c99a45);color:#2b1a05;font:800 14px "Nunito Sans",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center}
+.hg-dlg .hg-btn:disabled{opacity:.5;cursor:not-allowed}
+.hg-dlg .hg-btn.sec{background:transparent;color:#6b4512;border-color:#a87d36}
+.hg-dlg .hg-btn.peq{min-height:36px;padding:6px 14px;font-size:12px}
+.hg-dlg .hg-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.hg-dlg .hg-instr{border-left:3px solid #a87d36;padding:4px 0 4px 12px;color:#5b4220;font-size:16px}
+.hg-dlg .hg-erro{color:#a3261b;font:600 14px "Nunito Sans",system-ui,sans-serif}
+.hg-dlg .hg-ic{fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.hg-dlg .hg-ic .f{fill:currentColor;stroke:none}`;
+  document.head.appendChild(st)}
+
 /* ---------- casa de Hogwarts (informada pela participante, uma vez) ---------- */
 function pedirCasa(ctx,{titulo='Qual é a sua casa de Hogwarts?',texto=''}={}){return new Promise(done=>{
+  estiloDialogo();
   const d=dialogo(`<div class="hg-form"><div class="hg-topo"><span style="color:#7a4a12">${icone('chapeu','hg-ic-grande')}</span><h2>${esc(titulo)}</h2></div>
     ${texto?'<p class="hg-centro">'+esc(texto)+'</p>':''}
     <p class="hg-centro hg-small">Você é <b>${esc(ctx.nome)}</b>.</p>
@@ -206,7 +242,7 @@ function pedirCasa(ctx,{titulo='Qual é a sua casa de Hogwarts?',texto=''}={}){r
     <p class="hg-erro" hidden></p>
     <button type="button" class="hg-btn" data-ok disabled>Confirmar minha casa</button></div>`);
   let esc_=null;d.addEventListener('click',e=>{if(e.target===d)e.stopImmediatePropagation()},true);
-  d.querySelectorAll('.hg-casa').forEach(b=>b.onclick=()=>{esc_=b.dataset.c;d.querySelectorAll('.hg-casa').forEach(o=>o.setAttribute('aria-pressed',o===b));d.querySelector('[data-ok]').disabled=false});
+  d.querySelectorAll('.hg-casa').forEach(b=>b.onclick=()=>{esc_=b.dataset.c;d.querySelectorAll('.hg-casa').forEach(o=>o.setAttribute('aria-pressed',o===b));const ok=d.querySelector('[data-ok]');ok.disabled=false;try{ok.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}});
   d.querySelector('[data-nao]').onclick=()=>{d.querySelector('[data-teste]').hidden=false};
   d.querySelector('[data-ok]').onclick=async()=>{if(!esc_)return;const bt=d.querySelector('[data-ok]');bt.disabled=true;
     try{await ctx.db.collection('hgPerfis').doc(ctx.pid).set({nome:ctx.nome,casa:esc_,em:Date.now()});ctx.casa=esc_;d.remove();done(esc_)}
@@ -217,5 +253,5 @@ function casasAoVivo(ctx,cb){return ctx.db.collection('hgPerfis').onSnapshot(q=>
 const norm=n=>String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();
 
 window.HG={$,esc,LS,T,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,CASAS,PERSONAGENS,IC,icone,casaIc,casaEscudo,brasao3d,velas,magia,faiscas,nomeCasa,fmtD,fmtDH,fmtH,janela,firebaseCarrega,sha,normSenha,normCodigo,pidDoCodigo,
-  toast,dialogo,neve,entrar,sair,pedirCasa,casasAoVivo,norm,FUSO};
+  toast,dialogo,neve,entrar,sair,pedirCasa,casasAoVivo,norm,FUSO,CAP_FIM,rodadaAberta};
 })();
