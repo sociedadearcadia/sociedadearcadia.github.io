@@ -899,7 +899,7 @@ $('copyBtn').onclick=async()=>{const t=periodStats('hoje'),w=periodStats('semana
 /* ---------- imagem para stories ---------- */
 const sealImg=new Image();sealImg.src=$('topSeal').src;let storyP='hoje';
 function wrapText(x,text,cx,y,maxW,lh){const words=text.split(' ');let line='',lines=[];for(const w of words){const t=line?line+' '+w:w;if(x.measureText(t).width>maxW&&line){lines.push(line);line=w}else line=t}if(line)lines.push(line);lines.forEach((l,i)=>x.fillText(l,cx,y+i*lh));return lines.length}
-const FUNDOS=[['trio'],['rony'],['harry'],['hermione'],['edwiges'],['castelo'],['livro'],['draco'],['snape'],['dumbledore'],['hagrid'],['mcgonagall'],['neville'],['gemeos']];
+const FUNDOS=[['trio'],['rony'],['harry'],['hermione'],['edwiges'],['castelo'],['livro'],['draco'],['draco-perto'],['snape'],['snape-perto'],['dumbledore'],['dumbledore-perto'],['hagrid'],['hagrid-perto'],['mcgonagall'],['mcgonagall-perto'],['neville'],['neville-perto'],['gemeos'],['gemeos-perto'],['fofo'],['fofo-perto'],['norberto'],['norberto-perto'],['unicornio'],['unicornio-perto'],['trasgo'],['trasgo-perto'],['xadrez'],['xadrez-perto'],['chaves'],['chaves-perto'],['quadribol'],['quadribol-perto'],['plataforma'],['plataforma-perto'],['beco'],['beco-perto'],['chapeu'],['chapeu-perto'],['capa'],['capa-perto'],['cartas'],['cartas-perto']];
 const LEITORAS=FUNDOS.map(f=>`/hogwarts/img/stories/${f[0]}.webp`);let storyPick=Math.max(0,Math.min(FUNDOS.length-1,+LS.get('storyFundo3',0)||0));const storyImgs={};
 function storyImg(i){if(!storyImgs[i]){const im=new Image();im.onload=()=>{if(!$('storyDlg').hidden)drawStory();if(!$('colStDlg').hidden)drawColStory()};im.src=LEITORAS[i];storyImgs[i]=im}return storyImgs[i]}
 function storyBase(x){const W=1080,H=1920;
