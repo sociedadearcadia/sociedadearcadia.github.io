@@ -389,6 +389,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
   <section class="panel" aria-labelledby="hRank">
     <div class="head"><span class="eyebrow">Ranking da LC Especial de Natal</span><h2 id="hRank">Quem mais leu na Biblioteca</h2></div>
     <ol class="rank" id="rank"><li class="empty" style="display:block">Carregando o ranking…</li></ol>
+    <p class="muted" style="font-size:13px;margin:8px 0 0">Os minutos lidos aqui também somam no ranking geral do sprint.</p>
     <p class="muted">Conta só o tempo de leitura dos sprints da Biblioteca (organização, pausas e prosa ficam de fora). Não entra no ranking geral da Sociedade nem gera pontos.</p>
   </section>
 
@@ -1034,6 +1035,11 @@ let writing=Promise.resolve();
 function pushShared(e){if(!db||!uid||!me)return;writing=writing.then(async()=>{
   const base=mine||{};const doc={nome:me.name,min:Math.min(100000,(+base.min||0)+e.min),sprints:(+base.sprints||0)+1,livro:String(e.book||base.livro||'').slice(0,80),atualizado:new Date().toISOString()};
   try{await db.collection('hgLeitoras').doc(PID).set(doc);mine=doc}catch(err){console.warn('ranking',err)}
+  /* soma também no ranking geral do sprint (só nesta direção: o geral nunca entra na Biblioteca) */
+  try{const ref=db.collection('leitoras').doc(uid);await db.runTransaction(async tx=>{const d=await tx.get(ref);const b=d.exists?(d.data()||{}):{};
+    const mins=Object.assign({},b.min||{});const k=monthKey(e.t||Date.now());mins[k]=(+mins[k]||0)+e.min;
+    tx.set(ref,{nome:String(b.nome||me.name).slice(0,30),min:mins,paginas:b.paginas||{},livro:String(b.livro||e.book||'').slice(0,80),sprints:(+b.sprints||0)+1,atualizado:new Date().toISOString()})})}
+  catch(err){console.warn('ranking geral',err)}
   try{await db.collection('hgLog').add({pid:PID,t:Math.round(e.t),min:Math.max(1,Math.min(720,Math.round(e.min))),livro:String(e.book||'').slice(0,80),pags:Math.max(0,Math.round(+e.pages||0)),coletivo:!!e.coletivo})}catch(err){console.warn('historico',err)}}).catch(()=>{})}
 async function syncName(){}
 
