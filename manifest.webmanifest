@@ -1,0 +1,18 @@
+{
+  "id": "/integrantes/",
+  "name": "Sociedade Arcádia",
+  "short_name": "Arcádia",
+  "description": "Área das integrantes da Sociedade Arcádia, clube de leitura.",
+  "lang": "pt-BR",
+  "start_url": "/integrantes/?app=1",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#170f33",
+  "theme_color": "#170f33",
+  "icons": [
+    { "src": "/app-icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/app-icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/app-icone-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

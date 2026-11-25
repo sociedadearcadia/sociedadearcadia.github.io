@@ -22,7 +22,11 @@
     pergaminho:'<path d="M6.5 3.5h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-10"/><path d="M6.5 3.5a2 2 0 0 0-2 2v1.5h4V5.5a2 2 0 0 0-2-2zM6.5 20.5a2 2 0 0 1-2-2V17h4v1.5a2 2 0 0 1-2 2z"/><path d="M10.5 8h5M10.5 11h5M10.5 14h3"/><circle cx="15" cy="16.8" r="1.5" class="f"/>',
     lacre:'<path d="M3.5 7.5h17v12h-17z"/><path d="M3.8 7.8l8.2 6 8.2-6"/><circle cx="12" cy="14.5" r="3" class="f"/><path d="M6 4.5h12"/><path d="M9 2.5l.4 1 .9.3-.9.3-.4 1-.4-1-.9-.3.9-.3z" class="f"/>',
     codigo:'<path d="M8.5 7.5L4 12l4.5 4.5M15.5 7.5L20 12l-4.5 4.5M13.5 5l-3 14"/>',
-    conselho:'<circle cx="12" cy="8" r="3"/><path d="M6.5 20c.5-3.3 2.7-5.5 5.5-5.5s5 2.2 5.5 5.5"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M2 18.5c.3-2.1 1.4-3.5 3-3.8M22 18.5c-.3-2.1-1.4-3.5-3-3.8"/>'
+    conselho:'<circle cx="12" cy="8" r="3"/><path d="M6.5 20c.5-3.3 2.7-5.5 5.5-5.5s5 2.2 5.5 5.5"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M2 18.5c.3-2.1 1.4-3.5 3-3.8M22 18.5c-.3-2.1-1.4-3.5-3-3.8"/>',
+    celular:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 5h3"/><circle cx="12" cy="18.6" r=".7" class="f"/><path d="M12 8.2l.7 1.6 1.7.2-1.3 1.1.4 1.7-1.5-.9-1.5.9.4-1.7-1.3-1.1 1.7-.2z" class="f"/>',
+    compartilhar:'<path d="M12 3v11.5M8.2 6.8L12 3l3.8 3.8"/><path d="M8.5 10H6.5a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 17.5 10h-2"/>',
+    adicionar:'<rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M12 8.5v7M8.5 12h7"/>',
+    pontos:'<circle cx="6" cy="12" r="1.3" class="f"/><circle cx="12" cy="12" r="1.3" class="f"/><circle cx="18" cy="12" r="1.3" class="f"/>'
   };
   window.ARC_ICONE=k=>'<svg class="arc-ic" viewBox="0 0 24 24" aria-hidden="true">'+(P[k]||P.brilho)+'</svg>';
 })();
