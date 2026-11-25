@@ -3,12 +3,12 @@
    Uso: <div class="letreiro3d" data-letreiro3d></div> + <script src="/letreiro3d.js"></script>
    Leve para o iPhone: um canvas pequeno, desenha só quando está na tela e para quando a aba fica escondida. */
 (function(){
-  const W=768,NX=300,Z=.075; // resolução do relevo, da malha e profundidade das letras
+  let W=1024;const NX=440,Z=.05; // resolução do relevo, da malha e profundidade das letras
   const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let HH=334,NY=130;
 
-  function relief(img){
-    HH=Math.round(W*img.naturalHeight/img.naturalWidth);NY=Math.round(NX*HH/W);
+  function relief(img,cvW){
+    W=Math.max(1024,Math.min(1536,Math.round(cvW/64)*64));HH=Math.round(W*img.naturalHeight/img.naturalWidth);NY=Math.round(NX*HH/W);
     const c=document.createElement('canvas');c.width=W;c.height=HH;const g=c.getContext('2d');g.drawImage(img,0,0,W,HH);
     const d=g.getImageData(0,0,W,HH).data,n=W*HH,a=new Float32Array(n);
     for(let i=0;i<n;i++)a[i]=d[i*4+3]/255;
@@ -17,8 +17,16 @@
         for(let x=0;x<W;x++){B[y*W+x]=s/(2*r+1);s+=A[y*W+Math.min(W-1,x+r+1)]-A[y*W+Math.max(0,x-r)]}}
       for(let x=0;x<W;x++){let s=0;for(let y=-r;y<=r;y++)s+=B[Math.min(HH-1,Math.max(0,y))*W+x];
         for(let y=0;y<HH;y++){A[y*W+x]=s/(2*r+1);s+=B[Math.min(HH-1,y+r+1)*W+x]-B[Math.max(0,y-r)*W+x]}}}return A};
-    const b=blur(a,3),H=new Float32Array(n),D=new Float32Array(n),t1=new Uint8Array(n*4),t2=new Uint8Array(n*4);
-    for(let i=0;i<n;i++){const k=Math.min(1,Math.max(0,(b[i]-.3)/.6));H[i]=Math.sqrt(k)*a[i];D[i]=H[i]*.55}
+    /* distância até a borda de cada letra (chanfro 3-4): frente lisa e chanfro fino, como letra de metal */
+    const dist=new Float32Array(n),BIG=1e6;for(let i=0;i<n;i++)dist[i]=a[i]>.5?BIG:0;
+    for(let y=0;y<HH;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!dist[i])continue;let v=dist[i];
+      if(x>0)v=Math.min(v,dist[i-1]+3);if(y>0){v=Math.min(v,dist[i-W]+3);if(x>0)v=Math.min(v,dist[i-W-1]+4);if(x<W-1)v=Math.min(v,dist[i-W+1]+4)}dist[i]=v}
+    for(let y=HH-1;y>=0;y--)for(let x=W-1;x>=0;x--){const i=y*W+x;if(!dist[i])continue;let v=dist[i];
+      if(x<W-1)v=Math.min(v,dist[i+1]+3);if(y<HH-1){v=Math.min(v,dist[i+W]+3);if(x<W-1)v=Math.min(v,dist[i+W+1]+4);if(x>0)v=Math.min(v,dist[i+W-1]+4)}dist[i]=v}
+    const BV=W/1024*4.2,raw=new Float32Array(n);
+    for(let i=0;i<n;i++){const k=Math.min(1,dist[i]/3/BV);raw[i]=a[i]>.5?Math.sin(k*1.5708)*.85+.15:0}
+    const sm1=blur(raw,1),H=new Float32Array(n),D=new Float32Array(n),t1=new Uint8Array(n*4),t2=new Uint8Array(n*4);
+    for(let i=0;i<n;i++){H[i]=sm1[i];D[i]=H[i]*.5}
     const k=Z*W/4,at=(A,x,y)=>A[Math.min(HH-1,Math.max(0,y))*W+Math.min(W-1,Math.max(0,x))];
     for(let y=0;y<HH;y++)for(let x=0;x<W;x++){const i=y*W+x;
       let nx=-(at(H,x+1,y)-at(H,x-1,y))*k,ny=(at(H,x,y+1)-at(H,x,y-1))*k,l=Math.hypot(nx,ny,1);
@@ -37,17 +45,17 @@
   const VS=`attribute vec3 aP;attribute vec2 aU;uniform mat4 uM,uPV;varying vec2 vU;varying vec3 vW;
     void main(){vU=aU;vec4 w=uM*vec4(aP,1.);vW=w.xyz;gl_Position=uPV*w;}`;
   const FS=`precision highp float;uniform sampler2D uN,uK;uniform mat4 uM;uniform vec3 uL,uE;uniform float uB;varying vec2 vU;varying vec3 vW;
-    void main(){vec4 a=texture2D(uN,vU);if(a.a<.5)discard;vec4 b=texture2D(uK,vU);
+    void main(){vec4 a=texture2D(uN,vU);if(a.a<.08)discard;float al=smoothstep(.25,.7,a.a);vec4 b=texture2D(uK,vU);
       vec3 n=(uB<.5?a.xyz:b.xyz)*2.-1.;float h=b.a;
-      vec3 col=uB<.5?mix(vec3(.86,.66,.36),vec3(1.,.9,.7),h*h):vec3(.55,.4,.25);
+      vec3 col=uB<.5?mix(vec3(.92,.74,.44),vec3(1.,.92,.76),smoothstep(.6,.95,h)):vec3(.6,.45,.28);
       n=normalize(mat3(uM)*normalize(n));vec3 v=normalize(uE-vW);
       vec3 l=normalize(uL);float nl=dot(n,l),df=max(nl,0.)*.75+.25*(nl*.5+.5);
       vec3 r=reflect(-v,n);vec3 env=mix(vec3(.22,.1,.32),vec3(1.,.82,.95),smoothstep(-.6,.9,r.y));
       env=mix(env,vec3(1.,.9,.7),smoothstep(.55,1.,dot(r,l))*.8);
       vec3 hv=normalize(l+v);float sp=pow(max(dot(n,hv),0.),48.);
       float fr=pow(1.-max(dot(n,v),0.),3.);
-      vec3 c=col*(df*.55+env*.55+.12)+vec3(1.,.92,.75)*sp*.9+vec3(.95,.6,.85)*fr*.35;
-      gl_FragColor=vec4(c,1.);}`;
+      float eb=dot(env,vec3(.33));vec3 c=col*(.5+.42*df)*(.85+.3*eb)+vec3(1.,.95,.82)*sp*1.0+vec3(.98,.75,.9)*fr*.22;
+      gl_FragColor=vec4(c*al,al);}`;
 
   function boot(box){
     const img=new Image();img.decoding='async';
@@ -57,7 +65,7 @@
     if(!gl){cv.remove();fallback();return}
     img.onerror=()=>{cv.remove();fallback()};
     img.onload=()=>{
-      const R=relief(img);
+      const R=relief(img,box.clientWidth*Math.min(devicePixelRatio||1,3));
       const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.warn('letreiro3d',gl.getShaderInfoLog(o));return o};
       const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
       if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){console.warn('letreiro3d',gl.getProgramInfoLog(pr));cv.remove();fallback();return}
@@ -84,20 +92,20 @@
       const U=n=>gl.getUniformLocation(pr,n),aP=gl.getAttribLocation(pr,'aP'),aU=gl.getAttribLocation(pr,'aU');
       gl.uniform1i(U('uN'),1);gl.uniform1i(U('uK'),2);
       gl.bindBuffer(gl.ARRAY_BUFFER,bU);gl.enableVertexAttribArray(aU);gl.vertexAttribPointer(aU,2,gl.FLOAT,false,0,0);
-      gl.enable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);
+      gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(0,0,0,0);
       const CA=.5,E=[0,0,1.2/(Math.tan(.24)/CA)];const PV=mul(persp(.48,.1,20),(()=>{const m=mat();m[14]=-E[2];return m})());PV[0]*=CA;
       gl.uniformMatrix4fv(U('uPV'),false,PV);gl.uniform3fv(U('uE'),E);
 
       // movimento: balanço lento + segue o mouse + gira com a rolagem; toque dá uma volta inteira
       let tx=0,ty=0,cx=0,cy=0,spin=0,spinT=0,vis=false,raf=0,last=0;
       const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
-      if(fine)addEventListener('pointermove',e=>{tx=(e.clientX/innerWidth-.5)*.6;ty=(e.clientY/innerHeight-.5)*.4},{passive:true});
+      if(fine)addEventListener('pointermove',e=>{tx=(e.clientX/innerWidth-.5)*.3;ty=(e.clientY/innerHeight-.5)*.2},{passive:true});
       box.addEventListener('click',()=>{spinT+=6.2832;wake()});
-      function size(){const d=Math.min(devicePixelRatio||1,2),w=box.clientWidth;cv.width=Math.round(w*d);cv.height=Math.round(w*d*CA)}
+      function size(){const d=Math.min(devicePixelRatio||1,3),w=box.clientWidth;cv.width=Math.round(w*d);cv.height=Math.round(w*d*CA)}
       function draw(now){raf=0;const t=now/1000,dt=Math.min(.05,(now-(last||now))/1000);last=now;
-        if(cv.width!==Math.round(box.clientWidth*Math.min(devicePixelRatio||1,2)))size();
+        if(cv.width!==Math.round(box.clientWidth*Math.min(devicePixelRatio||1,3)))size();
         const r=box.getBoundingClientRect(),sc=((r.top+r.height/2)/innerHeight-.5);
-        const gx=calm?0:tx+Math.sin(t*.6)*.25+sc*-.45,gy=calm?0:ty+Math.sin(t*.45+1)*.12+sc*.3;
+        const gx=calm?0:tx+Math.sin(t*.6)*.16+sc*-.25,gy=calm?0:ty+Math.sin(t*.45+1)*.08+sc*.18;
         cx+=(gx-cx)*Math.min(1,dt*4);cy+=(gy-cy)*Math.min(1,dt*4);spin+=(spinT-spin)*Math.min(1,dt*2.2);
         const M=mul(rotY(cx+spin),mul(rotX(cy),rotZ(calm?0:Math.sin(t*.3)*.02)));
         gl.viewport(0,0,cv.width,cv.height);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);

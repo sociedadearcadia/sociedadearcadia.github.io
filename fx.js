@@ -78,10 +78,10 @@
 (function(){const c=document.getElementById('sky'),x=c.getContext('2d');let st=[],W,H;const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
   function size(){const d=Math.min(devicePixelRatio||1,2);W=c.width=innerWidth*d;H=c.height=innerHeight*d;
     st=Array.from({length:Math.round(innerWidth*innerHeight/7000)},()=>({x:Math.random()*W,y:Math.random()*H*.8,r:(Math.random()*1.2+.3)*d,p:Math.random()*6.28,s:.4+Math.random()*1.2,sp:Math.random()<.08}))}
-  function draw(t){x.clearRect(0,0,W,H);for(const s of st){const a=calm?.7:.3+.7*Math.abs(Math.sin(s.p+t/1000*s.s));
+  function draw(t){x.clearRect(0,0,W,H);const off=calm?0:scrollY*.08*(W/innerWidth);for(const s of st){const sy=((s.y-off)%H+H)%H;const a=calm?.7:.3+.7*Math.abs(Math.sin(s.p+t/1000*s.s));
     x.globalAlpha=a;x.fillStyle=s.sp?'#f6d8ff':'#efe6ff';
-    if(s.sp){const r=s.r*3;x.beginPath();x.moveTo(s.x,s.y-r);x.lineTo(s.x+r*.25,s.y-r*.25);x.lineTo(s.x+r,s.y);x.lineTo(s.x+r*.25,s.y+r*.25);x.lineTo(s.x,s.y+r);x.lineTo(s.x-r*.25,s.y+r*.25);x.lineTo(s.x-r,s.y);x.lineTo(s.x-r*.25,s.y-r*.25);x.fill()}
-    else{x.beginPath();x.arc(s.x,s.y,s.r,0,6.28);x.fill()}}
+    if(s.sp){const r=s.r*3;x.beginPath();x.moveTo(s.x,sy-r);x.lineTo(s.x+r*.25,sy-r*.25);x.lineTo(s.x+r,sy);x.lineTo(s.x+r*.25,sy+r*.25);x.lineTo(s.x,sy+r);x.lineTo(s.x-r*.25,sy+r*.25);x.lineTo(s.x-r,sy);x.lineTo(s.x-r*.25,sy-r*.25);x.fill()}
+    else{x.beginPath();x.arc(s.x,sy,s.r,0,6.28);x.fill()}}
     if(!calm)requestAnimationFrame(draw)}
   size();addEventListener('resize',size);requestAnimationFrame(draw)})();
 
@@ -106,7 +106,12 @@
     gl=Array.from({length:Math.round(Math.min(18,Math.max(8,A/60000)))},glint);shoot=[]}
   function launch(){const fromLeft=Math.random()<.35;const ang=fromLeft?R(.35,.6):Math.PI-R(.35,.6);
     shoot.push({x:fromLeft?R(-.05,.4)*W:R(.6,1.05)*W,y:R(-.05,.35)*H,vx:Math.cos(ang)*R(650,950)*d,vy:Math.sin(ang)*R(650,950)*d,life:0,max:R(.9,1.5),len:R(90,170)*d})}
+  let sy=scrollY;
   function draw(t){const dt=Math.min(.05,(t-(last||t))/1000);last=t;const ts=t/1000;x.clearRect(0,0,W,H);x.globalCompositeOperation='lighter';
+    /* profundidade ao rolar: brilhos (meio) andam um pouco, pétalas (perto) andam mais */
+    const dy=calm?0:Math.max(-120,Math.min(120,scrollY-sy))*d;sy=scrollY;
+    if(dy){for(const f of fall){f.y-=dy*.35;if(f.y>H+10)f.y-=H+20}
+      for(const p of ps){p.y-=dy*(.6+p.s/d/10*.9);if(p.y<-30*d)p.y+=H+60*d;else if(p.y>H+30*d)p.y-=H+60*d}}
     for(const f of fall){if(!calm){f.y+=f.vy*dt;f.x+=(f.vx+Math.sin(ts*.8+f.p)*6*d)*dt;if(f.y<-10)Object.assign(f,faller(true))}
       const a=.45+.55*Math.abs(Math.sin(f.p+ts*f.ps));const z=f.r*4.5*(.8+.4*a);x.globalAlpha=a;x.drawImage(f.k,f.x-z/2,f.y-z/2,z,z)}
     for(const g of gl){const a=calm?.5:Math.pow(Math.max(0,Math.sin(g.p+ts*g.ps)),6);if(!calm&&a<.002&&Math.random()<.02){Object.assign(g,glint())}
