@@ -188,6 +188,49 @@ html{scroll-behavior:smooth}
 /* vagas ao lado da arte, em telas largas */
 @media (min-width:1100px) and (orientation:landscape){#vagas{width:440px;align-self:center;left:min(26vw,400px)}}
 
+
+/* ---------- profundidade e 3D ---------- */
+/* selo 3D em "O clube" */
+#sobre{display:grid;gap:6px;justify-items:center;text-align:center}
+.selo-wrap{position:relative;width:min(230px,62vw);margin:-6px auto 4px}
+.selo3d{position:relative;z-index:1;width:100%;aspect-ratio:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.selo3d canvas,.selo3d img{display:block;width:100%;height:100%}
+.selo3d img{border-radius:50%;box-shadow:0 0 0 1px var(--gold),0 12px 34px rgba(0,0,0,.5)}
+.selo-wrap .sombra{position:absolute;left:18%;right:18%;bottom:2%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(8,2,18,.75),transparent);z-index:0}
+.selo-wrap::before{content:"";position:absolute;inset:-8%;border-radius:50%;z-index:0;background:radial-gradient(closest-side,rgba(232,139,214,.32),rgba(201,182,242,.1) 60%,transparent);animation:lh 5s ease-in-out infinite}
+.sobre-txt{max-width:52ch}
+/* painéis entram em perspectiva, como uma página se erguendo */
+.reveal{transform:perspective(1100px) translateY(46px) rotateX(13deg);transform-origin:50% 100%}
+.reveal.in{transform:none}
+/* ícones dourados nas listas */
+.acts .ic svg{width:19px;height:19px}
+@media (hover:hover) and (pointer:fine){
+  .panel.tilt{transform-style:preserve-3d;will-change:transform}
+  .panel.tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
+    background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(255,226,170,.12),rgba(232,139,214,.06) 40%,transparent 70%)}
+  .panel.tilt.on::after{opacity:1}
+}
+@media (min-width:900px){
+  .wrap{max-width:940px;gap:30px}
+  .wrap>#vagas,.wrap>#links,.wrap>footer{width:600px;align-self:center}
+  .wrap>.band{width:100%}
+  .panel{padding:30px 34px}
+  h2{font-size:30px}
+  #sobre{grid-template-columns:280px 1fr;justify-items:start;text-align:left;gap:34px;align-items:center}
+  .selo-wrap{width:270px;margin:0}
+  #leitura .current{grid-template-columns:200px 1fr;gap:30px}
+  #leitura .cover{width:200px}
+  #leitura .current .t{font-size:34px}
+  .acts.cards{grid-template-columns:repeat(3,1fr);gap:16px}
+  .acts.cards li{grid-template-columns:1fr;gap:10px;padding:18px 16px;border:1px solid rgba(214,180,108,.28);border-radius:14px;background:rgba(23,15,51,.42);
+    transition:transform .35s ease,border-color .35s,box-shadow .35s}
+  .acts.cards li:first-child{padding-top:18px;border-top:1px solid rgba(214,180,108,.28)}
+  .acts.cards li:hover{transform:translateY(-4px) translateZ(20px);border-color:rgba(214,180,108,.6);box-shadow:0 14px 30px rgba(8,3,18,.45),0 0 24px rgba(201,182,242,.15)}
+  .acts.cards .ic{width:42px;height:42px}
+  .acts.cards .ic svg{width:22px;height:22px}
+}
+@media (min-width:1100px) and (orientation:landscape){.wrap>#vagas{width:440px}}
+
 /* faixa panorâmica com luzes */
 .band .glow{width:5%}
 .band .moon{width:7%}
@@ -257,9 +300,12 @@ html{scroll-behavior:smooth}
 
 <main class="wrap">
   <section class="panel reveal" id="sobre">
+    <div class="selo-wrap"><div class="selo3d" data-selo3d role="img" aria-label="Selo da Sociedade Arcádia em 3D" title="Clique para girar"></div><i class="sombra" aria-hidden="true"></i></div>
+    <div class="sobre-txt">
     <p class="eyebrow">Sobre</p>
     <h2>O clube</h2>
     <p>A Sociedade Arcádia é um clube de leitura presencial para mulheres em Campo Grande, MS. Todo mês um livro de fantasia ou romantasia é escolhido em votação e discutido no encontro presencial. Além dele, há leituras coletivas extras de outros gêneros para quem quiser participar.</p>
+    </div>
   </section>
 
   <section class="panel reveal" id="leitura">
@@ -290,13 +336,13 @@ html{scroll-behavior:smooth}
   <section class="panel reveal" id="atividades">
     <p class="eyebrow">No clube</p>
     <h2>O que fazemos</h2>
-    <ul class="acts">
-      <li><span class="ic">☾</span><div><h3>Encontro do Livro do Mês</h3><p>Encontro presencial para conversar sobre a leitura oficial do mês.</p></div></li>
-      <li><span class="ic">✦</span><div><h3>Quiz literário</h3><p>Nos encontros, um quiz sobre o Livro do Mês, com prêmio para quem vencer.</p></div></li>
-      <li><span class="ic">❦</span><div><h3>Sorteio do mês</h3><p>Todo mês uma integrante é sorteada e ganha um livro da sua lista de desejos.</p></div></li>
-      <li><span class="ic">✧</span><div><h3>Leituras coletivas extras</h3><p>LCs de outros gêneros, além da leitura oficial, com reuniões on-line para conversar sobre cada livro.</p></div></li>
-      <li><span class="ic">☽</span><div><h3>Encontros extras</h3><p>Encontros além do Livro do Mês, sem obrigação de participar.</p></div></li>
-      <li><span class="ic">♛</span><div><h3>Arcadiana do Ano</h3><p>Premiação anual para a integrante com mais participação ao longo do ano.</p></div></li>
+    <ul class="acts cards">
+      <li><span class="ic" data-ic="livro"></span><div><h3>Encontro do Livro do Mês</h3><p>Encontro presencial para conversar sobre a leitura oficial do mês.</p></div></li>
+      <li><span class="ic" data-ic="pergunta"></span><div><h3>Quiz literário</h3><p>Nos encontros, um quiz sobre o Livro do Mês, com prêmio para quem vencer.</p></div></li>
+      <li><span class="ic" data-ic="carta"></span><div><h3>Sorteio do mês</h3><p>Todo mês uma integrante é sorteada e ganha um livro da sua lista de desejos.</p></div></li>
+      <li><span class="ic" data-ic="estante"></span><div><h3>Leituras coletivas extras</h3><p>LCs de outros gêneros, além da leitura oficial, com reuniões on-line para conversar sobre cada livro.</p></div></li>
+      <li><span class="ic" data-ic="lanterna"></span><div><h3>Encontros extras</h3><p>Encontros além do Livro do Mês, sem obrigação de participar.</p></div></li>
+      <li><span class="ic" data-ic="coroa"></span><div><h3>Arcadiana do Ano</h3><p>Premiação anual para a integrante com mais participação ao longo do ano.</p></div></li>
     </ul>
   </section>
 
@@ -305,9 +351,9 @@ html{scroll-behavior:smooth}
     <h2>Vagas para 2027</h2>
     <div class="status"><i></i>Lista de espera aberta</div>
     <ul class="acts">
-      <li><span class="ic">✦</span><div><h3>Ingresso em janeiro</h3><p>As novas integrantes entram em janeiro de 2027.</p></div></li>
-      <li><span class="ic">☾</span><div><h3>Encontros em Campo Grande, MS</h3><p>Os encontros são presenciais.</p></div></li>
-      <li><span class="ic">❦</span><div><h3>Para mulheres a partir de 18 anos</h3><p>Vagas limitadas.</p></div></li>
+      <li><span class="ic" data-ic="calendario"></span><div><h3>Ingresso em janeiro</h3><p>As novas integrantes entram em janeiro de 2027.</p></div></li>
+      <li><span class="ic" data-ic="bussola"></span><div><h3>Encontros em Campo Grande, MS</h3><p>Os encontros são presenciais.</p></div></li>
+      <li><span class="ic" data-ic="estrela"></span><div><h3>Para mulheres a partir de 18 anos</h3><p>Vagas limitadas.</p></div></li>
     </ul>
     <div class="btns"><a class="btn primary" href="lista-de-espera/">Quero entrar na lista de espera</a></div>
   </section>
@@ -343,6 +389,8 @@ html{scroll-behavior:smooth}
 </main>
 
 <script src="/fx.js"></script>
+<script src="/icones.js"></script>
+<script src="/selo3d.js" defer></script>
 <script>
 /* ---------- abertura (34 s) ---------- */
 (function(){
@@ -445,6 +493,26 @@ html{scroll-behavior:smooth}
   nav.querySelectorAll('ul a').forEach(a=>a.addEventListener('click',()=>set(false)));
   document.addEventListener('click',e=>{if(!nav.contains(e.target))set(false)});
   const solid=()=>nav.classList.toggle('solid',scrollY>innerHeight*.5);addEventListener('scroll',solid,{passive:true});solid()})();
+
+
+/* ---------- ícones dourados ---------- */
+document.querySelectorAll('[data-ic]').forEach(e=>{if(window.ARC_ICONE)e.innerHTML=ARC_ICONE(e.dataset.ic)});
+
+/* ---------- profundidade: camadas se movem com o mouse e painéis inclinam (só no computador) ---------- */
+(function(){
+  if(!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const sky=document.getElementById('sky'),pet=document.getElementById('petals');let tx=0,ty=0,x=0,y=0,raf=0;
+  addEventListener('pointermove',e=>{tx=e.clientX/innerWidth-.5;ty=e.clientY/innerHeight-.5;if(!raf)raf=requestAnimationFrame(step)},{passive:true});
+  function step(){raf=0;x+=(tx-x)*.08;y+=(ty-y)*.08;
+    window.ARC_PAR={x:-x*26,y:-y*16};if(window.ARC_REFIT)ARC_REFIT();
+    sky.style.transform='translate3d('+(-x*10)+'px,'+(-y*7)+'px,0)';pet.style.transform='translate3d('+(x*34)+'px,'+(y*22)+'px,0)';
+    if(Math.abs(tx-x)>.001||Math.abs(ty-y)>.001)raf=requestAnimationFrame(step)}
+  document.querySelectorAll('.wrap>.panel').forEach(p=>{p.classList.add('tilt');
+    p.addEventListener('pointermove',e=>{if(!p.classList.contains('in'))return;const r=p.getBoundingClientRect(),u=(e.clientX-r.left)/r.width,v=(e.clientY-r.top)/r.height;
+      p.style.transition='transform .12s ease-out';p.style.transform='perspective(1400px) rotateX('+((.5-v)*3.2)+'deg) rotateY('+((u-.5)*4)+'deg)';
+      p.style.setProperty('--mx',u*100+'%');p.style.setProperty('--my',v*100+'%');p.classList.add('on')});
+    p.addEventListener('pointerleave',()=>{p.style.transition='transform .7s ease';p.style.transform='';p.classList.remove('on')})})
+})();
 
 /* ---------- painéis aparecem ao rolar ---------- */
 (function(){const els=document.querySelectorAll('.reveal');
