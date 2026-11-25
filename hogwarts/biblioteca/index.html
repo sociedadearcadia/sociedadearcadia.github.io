@@ -243,6 +243,22 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
 @media (min-aspect-ratio:1/1){#bgArt,#bgArt{background-image:url("/hogwarts/img/trio-largo.webp")!important;background-position:center 50%!important}}
 #bgArt::after{background:rgba(8,16,36,calc(.35 + var(--dim,0)))}
 #topSeal{display:none}
+/* timer com cara de Hogwarts: pomo de ouro correndo no anel, raio no mostrador, botões dourados, anel na cor da casa */
+#moonCur path,#moonCur circle{filter:none}
+.pomo .bola{fill:url(#gPomo);stroke:#8a5a14;stroke-width:.5}
+.pomo .risco{fill:none;stroke:#8a5a14;stroke-width:.45;opacity:.8}
+.pomo .asa{fill:#fbf6e8;stroke:#d9c08a;stroke-width:.35;opacity:.95;transform-box:fill-box;animation:asaBate .32s ease-in-out infinite alternate}
+.pomo .asa:first-child{transform-origin:100% 60%}.pomo .asa:nth-child(2){transform-origin:0 60%}
+@keyframes asaBate{0%{transform:scaleY(1) rotate(0)}100%{transform:scaleY(.55) rotate(-6deg)}}
+.pomo{filter:drop-shadow(0 0 4px rgba(255,220,140,.95))}
+.raio{fill:var(--gold);opacity:.85;filter:drop-shadow(0 0 3px rgba(255,214,120,.7))}
+.primary{background:linear-gradient(180deg,#f6dc9c,#d8a94c)!important;color:#2a1a05!important;box-shadow:0 6px 24px rgba(230,190,110,.35)!important}
+body.prosa .primary{background:linear-gradient(180deg,#f3d0a0,#d98f4a)!important}
+.tab[aria-selected="true"]{background:linear-gradient(180deg,#f6dc9c,#d8a94c)!important;color:#2a1a05!important}
+body.leve .pomo .asa{animation:none}
+@media (prefers-reduced-motion:reduce){.pomo .asa{animation:none}}
+.alarme-btn{margin-top:6px}
+
 .hg-topic{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:var(--gold);background:radial-gradient(circle at 35% 30%,rgba(60,90,150,.7),rgba(10,20,44,.95) 70%);box-shadow:0 0 0 1px rgba(230,190,110,.6)}
 .hg-topic .hg-ic{width:32px;height:32px}
 .hg-ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;vertical-align:-4px}
@@ -302,7 +318,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
           <linearGradient id="gRead" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc9c"/><stop offset=".5" stop-color="#e6be6e"/><stop offset="1" stop-color="#9fc0ff"/></linearGradient>
           <linearGradient id="gProsa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6e6ff"/><stop offset=".5" stop-color="#8fb4ff"/><stop offset="1" stop-color="#f0d48e"/></linearGradient>
           <radialGradient id="gFace" cx=".5" cy=".38" r=".7"><stop offset="0" stop-color="#1f3a6e" stop-opacity=".85"/><stop offset=".6" stop-color="#132650" stop-opacity=".85"/><stop offset="1" stop-color="#0a1630" stop-opacity=".88"/></radialGradient>
-          <radialGradient id="gHalo"><stop offset=".6" stop-color="#9fc0ff" stop-opacity=".0"/><stop offset=".82" stop-color="#9fc0ff" stop-opacity=".28"/><stop offset="1" stop-color="#9fc0ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="gPomo" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff4c8"/><stop offset=".45" stop-color="#f0c75a"/><stop offset="1" stop-color="#a8731c"/></radialGradient><radialGradient id="gHalo"><stop offset=".6" stop-color="#9fc0ff" stop-opacity=".0"/><stop offset=".82" stop-color="#9fc0ff" stop-opacity=".28"/><stop offset="1" stop-color="#9fc0ff" stop-opacity="0"/></radialGradient>
         </defs>
         <circle class="halo" cx="100" cy="100" r="112" fill="url(#gHalo)"/>
         <circle cx="100" cy="100" r="74" fill="url(#gFace)"/>
@@ -312,16 +328,16 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
         <g><path class="orn-star" d="M100.0 -1.2000000000000002L100.92 2.08L104.2 3.0L100.92 3.92L100.0 7.2L99.08 3.92L95.8 3.0L99.08 2.08Z"/><path class="orn-star" d="M148.5 13.4L149.07 15.43L151.1 16.0L149.07 16.57L148.5 18.6L147.93 16.57L145.9 16.0L147.93 15.43Z"/><path class="orn-star" d="M184.0 48.9L184.57 50.93L186.6 51.5L184.57 52.07L184.0 54.1L183.43 52.07L181.4 51.5L183.43 50.93Z"/><path class="orn-star" d="M197.0 95.8L197.92 99.08L201.2 100.0L197.92 100.92L197.0 104.2L196.08 100.92L192.8 100.0L196.08 99.08Z"/><path class="orn-star" d="M184.0 145.9L184.57 147.93L186.6 148.5L184.57 149.07L184.0 151.1L183.43 149.07L181.4 148.5L183.43 147.93Z"/><path class="orn-star" d="M148.5 181.4L149.07 183.43L151.1 184.0L149.07 184.57L148.5 186.6L147.93 184.57L145.9 184.0L147.93 183.43Z"/><path class="orn-star" d="M100.0 192.8L100.92 196.08L104.2 197.0L100.92 197.92L100.0 201.2L99.08 197.92L95.8 197.0L99.08 196.08Z"/><path class="orn-star" d="M51.5 181.4L52.07 183.43L54.1 184.0L52.07 184.57L51.5 186.6L50.93 184.57L48.9 184.0L50.93 183.43Z"/><path class="orn-star" d="M16.0 145.9L16.57 147.93L18.6 148.5L16.57 149.07L16.0 151.1L15.43 149.07L13.4 148.5L15.43 147.93Z"/><path class="orn-star" d="M3.0 95.8L3.92 99.08L7.2 100.0L3.92 100.92L3.0 104.2L2.08 100.92L-1.2000000000000002 100.0L2.08 99.08Z"/><path class="orn-star" d="M16.0 48.9L16.57 50.93L18.6 51.5L16.57 52.07L16.0 54.1L15.43 52.07L13.4 51.5L15.43 50.93Z"/><path class="orn-star" d="M51.5 13.4L52.07 15.43L54.1 16.0L52.07 16.57L51.5 18.6L50.93 16.57L48.9 16.0L50.93 15.43Z"/></g>
         <circle class="track" cx="100" cy="100" r="84"/>
         <circle id="prog" class="prog" cx="100" cy="100" r="84" transform="rotate(-90 100 100)"/>
-        <g id="moonCur"><path d="M103 9.68A7 7 0 1 0 103 22.32A5.6 5.6 0 1 1 103 9.68Z"/></g>
+        <g id="moonCur"><g class="pomo"><path class="asa" d="M96.2 15.2C91 11.4 85 10.6 80.6 12.4c3 .6 5.6 1.8 7.4 3.4-2.6-.3-5 0-7 1 3.2.3 6.2 1.2 8.6 2.6 2.2.6 4.6.4 6.8-.8"/><path class="asa" d="M103.8 15.2C109 11.4 115 10.6 119.4 12.4c-3 .6-5.6 1.8-7.4 3.4 2.6-.3 5 0 7 1-3.2.3-6.2 1.2-8.6 2.6-2.2.6-4.6.4-6.8-.8"/><circle class="bola" cx="100" cy="16" r="4.6"/><path class="risco" d="M95.8 15.2q4.2 2.4 8.4 0M100 11.4v9.2"/></g></g>
         <circle class="orn" cx="100" cy="100" r="74" stroke-width=".8" opacity=".8"/>
         <circle class="orn" cx="100" cy="100" r="70" stroke-width=".3" opacity=".6"/>
         <g class="spin"><g class="orn-dots" opacity=".55"><circle cx="162.00" cy="100.00" r="1.3"/><circle cx="159.89" cy="116.05" r="0.7"/><circle cx="153.69" cy="131.00" r="0.7"/><circle cx="143.84" cy="143.84" r="1.3"/><circle cx="131.00" cy="153.69" r="0.7"/><circle cx="116.05" cy="159.89" r="0.7"/><circle cx="100.00" cy="162.00" r="1.3"/><circle cx="83.95" cy="159.89" r="0.7"/><circle cx="69.00" cy="153.69" r="0.7"/><circle cx="56.16" cy="143.84" r="1.3"/><circle cx="46.31" cy="131.00" r="0.7"/><circle cx="40.11" cy="116.05" r="0.7"/><circle cx="38.00" cy="100.00" r="1.3"/><circle cx="40.11" cy="83.95" r="0.7"/><circle cx="46.31" cy="69.00" r="0.7"/><circle cx="56.16" cy="56.16" r="1.3"/><circle cx="69.00" cy="46.31" r="0.7"/><circle cx="83.95" cy="40.11" r="0.7"/><circle cx="100.00" cy="38.00" r="1.3"/><circle cx="116.05" cy="40.11" r="0.7"/><circle cx="131.00" cy="46.31" r="0.7"/><circle cx="143.84" cy="56.16" r="1.3"/><circle cx="153.69" cy="69.00" r="0.7"/><circle cx="159.89" cy="83.95" r="0.7"/></g></g>
         <path class="orn-star" d="M100 40.8L100.70 43.30L103.2 44L100.70 44.70L100 47.2L99.30 44.70L96.8 44L99.30 43.30Z"/>
-        <path class="orn" d="M80 150q10 6 20 0q10 -6 20 0" stroke-width=".7" opacity=".8"/>
+        <path class="raio" d="M103.5 139.5l-6.6 9.4h5.2l-3.4 10.6 8.6-12.6h-5.4l4.2-7.4z"/>
       </svg>
       <div class="face">
         <div id="time" class="time">25:00</div>
-        <div id="state" class="state">Pronta para ler?</div>
+        <div id="state" class="state">Varinha a postos?</div>
       </div>
     </div>
     <div class="controls">
@@ -336,6 +352,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
     </div>
     <div class="today" id="todayLine"></div>
     <button type="button" class="tempos-btn" id="temposBtn">Por que esses tempos?</button>
+    <button type="button" class="tempos-btn alarme-btn" id="alarmeBtn">Trocar o som do alarme</button>
   </section>
 
   <section class="panel" aria-labelledby="hGrupo" id="grupoPanel" hidden>
@@ -346,7 +363,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
     <span class="eyebrow" style="margin-top:8px">Agora</span>
     <p id="grupoInfo" class="muted" style="font-size:15px;color:var(--cream)"></p>
     <div class="grupo-quem" id="grupoQuem"></div>
-    <div class="online-box" id="onBox" hidden><span class="eyebrow">Online agora</span><div class="online" id="onLista"></div>
+    <div class="online-box" id="onBox"><span class="eyebrow">Online agora</span><div class="online" id="onLista"></div>
       <p class="muted" style="font-size:12.5px;margin:6px 0 0">Toque no nome para chamar para ler junto.</p></div>
     <div class="row">
       <label class="f" id="grupoRodadasBox" style="flex:1 1 100%">Quantas rodadas de leitura?<select id="grupoRodadas">
@@ -390,7 +407,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
     <div class="head"><span class="eyebrow">Ranking da LC Especial de Natal</span><h2 id="hRank">Quem mais leu na Biblioteca</h2></div>
     <ol class="rank" id="rank"><li class="empty" style="display:block">Carregando o ranking…</li></ol>
     <p class="muted" style="font-size:13px;margin:8px 0 0">Os minutos lidos aqui também somam no ranking geral do sprint.</p>
-    <p class="muted">Conta só o tempo de leitura dos sprints da Biblioteca (organização, pausas e prosa ficam de fora). Não entra no ranking geral da Sociedade nem gera pontos.</p>
+    <p class="muted">Conta só o tempo de leitura dos sprints da Biblioteca (organização, pausas e prosa ficam de fora). Não gera pontos.</p>
   </section>
 
   <section class="panel" aria-labelledby="hGrim">
@@ -596,6 +613,7 @@ body{--sky1:#21396a;--sky2:#132650;--sky3:#0b1730}
 
 <script>
 HG.entrar().then(async HGC=>{
+  {const COR={grifinoria:'#d0503f',sonserina:'#46b073',corvinal:'#6b9cf0',lufalufa:'#f2cf55'};const st=document.querySelector('#gRead stop:last-child');if(st&&COR[HGC.casa])st.setAttribute('stop-color',COR[HGC.casa])}
 const $=id=>document.getElementById(id);
 if(!HG.janela(HGC.datas,'biblioteca').aberta){$('hgCarrega').innerHTML='<div style="text-align:center;padding:20px;max-width:420px"><p style="font-size:18px">A Biblioteca de Hogwarts abre em '+HG.fmtD(HGC.datas.biblioteca)+'.</p><p><a href="/hogwarts/" style="color:#e6be6e">Voltar ao Salão Principal</a></p></div>';return}
 if(!HGC.casa){$('hgCarrega').hidden=true;await HG.pedirCasa(HGC,{titulo:'Bem-vinda à Biblioteca de Hogwarts!',texto:'Antes de começar, precisamos saber quem chegou à Biblioteca e a qual casa você pertence.'})}
@@ -730,7 +748,7 @@ function render(){
   $('sealBtn').hidden=!(mode==='read'&&remaining<total);
   $('startBtn').textContent=running?'Pausar':remaining<total?'Continuar':mode==='prosa'?'Começar a prosa':'Começar';
   $('state').textContent=mode==='prosa'?(running?'Hora da prosa':'Intervalo para conversar')
-    :running?'Lendo':remaining<total?'Sprint pausado':(me?`Pronta para ler, ${me.name}?`:'Pronta para ler?');
+    :running?'Lendo':remaining<total?'Sprint pausado':(me?`Varinha a postos, ${me.name}?`:'Varinha a postos?');
   if(grupoOn()){const g=grupo,now=Date.now();$('startBtn').textContent='Sair do coletivo';
     if(now<g.startAt)$('state').textContent='Organização e prosa inicial · leitura às '+hm(g.startAt);else{const f=gFase(g,now),n=gCiclos(g)>1?` · rodada ${f.n} de ${gCiclos(g)}`:'';$('state').textContent=(mode==='prosa'?(f.ult?'Prosa final':'Prosa'):'Lendo juntas')+n}}
   document.title=running?`${fmt(remaining)} · ${mode==='prosa'?'Prosa':'Leitura'} · Hogwarts`:'Biblioteca de Hogwarts';
@@ -881,8 +899,8 @@ $('copyBtn').onclick=async()=>{const t=periodStats('hoje'),w=periodStats('semana
 /* ---------- imagem para stories ---------- */
 const sealImg=new Image();sealImg.src=$('topSeal').src;let storyP='hoje';
 function wrapText(x,text,cx,y,maxW,lh){const words=text.split(' ');let line='',lines=[];for(const w of words){const t=line?line+' '+w:w;if(x.measureText(t).width>maxW&&line){lines.push(line);line=w}else line=t}if(line)lines.push(line);lines.forEach((l,i)=>x.fillText(l,cx,y+i*lh));return lines.length}
-const FUNDOS=[['trio'],['neve'],['expresso'],['caminho']];
-const LEITORAS=FUNDOS.map(f=>`/hogwarts/img/${f[0]}.webp`);let storyPick=Math.max(0,Math.min(FUNDOS.length-1,+LS.get('storyFundo2',0)||0));const storyImgs={};
+const FUNDOS=[['trio'],['rony'],['harry'],['hermione'],['edwiges'],['castelo'],['livro']];
+const LEITORAS=FUNDOS.map(f=>`/hogwarts/img/stories/${f[0]}.webp`);let storyPick=Math.max(0,Math.min(FUNDOS.length-1,+LS.get('storyFundo3',0)||0));const storyImgs={};
 function storyImg(i){if(!storyImgs[i]){const im=new Image();im.onload=()=>{if(!$('storyDlg').hidden)drawStory();if(!$('colStDlg').hidden)drawColStory()};im.src=LEITORAS[i];storyImgs[i]=im}return storyImgs[i]}
 function storyBase(x){const W=1080,H=1920;
   x.fillStyle='#1a0b2e';x.fillRect(0,0,W,H);
@@ -908,9 +926,9 @@ function drawStory(){const x=$('story').getContext('2d');storyBase(x);
   const msg=$('storyMsg').value.trim();if(msg){x.fillStyle='#f4e8da';x.font='italic 46px Lora,Georgia,serif';wrapText(x,'“'+msg+'”',540,Math.max(1480,yy),740,60)}
   storyFoot(x)}
 $('storyBtn').onclick=()=>{{const l=log[log.length-1];if(l&&l.coletivo&&Date.now()-l.t<6*3600e3){storyP='sprint';$('storySeg').querySelectorAll('button').forEach(o=>o.setAttribute('aria-pressed',o.dataset.p==='sprint'))}}fundosUI();if(window.ArcVideo)vidReset();$('storyDlg').hidden=false;drawStory()};
-function fundosUI(){const el=$('storyFundos');if(!el.children.length)el.innerHTML=FUNDOS.map((f,i)=>`<button type="button" data-i="${i}" aria-label="Fundo ${i+1}"><img src="/hogwarts/img/${f[0]}-mini.webp" alt="" loading="lazy"></button>`).join('');
+function fundosUI(){const el=$('storyFundos');if(!el.children.length)el.innerHTML=FUNDOS.map((f,i)=>`<button type="button" data-i="${i}" aria-label="Fundo ${i+1}"><img src="/hogwarts/img/stories/${f[0]}-mini.webp" alt="" loading="lazy"></button>`).join('');
   el.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===storyPick))}
-$('storyFundos').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;storyPick=+b.dataset.i;LS.set('storyFundo2',storyPick);fundosUI();drawStory();vidReset()};
+$('storyFundos').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;storyPick=+b.dataset.i;LS.set('storyFundo3',storyPick);fundosUI();drawStory();vidReset()};
 $('storyClose').onclick=()=>$('storyDlg').hidden=true;
 $('storyMsg').addEventListener('input',e=>{$('storyCount').textContent=e.target.value.length+'/140';drawStory()});
 $('storySeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{storyP=b.dataset.p;$('storySeg').querySelectorAll('button').forEach(o=>o.setAttribute('aria-pressed',o===b));drawStory()});
@@ -941,7 +959,7 @@ function onVivo(o,agora){return agora-(o.em||0)<180000||((o.modo==='lendo'||o.mo
 function onDesenha(){const el=$('onLista');if(!el)return;const agora=Date.now(),vistos=new Set();
   const ls=onLista.filter(o=>o._id!==uid&&onVivo(o,agora)&&(!me||normName(o.nome)!==normName(me.name))).filter(o=>{const k=normName(o.nome);if(vistos.has(k))return false;vistos.add(k);return true})
     .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-  $('onBox').hidden=!ls.length;el.innerHTML='';
+  $('onBox').hidden=false;el.innerHTML=ls.length?'':'<small style="color:var(--lilac)">Ninguém mais no Salão agora. Quando alguém entrar, o nome aparece aqui e você pode chamar para ler junto.</small>';
   ls.forEach(o=>{const b=document.createElement('button');b.type='button';if(o.modo!=='site')b.className='lendo';
     const i=document.createElement('span');i.className='brilho';const n=document.createElement('span');nomeIc(n,o.nome);const sm=document.createElement('small');
     sm.textContent=o.modo==='lendo'?'lendo agora':o.modo==='coletivo'?'no coletivo':'online';b.append(i,n,sm);b.title='Chamar '+o.nome+' para ler junto';
@@ -1006,7 +1024,7 @@ function drawColStory(){const x=$('colStory').getContext('2d');const sp=storyPic
       x.textAlign='left';x.fillStyle='#f4e8da';let n=r.nome;const mx=c[1]-c[0]-tw-18;while(n.length>1&&x.measureText(n).width>mx)n=n.slice(0,-1);if(n!==r.nome)n=n.replace(/\s+$/,'')+'…';x.fillText(n,c[0],y)});
     x.textAlign='center'}
   storyFoot(x)}
-function colStFundosUI(){const el=$('colStFundos');if(!el.children.length)el.innerHTML=FUNDOS.map((f,i)=>`<button type="button" data-i="${i}" aria-label="Fundo ${i+1}"><img src="/hogwarts/img/${f[0]}-mini.webp" alt="" loading="lazy"></button>`).join('');
+function colStFundosUI(){const el=$('colStFundos');if(!el.children.length)el.innerHTML=FUNDOS.map((f,i)=>`<button type="button" data-i="${i}" aria-label="Fundo ${i+1}"><img src="/hogwarts/img/stories/${f[0]}-mini.webp" alt="" loading="lazy"></button>`).join('');
   el.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===colStPick))}
 $('colStFundos').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;colStPick=+b.dataset.i;storyImg(colStPick);colStFundosUI();drawColStory()};
 $('colStBtn').onclick=()=>{if(!admDb)return toast('Entre na administração primeiro');const h=new Date();h.setHours(0,0,0,0);
@@ -1357,7 +1375,8 @@ function totalMin(n){const g={read:COL_LER,prosa:COL_PROSA,ciclos:n};let t=ABERT
 $('opR1').textContent=`1 rodada (${totalMin(1)} min no total)`;$('opR2').textContent=`2 rodadas (${totalMin(2)} min no total)`;
 $('grupoHelp').textContent=`Começa com ${ABERTURA} minutos de organização e prosa inicial. Depois, leitura de ${COL_LER} min e prosa de ${COL_PROSA} min. No modo livre isso se repete até todas saírem do coletivo. Também dá para escolher 1 ou 2 rodadas. Tudo passa sozinho, igual para todas, e os minutos de leitura contam no ranking da LC.`;
 $('temposSeq').textContent=`Sprint coletivo: organização ${ABERTURA} min, depois leitura ${COL_LER} min e prosa ${COL_PROSA} min. No modo livre, leitura e prosa se repetem até todas saírem. No sprint individual você pode ajustar os tempos nas configurações.`;
-$('temposBtn').onclick=()=>{$('temposDlg').hidden=false};$('temposOk').onclick=()=>{$('temposDlg').hidden=true};
+$('temposBtn').onclick=()=>{$('temposDlg').hidden=false};
+$('alarmeBtn').onclick=()=>{$('settings').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{try{$('cSound').focus()}catch(e){}},600)};$('temposOk').onclick=()=>{$('temposDlg').hidden=true};
 $('temposDlg').addEventListener('click',e=>{if(e.target.id==='temposDlg')$('temposDlg').hidden=true});
 /* ---------- início ---------- */
 setMode('read');restaura();{const r=LS.get('rodadas',0);if($('grupoRodadas'))$('grupoRodadas').value=String(r===1||r===2?r:0)}{const r=$('grupoRitmo');if(r)r.textContent=`rodadas de ${COL_LER} minutos de leitura`+(COL_PROSA?` e ${COL_PROSA} de prosa`:'')}drawGrim();rankRender();
