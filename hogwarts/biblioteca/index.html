@@ -113,6 +113,7 @@ body.prosa .primary{background:linear-gradient(180deg,#f6b8ea,var(--rose))}
 .prosa-card{width:100%;background:var(--cream);color:#2b1a4f;border-radius:6px;padding:18px 18px 14px;text-align:left;position:relative;
   box-shadow:0 10px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:8px}
 .prosa-card .eyebrow{color:#8a5a9e}
+.prosa-card .pular-prosa{display:block;align-self:center;text-decoration:none;margin:12px auto 0;border:1px solid rgba(122,74,18,.5);background:rgba(122,74,18,.1);color:#5a3510;border-radius:999px;padding:8px 16px;font:700 14px var(--body);cursor:pointer}
 .prosa-card p{font-family:var(--display);font-size:18px;margin:0;line-height:1.4;text-wrap:pretty}
 .prosa-card button{align-self:flex-end;border:0;background:none;color:var(--plum);font:700 13px var(--body);cursor:pointer;text-decoration:underline}
 
@@ -202,6 +203,10 @@ body.focus #grupoPanel.on{display:flex}
 .online .lendo .brilho{background:#f0a8d8;box-shadow:0 0 6px 2px rgba(240,168,216,.8),0 0 14px 4px rgba(201,182,242,.45)}
 @keyframes brilhoOn{0%,100%{transform:scale(.85);opacity:.75}50%{transform:scale(1.15);opacity:1}}
 body.leve .online .brilho{animation:none}
+.online .brilho.casa{width:26px;height:26px;border-radius:0;background:none;box-shadow:none;animation:casaOn 2.4s ease-in-out infinite;filter:drop-shadow(0 0 4px var(--cc)) drop-shadow(0 0 9px var(--cc))}
+.online .brilho.casa img{width:100%;height:100%;object-fit:contain;display:block}
+@keyframes casaOn{0%,100%{transform:scale(.92)}50%{transform:scale(1.08)}}
+body.leve .online .brilho.casa{animation:none}
 .grupo-quem .nasala{margin-left:5px;font-size:12px}
 /* modo leve: enquanto a sala de vídeo está aberta, tira efeitos pesados para o vídeo não travar */
 body.leve .halo,body.leve .spin{animation:none}
@@ -259,7 +264,7 @@ body.prosa .primary{background:linear-gradient(180deg,#f3d0a0,#d98f4a)!important
 .tab[aria-selected="true"]{background:linear-gradient(180deg,#f6dc9c,#d8a94c)!important;color:#2a1a05!important}
 body.leve .pomo .asa{animation:none}
 @media (prefers-reduced-motion:reduce){.pomo .asa{animation:none}}
-.alarme-btn{margin-top:6px}
+.tempos-linha{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:4px}.tempos-linha .tempos-btn{margin:0;padding:6px 11px;font-size:11px}
 
 .hg-topic{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:var(--gold);background:radial-gradient(circle at 35% 30%,rgba(60,90,150,.7),rgba(10,20,44,.95) 70%);box-shadow:0 0 0 1px rgba(230,190,110,.6)}
 .hg-topic .hg-ic{width:32px;height:32px}
@@ -283,7 +288,16 @@ body.leve .pomo .asa{animation:none}
 .ag .quem{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px}
 .ag.cancel{opacity:.6}
 .spoiler{display:block;width:100%;text-align:left;border:1px dashed var(--gold);border-radius:10px;background:rgba(230,190,110,.08);color:var(--gold);padding:6px 10px;font:700 13px var(--body);cursor:pointer;margin-top:2px}
-#chatSpoBox{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
+/* chat com a cara da Biblioteca: azul da noite, dourado e pergaminho */
+#chatBox{background:linear-gradient(180deg,rgba(11,23,48,.88),rgba(7,15,34,.92));border:1px solid rgba(230,190,110,.45);box-shadow:inset 0 0 0 1px rgba(230,190,110,.08)}
+#chatLista .m{color:var(--cream)}#chatLista .m b{color:var(--gold)}#chatLista .m small{color:var(--muted)}#chatLista .m button{color:#f0b37a}
+#chatForm{border-top:1px solid rgba(230,190,110,.3);background:rgba(5,12,28,.5)}
+#chatForm input{background:#f3ead3;color:#3a2a12;border:1px solid rgba(166,124,52,.6)}#chatForm input::placeholder{color:#8a7350}
+#chatFigBtn{background:rgba(230,190,110,.14);border-color:rgba(230,190,110,.5);color:var(--gold)}#chatFigBtn[aria-expanded=true]{background:rgba(230,190,110,.35)}
+#chatFigs{background:rgba(5,12,28,.7);border-top-color:rgba(230,190,110,.3)}#chatFigs .figTabs{background:rgba(11,23,48,.97)}
+#chatFigs .figTabs button{background:rgba(230,190,110,.1);border-color:rgba(230,190,110,.35)}#chatFigs .figTabs button[aria-pressed=true]{background:rgba(230,190,110,.38);color:#1a1206}
+#chatFigs button:hover,#chatFigs button:focus-visible{background:rgba(230,190,110,.18)}
+#chatSpoBox{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:0;padding:2px 12px 10px;background:rgba(5,12,28,.5)}
 #chatSpoBox select{background:rgba(5,12,28,.6);color:var(--cream);border:1px solid var(--line);border-radius:8px;padding:3px 6px}
 </style>
 </head>
@@ -307,12 +321,11 @@ body.leve .pomo .asa{animation:none}
     <button class="pill" id="focusBtn" aria-pressed="false">Modo foco</button>
   </div>
 
-  <nav class="bib-menu" aria-label="Menu da Biblioteca"><a href="#timerSec" id="mInd"></a><a href="#grupoPanel" id="mCol"></a><a href="#chatPanel" id="mChat"></a></nav>
   <div id="salaBox" hidden><div class="salabar"><span>Sala da Biblioteca <span id="salaTempo"></span></span><div><button class="pill" id="salaGrande" type="button">Tela cheia</button><button class="pill" id="salaClose" type="button">Sair da sala</button></div></div><div id="salaFrame"></div><div class="salauso" id="salaUso"></div></div>
   <section class="window" aria-label="Sprint individual" id="timerSec">
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tabRead" aria-selected="true">Leitura</button>
-      <button class="tab" role="tab" id="tabProsa" aria-selected="false">Prosa</button>
+      <button class="tab" role="tab" id="tabRead" aria-selected="true">Estudo</button>
+      <button class="tab" role="tab" id="tabProsa" aria-selected="false">Salão Comunal</button>
     </div>
     <div class="dial" aria-live="polite">
       <svg viewBox="0 0 200 200" aria-hidden="true">
@@ -348,27 +361,29 @@ body.leve .pomo .asa{animation:none}
     </div>
     <button id="sealBtn" class="seal-link">Encerrar sprint</button>
     <div id="prosaCard" class="prosa-card" hidden>
-      <span class="eyebrow">Hora da prosa</span>
+      <span class="eyebrow">No Salão Comunal</span>
       <p id="question"></p>
       <button id="nextQ">Outra pergunta</button>
+      <button id="pularProsa" class="pular-prosa" type="button">Pular e voltar a estudar</button>
     </div>
     <div class="today" id="todayLine"></div>
-    <button type="button" class="tempos-btn" id="temposBtn">Por que esses tempos?</button>
-    <button type="button" class="tempos-btn alarme-btn" id="alarmeBtn">Trocar o som do alarme</button>
+    <div class="tempos-linha"><button type="button" class="tempos-btn" id="temposBtn">Por que esses tempos?</button><button type="button" class="tempos-btn" id="alarmeBtn">Som do alarme</button></div>
   </section>
 
   <section class="panel" aria-labelledby="hGrupo" id="grupoPanel" hidden>
     <div class="head"><span class="eyebrow">Ler junto</span><h2 id="hGrupo">Sprint coletivo</h2></div>
-    <span class="eyebrow">Encontros programados</span>
-    <div class="agenda" id="agenda"><p class="muted" style="margin:0">Carregando…</p></div>
-    <p class="muted" style="font-size:13px;margin:0">A participação é livre. Confirme se vai para as outras saberem.</p>
-    <span class="eyebrow" style="margin-top:8px">Agora</span>
     <p id="grupoInfo" class="muted" style="font-size:15px;color:var(--cream)"></p>
     <div class="grupo-quem" id="grupoQuem"></div>
     <div class="online-box" id="onBox"><span class="eyebrow">Online agora</span><div class="online" id="onLista"></div>
       <p class="muted" style="font-size:12.5px;margin:6px 0 0">Toque no nome para chamar para ler junto.</p></div>
+    <div id="chatBox" hidden>
+      <div id="chatLista" aria-live="polite"></div>
+      <div id="chatFigs" hidden aria-label="Figurinhas"></div>
+      <form id="chatForm" autocomplete="off"><button type="button" id="chatFigBtn" aria-expanded="false" aria-controls="chatFigs" title="Figurinhas" aria-label="Figurinhas">✦</button><input id="chatIn" maxlength="500" placeholder="Escreva para a Biblioteca…" aria-label="Mensagem para a Biblioteca"><button class="btn primary" type="submit">Enviar</button></form>
+      <div id="chatSpoBox"><label><input type="checkbox" id="chatSpo"> Tem spoiler</label><label id="chatCapL" hidden>até o capítulo <select id="chatCap"></select></label></div>
+    </div>
     <div class="row">
-      <label class="f" id="grupoRodadasBox" style="flex:1 1 100%">Quantas rodadas de leitura?<select id="grupoRodadas">
+      <label class="f" id="grupoRodadasBox" style="flex:1 1 100%">Quantas rodadas de estudo?<select id="grupoRodadas">
         <option value="0">Livre (até todas saírem)</option><option value="1" id="opR1">1 rodada</option><option value="2" id="opR2">2 rodadas</option></select></label>
       <button class="btn primary" id="grupoStart" type="button">Começar sprint coletivo</button>
       <button class="btn primary" id="grupoJoin" type="button" hidden>Entrar no sprint coletivo</button>
@@ -383,18 +398,11 @@ body.leve .pomo .asa{animation:none}
     </div>
     <p class="muted" id="salaUsoFora" style="font-size:13px;margin:4px 0 0"></p>
     <p style="margin:4px 0 0" id="salaAjusteRow" hidden><button type="button" id="salaAjuste" class="pill" style="font-size:12px">Ajustar minutos pelo Daily</button> <button type="button" id="colStBtn" class="pill" style="font-size:12px">Stories do coletivo</button></p>
+    <span class="eyebrow" style="margin-top:12px">Encontros programados</span>
+    <div class="agenda" id="agenda"><p class="muted" style="margin:0">Carregando…</p></div>
+    <p class="muted" style="font-size:13px;margin:0">A participação é livre. Confirme se vai para as outras saberem.</p>
   </section>
 
-  <section class="panel" aria-labelledby="hChat" id="chatPanel">
-    <div class="head"><span class="eyebrow">Conversa</span><h2 id="hChat">Chat da Biblioteca</h2></div>
-    <p class="muted" style="margin:0">Funciona com ou sem sprint e fica guardado. Só quem está no Salão vê. Marque "Tem spoiler" para esconder a mensagem até a pessoa tocar.</p>
-    <div id="chatBox" hidden>
-      <div id="chatLista" aria-live="polite"></div>
-      <div id="chatFigs" hidden aria-label="Figurinhas"></div>
-      <form id="chatForm" autocomplete="off"><button type="button" id="chatFigBtn" aria-expanded="false" aria-controls="chatFigs" title="Figurinhas" aria-label="Figurinhas">✦</button><input id="chatIn" maxlength="500" placeholder="Escreva para a Biblioteca…" aria-label="Mensagem para a Biblioteca"><button class="btn primary" type="submit">Enviar</button></form>
-      <div id="chatSpoBox"><label><input type="checkbox" id="chatSpo"> Tem spoiler</label><label id="chatCapL" hidden>até o capítulo <select id="chatCap"></select></label></div>
-    </div>
-  </section>
 
   <section class="panel" aria-labelledby="hMusic">
     <div class="head"><span class="eyebrow">Trilha sonora</span><h2 id="hMusic">Sua música</h2></div>
@@ -409,7 +417,7 @@ body.leve .pomo .asa{animation:none}
     <div class="head"><span class="eyebrow">Ranking da LC Especial de Natal</span><h2 id="hRank">Quem mais leu na Biblioteca</h2></div>
     <ol class="rank" id="rank"><li class="empty" style="display:block">Carregando o ranking…</li></ol>
     <p class="muted" style="font-size:13px;margin:8px 0 0">Os minutos lidos aqui também somam no ranking geral do sprint.</p>
-    <p class="muted">Conta só o tempo de leitura dos sprints da Biblioteca (organização, pausas e prosa ficam de fora). Não gera pontos.</p>
+    <p class="muted">Conta só o tempo de estudo dos sprints da Biblioteca (organização, pausas e Salão Comunal ficam de fora). Não gera pontos.</p>
   </section>
 
   <section class="panel" aria-labelledby="hGrim">
@@ -451,10 +459,10 @@ body.leve .pomo .asa{animation:none}
   <section class="panel" aria-labelledby="hCfg" id="settings">
     <div class="head"><span class="eyebrow">Configurações</span><h2 id="hCfg">Ajustes do timer</h2></div>
     <div class="row">
-      <label class="f">Leitura (min)<input id="cRead" type="number" min="1" max="180" inputmode="numeric"></label>
-      <label class="f">Prosa (min)<input id="cProsa" type="number" min="1" max="60" inputmode="numeric"></label>
+      <label class="f">Estudo (min)<input id="cRead" type="number" min="1" max="180" inputmode="numeric"></label>
+      <label class="f">Salão Comunal (min)<input id="cProsa" type="number" min="1" max="60" inputmode="numeric"></label>
     </div>
-    <div class="toggle"><span>Alternar leitura e prosa sozinho</span><input type="checkbox" id="cAuto"></div>
+    <div class="toggle"><span>Alternar estudo e Salão Comunal sozinho</span><input type="checkbox" id="cAuto"></div>
     <div class="row">
       <label class="f">Som do alarme
         <select id="cSound"><option value="filmes">Sortear um som de Harry Potter a cada sprint</option><optgroup label="Harry Potter" id="cSoundCenas"></optgroup><option value="off">Sem som</option></select>
@@ -519,7 +527,7 @@ body.leve .pomo .asa{animation:none}
 <!-- Presença no coletivo: abre toda vez que a prosa começa -->
 <div class="scrim" id="presDlg" hidden style="z-index:28;background:rgba(10,6,26,.9)">
   <div class="letter" style="max-width:520px;text-align:center;align-items:center">
-    <h3 style="margin-top:24px;font-size:30px">Hora da prosa!</h3>
+    <h3 style="margin-top:24px;font-size:30px">Hora do Salão Comunal!</h3>
     <p style="font-size:18px;margin:0" id="presQ">Você ainda está no sprint coletivo?</p>
     <button class="btn primary" id="presOk" type="button" style="width:100%;font-size:24px;padding:26px 20px">Ainda estou aqui</button>
     <p id="presAte" style="font-size:15px;margin:0"></p>
@@ -628,7 +636,7 @@ window.ARCADIA_CONFIG={firebase:window.ARCADIA_FIREBASE,coletivo:{leitura:TEMPO(
 const COL_PAUSA=TEMPO('pausa');
 let casas={};const ncasa=n=>casas['n:'+HG.norm(n)];
 const nomeIc=(el,nome,casa)=>{el.innerHTML='';const c=casa||ncasa(nome);if(c){const s=document.createElement('span');s.innerHTML=HG.casaIc(c);el.appendChild(s.firstChild)}el.appendChild(document.createTextNode(' '+nome))};
-$('hgTopIc').innerHTML=HG.icone('livro');$('mInd').innerHTML=HG.icone('relogio')+'Sprint individual';$('mCol').innerHTML=HG.icone('calendario')+'Sprint coletivo';$('mChat').innerHTML=HG.icone('balao')+'Chat da Biblioteca';
+$('hgTopIc').innerHTML=HG.icone('livro');
 const LS={get(k,d){try{const v=localStorage.getItem('hogwarts:bib:'+k);return v==null?d:JSON.parse(v)}catch{return d}},
   set(k,v){try{localStorage.setItem('hogwarts:bib:'+k,JSON.stringify(v))}catch{}}};
 
@@ -746,15 +754,15 @@ function render(){
   $('prog').style.strokeDashoffset=C*(1-remaining/total);$('moonCur').style.transform=`rotate(${360*remaining/total}deg)`;
   document.body.classList.toggle('prosa',mode==='prosa');
   $('tabRead').setAttribute('aria-selected',mode==='read');$('tabProsa').setAttribute('aria-selected',mode==='prosa');
-  $('prosaCard').hidden=mode!=='prosa';
+  $('prosaCard').hidden=mode!=='prosa';$('pularProsa').hidden=grupoOn();
   $('sealBtn').hidden=!(mode==='read'&&remaining<total);
-  $('startBtn').textContent=running?'Pausar':remaining<total?'Continuar':mode==='prosa'?'Começar a prosa':'Começar';
-  $('state').textContent=mode==='prosa'?(running?'Hora da prosa':'Intervalo para conversar')
-    :running?'Lendo':remaining<total?'Sprint pausado':(me?`Varinha a postos, ${me.name}?`:'Varinha a postos?');
+  $('startBtn').textContent=running?'Pausar':remaining<total?'Continuar':mode==='prosa'?'Ir ao Salão Comunal':'Começar';
+  $('state').textContent=mode==='prosa'?(running?'Hora do Salão Comunal':'Intervalo para conversar')
+    :running?'Estudando':remaining<total?'Sprint pausado':(me?`Varinha a postos, ${me.name}?`:'Varinha a postos?');
   if(grupoOn()){const g=grupo,now=Date.now();$('startBtn').textContent='Sair do coletivo';
-    if(now<g.startAt)$('state').textContent='Organização e prosa inicial · leitura às '+hm(g.startAt);else{const f=gFase(g,now),n=gCiclos(g)>1?` · rodada ${f.n} de ${gCiclos(g)}`:'';$('state').textContent=(mode==='prosa'?(f.ult?'Prosa final':'Prosa'):'Lendo juntas')+n}}
-  document.title=running?`${fmt(remaining)} · ${mode==='prosa'?'Prosa':'Leitura'} · Hogwarts`:'Biblioteca de Hogwarts';
-  {const st=$('salaTempo');if(st)st.textContent=running?'· '+(mode==='prosa'?'Prosa ':'Leitura ')+fmt(remaining):''}
+    if(now<g.startAt)$('state').textContent='Organização no Salão Comunal · estudo às '+hm(g.startAt);else{const f=gFase(g,now),n=gCiclos(g)>1?` · rodada ${f.n} de ${gCiclos(g)}`:'';$('state').textContent=(mode==='prosa'?(f.ult?'Salão Comunal final':'Salão Comunal'):'Estudando juntas')+n}}
+  document.title=running?`${fmt(remaining)} · ${mode==='prosa'?'Salão Comunal':'Estudo'} · Hogwarts`:'Biblioteca de Hogwarts';
+  {const st=$('salaTempo');if(st)st.textContent=running?'· '+(mode==='prosa'?'Salão Comunal ':'Estudo ')+fmt(remaining):''}
   $('hello').textContent=me?`Boa leitura, ${me.name}`:'Biblioteca de Hogwarts';
 }
 /* ---------- alarmes (sintetizados) ---------- */
@@ -809,14 +817,14 @@ function step(){const prev=remaining;remaining=(endAt-Date.now())/1000;if(mode==
 function avanca(){let fim=endAt,leu=false,n=0;const ant=mode;
   while(fim<=Date.now()&&n<200){n++;if(mode==='read'){leu=true;mode='prosa'}else{mode='read';if(n>1)readSecs+=cfg.read*60}total=(mode==='read'?cfg.read:cfg.prosa)*60;if(total>0)fim+=total*1000}
   if(mode==='prosa')newQ();endAt=fim;remaining=(fim-Date.now())/1000;const naHora=Date.now()-(fim-total*1000)<90000;
-  if(naHora)chime(false,mode==='prosa'?'Hora da prosa!':'Hora de ler!');
+  if(naHora)chime(false,mode==='prosa'?'Hora do Salão Comunal!':'Hora de estudar!');
   if(mode==='prosa'&&ant==='read'&&n===1){LS.set('presenca',{startAt:'solo',ate:fim});presMostra()}
-  else if(mode==='read')aviso('Hora de ler!','A leitura vai até '+hm(fim)+'.','Vamos ler',frase());
+  else if(mode==='read')aviso('Hora de estudar!','O estudo vai até '+hm(fim)+'.','Vamos estudar',frase());
   if(leu&&readSecs>=30&&$('sealDlg').hidden)openSeal(true,true);
   lock(true);render();salva()}
 function setMode(m){clearInterval(tick);endAt=null;lock(false);mode=m;total=remaining=(m==='read'?cfg.read:cfg.prosa)*60;if(m==='prosa')newQ();render();salva()}
-function finish(){clearInterval(tick);endAt=null;remaining=0;lock(false);chime(false,mode==='read'?'Fim da leitura!':'Fim da prosa!');salva();
-  if(mode==='read'){openSeal(true)}else{aviso('A prosa acabou!','De volta à leitura.','Vamos ler',frase());setMode('read');if(cfg.auto)start()}}
+function finish(){clearInterval(tick);endAt=null;remaining=0;lock(false);chime(false,mode==='read'?'Fim do estudo!':'Fim do Salão Comunal!');salva();
+  if(mode==='read'){openSeal(true)}else{aviso('Fim do Salão Comunal!','De volta ao estudo.','Vamos estudar',frase());setMode('read');if(cfg.auto)start()}}
 
 const FRASES_PADRAO=[
  ['Hoa hoa hoa hoa hoa 🎶','Crepúsculo'],
@@ -958,12 +966,16 @@ function onPing(forca){if(!db||!uid||!me)return;const e=onEstado(),sig=me.name+'
   if(!forca&&sig===onUlt.sig&&(agora-onUlt.em<60000||document.visibilityState!=='visible'))return;
   onUlt={sig,em:agora};db.collection('hgOnline').doc(uid).set({nome:String(me.name).slice(0,30),em:agora,modo:e.modo,ate:e.ate}).catch(x=>console.warn('online',x))}
 function onVivo(o,agora){return agora-(o.em||0)<180000||((o.modo==='lendo'||o.modo==='coletivo')&&agora<(o.ate||0))}
+const CASA_COR={grifinoria:'#ff6a52',sonserina:'#4fd08a',corvinal:'#6fa6ff',lufalufa:'#ffd75a'};
 function onDesenha(){const el=$('onLista');if(!el)return;const agora=Date.now(),vistos=new Set();
   const ls=onLista.filter(o=>o._id!==uid&&onVivo(o,agora)&&(!me||normName(o.nome)!==normName(me.name))).filter(o=>{const k=normName(o.nome);if(vistos.has(k))return false;vistos.add(k);return true})
     .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-  $('onBox').hidden=false;el.innerHTML=ls.length?'':'<small style="color:var(--lilac)">Ninguém mais no Salão agora. Quando alguém entrar, o nome aparece aqui e você pode chamar para ler junto.</small>';
+  $('onBox').hidden=!ls.length;el.innerHTML='';
   ls.forEach(o=>{const b=document.createElement('button');b.type='button';if(o.modo!=='site')b.className='lendo';
-    const i=document.createElement('span');i.className='brilho';const n=document.createElement('span');nomeIc(n,o.nome);const sm=document.createElement('small');
+    /* no lugar da bolinha: o brasão da casa dela, brilhando na cor da casa */
+    const c=casas[o._pid]||ncasa(o.nome);const i=document.createElement('span');
+    if(c){i.className='brilho casa';i.style.setProperty('--cc',CASA_COR[c]||'#e6be6e');i.innerHTML=HG.casaEscudo(c)}else i.className='brilho';
+    const n=document.createElement('span');n.textContent=o.nome;const sm=document.createElement('small');
     sm.textContent=o.modo==='lendo'?'lendo agora':o.modo==='coletivo'?'no coletivo':'online';b.append(i,n,sm);b.title='Chamar '+o.nome+' para ler junto';
     b.onclick=()=>chamaAbre(o);el.appendChild(b)})}
 function chamaAbre(o){if(!me)return askName();if(chamadoEm[o._id]&&Date.now()-chamadoEm[o._id]<60000)return toast('Você acabou de chamar '+o.nome+'. Espere um pouquinho.');
@@ -975,7 +987,7 @@ $('chamaOk').onclick=async()=>{const o=chamaPara;if(!o||!db)return;const t=$('ch
     toast('Chamado enviado para '+o.nome+'!')}
   catch(e){console.warn(e);toast('Não deu para chamar agora. Tente de novo.')}};
 function chamadoMostra(c){const t=`${c.de} está te chamando!`,p=(c.texto?`“${c.texto}” `:'')+'Responda no Chat da Biblioteca.';
-  chime(false,t);aviso(t,p,'Ver o chat');avisoDepois=()=>{$('chatPanel').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{try{$('chatIn').focus()}catch(e){}},600)}}
+  chime(false,t);aviso(t,p,'Ver o chat');avisoDepois=()=>{$('chatBox').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{try{$('chatIn').focus()}catch(e){}},600)}}
 function onlineInit(){if(!db||!uid)return;
   db.collection('hgOnline').onSnapshot(q=>{onLista=q.docs.map(d=>Object.assign({_id:d.id},d.data()));onDesenha()},e=>console.warn('online',e));
   db.collection('hgChamados').where('para','==',uid).onSnapshot(q=>{const agora=Date.now();
@@ -1053,13 +1065,19 @@ function rankRender(){const ol=$('rank');ol.innerHTML='';
 
 let writing=Promise.resolve();
 function pushShared(e){if(!db||!uid||!me)return;writing=writing.then(async()=>{
-  const base=mine||{};const doc={nome:me.name,min:Math.min(100000,(+base.min||0)+e.min),sprints:(+base.sprints||0)+1,livro:String(e.book||base.livro||'').slice(0,80),atualizado:new Date().toISOString()};
-  try{await db.collection('hgLeitoras').doc(PID).set(doc);mine=doc}catch(err){console.warn('ranking',err)}
+  /* soma em cima do que está no banco (outro aparelho da mesma pessoa pode ter salvo antes) */
+  try{const ref=db.collection('hgLeitoras').doc(PID);await db.runTransaction(async tx=>{const d=await tx.get(ref);const base=d.exists?(d.data()||{}):{};
+    const doc={nome:me.name,min:Math.min(100000,(+base.min||0)+e.min),sprints:(+base.sprints||0)+1,livro:String(e.book||base.livro||'').slice(0,80),atualizado:new Date().toISOString()};
+    tx.set(ref,doc);mine=doc})}catch(err){console.warn('ranking',err)}
   /* soma também no ranking geral do sprint (só nesta direção: o geral nunca entra na Biblioteca) */
   try{const ref=db.collection('leitoras').doc(uid);await db.runTransaction(async tx=>{const d=await tx.get(ref);const b=d.exists?(d.data()||{}):{};
     const mins=Object.assign({},b.min||{});const k=monthKey(e.t||Date.now());mins[k]=(+mins[k]||0)+e.min;
     tx.set(ref,{nome:String(b.nome||me.name).slice(0,30),min:mins,paginas:b.paginas||{},livro:String(b.livro||e.book||'').slice(0,80),sprints:(+b.sprints||0)+1,atualizado:new Date().toISOString()})})}
   catch(err){console.warn('ranking geral',err)}
+  /* entra também em "Seus sprints" do sprint geral, pelo nome (igual em todos os aparelhos) */
+  try{const k=normName(me.name).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40),t=Math.round(e.t||Date.now());
+    if(k)await db.collection('historico').doc(k).collection('s').doc('hg-'+t+'-'+Math.random().toString(36).slice(2,6)).set({t,min:Math.max(0,Math.min(720,Math.round(e.min))),book:String(e.book||'').slice(0,120),
+      pages:Math.max(0,Math.min(5000,Math.round(+e.pages||0))),uid,nome:String(me.name).slice(0,30),bib:true})}catch(err){console.warn('historico geral',err)}
   try{await db.collection('hgLog').add({pid:PID,t:Math.round(e.t),min:Math.max(1,Math.min(720,Math.round(e.min))),livro:String(e.book||'').slice(0,80),pags:Math.max(0,Math.round(+e.pages||0)),coletivo:!!e.coletivo})}catch(err){console.warn('historico',err)}}).catch(()=>{})}
 async function syncName(){}
 
@@ -1133,6 +1151,8 @@ $('resetBtn').onclick=()=>{if(grupoOn())return toast('Saia do coletivo para rein
 $('tabRead').onclick=()=>{if(grupoOn())return;if(mode!=='read'){if(endAt)return toast('Pause antes de trocar de etapa');setMode('read')}};
 $('tabProsa').onclick=()=>{if(grupoOn())return;if(mode!=='prosa'){if(endAt)return toast('Pause antes de trocar de etapa');setMode('prosa')}};
 $('nextQ').onclick=newQ;
+/* pular o Salão Comunal e voltar direto ao estudo (só no sprint individual; o coletivo segue o relógio de todas) */
+$('pularProsa').onclick=()=>{if(grupoOn())return;presFecha&&presFecha();setMode('read');audio();start();toast('De volta ao estudo!')};
 $('idleGo').onclick=()=>{$('idleDlg').hidden=true;start()};
 ['pointerdown','keydown','touchstart'].forEach(t=>addEventListener(t,()=>lastTouch=Date.now(),{passive:true}));
 addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||[...document.querySelectorAll('.scrim')].some(s=>!s.hidden))return;
@@ -1148,7 +1168,7 @@ function hm(t){const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes
 function grupoUI(){const p=$('grupoPanel');if(!db){p.hidden=true;return}p.hidden=false;resgateUI();chatLiga();const a=grupoAtivo(),on=grupoOn();p.classList.toggle('on',on);
   $('grupoStart').hidden=a;$('grupoRodadasBox').hidden=a;$('grupoJoin').hidden=!a||on;$('grupoLeave').hidden=!on;$('grupoCancel').hidden=!(a&&grupo.dono===uid);$('grupoHelp').hidden=a;
   if(a){const g=grupo,f=gFase(g,Date.now());
-    $('grupoInfo').textContent=`Sprint coletivo de ${g.por}: ${seqTxt(g)}, tudo sozinho, sem precisar clicar. `+(f.ph==='abertura'?`Organização e prosa inicial até ${hm(g.startAt)}. `:f.ph==='read'?`Agora: leitura até ${hm(f.until)}. `:f.ult?`Agora: prosa final até ${hm(f.until)}. `:`Agora: prosa até ${hm(f.until)}. `)+(g.livre?'Sem hora para acabar: termina quando todas saírem do coletivo.':`Termina às ${hm(gFim(g))}.`)}
+    $('grupoInfo').textContent=`Sprint coletivo de ${g.por}: ${seqTxt(g)}, tudo sozinho, sem precisar clicar. `+(f.ph==='abertura'?`Organização no Salão Comunal até ${hm(g.startAt)}. `:f.ph==='read'?`Agora: estudo até ${hm(f.until)}. `:f.ult?`Agora: Salão Comunal final até ${hm(f.until)}. `:`Agora: Salão Comunal até ${hm(f.until)}. `)+(g.livre?'Sem hora para acabar: termina quando todas saírem do coletivo.':`Termina às ${hm(gFim(g))}.`)}
   else $('grupoInfo').textContent='Nenhum sprint coletivo agora. Comece um e chame as meninas no grupo.';
   const lista=a?grupoQuem.filter(q=>q.startAt===grupo.startAt):[],nomes=lista.map(q=>q.nome);$('grupoQuem').innerHTML='';
   lista.forEach(q=>{const sp=document.createElement('span');nomeIc(sp,q.nome);
@@ -1163,9 +1183,9 @@ function grupoSync(){if(!grupoOn()){if(grupoJoined&&!grupoAtivo())grupoEnd();{co
   if(presCheca())return;
   const g=grupo,now=Date.now(),f=gFase(g,now),ph=f.ph==='read'?'read':'prosa',key=g.startAt+':'+f.n+':'+f.ph;
   if(key!==gKey||!endAt){const troca=gKey&&gKey.startsWith(g.startAt+':')&&key!==gKey,naHora=now-f.ini<90000;gKey=key;
-    if(troca){if(naHora)chime(false,ph==='prosa'?'Hora da prosa!':'Hora de ler!');
-      if(mode==='read'&&ph==='prosa'){if(readSecs>=30&&$('sealDlg').hidden)openSeal(true,true);if(f.n<gCiclos(g))presPede(g.startAt,f.until);toast(f.ult?'Hora da prosa final!':`Hora da prosa! A leitura volta às ${hm(f.until)}.`)}
-      else if(ph==='read')aviso('Hora de ler!',(gCiclos(g)>1?`Leitura ${f.n} de ${gCiclos(g)}. `:'')+'A leitura vai até '+hm(f.until)+'.','Vamos ler',frase())}
+    if(troca){if(naHora)chime(false,ph==='prosa'?'Hora do Salão Comunal!':'Hora de estudar!');
+      if(mode==='read'&&ph==='prosa'){if(readSecs>=30&&$('sealDlg').hidden)openSeal(true,true);if(f.n<gCiclos(g))presPede(g.startAt,f.until);toast(f.ult?'Hora do Salão Comunal final!':`Hora do Salão Comunal! O estudo volta às ${hm(f.until)}.`)}
+      else if(ph==='read')aviso('Hora de estudar!',(gCiclos(g)>1?`Estudo ${f.n} de ${gCiclos(g)}. `:'')+'O estudo vai até '+hm(f.until)+'.','Vamos estudar',frase())}
     if(mode!==ph){mode=ph;if(ph==='prosa')newQ()}
     total=f.ph==='abertura'?Math.max(1,ABERTURA*60,(g.startAt-now)/1000):Math.max(1,(f.until-f.ini)/1000);
     endAt=f.until;clearInterval(tick);tick=setInterval(step,250);lock(true);grupoUI()}
@@ -1232,18 +1252,18 @@ $('avisoOk').onclick=()=>{$('avisoDlg').hidden=true;audio();const f=avisoDepois;
 function presPede(startAt,ate){LS.set('presenca',{startAt,ate});presMostra()}
 function presMostra(){const p=LS.get('presenca',null);if(!p)return;const solo=p.startAt==='solo';
   $('presQ').textContent=solo?'Você ainda está aqui?':'Você ainda está no sprint coletivo?';
-  $('presAte').textContent='Se não confirmar até '+hm(p.ate)+(solo?', o timer pausa antes da próxima leitura.':', você sai do coletivo.')+' O que já leu fica guardado.';$('presDlg').hidden=false}
+  $('presAte').textContent='Se não confirmar até '+hm(p.ate)+(solo?', o timer pausa antes do próximo estudo.':', você sai do coletivo.')+' O que já leu fica guardado.';$('presDlg').hidden=false}
 /* sprint individual: sem confirmar na prosa, o timer para no começo da leitura seguinte */
 function presSolo(){const p=LS.get('presenca',null);if(!p||p.startAt!=='solo'||grupoOn())return false;
   if(!endAt||!cfg.auto){presFecha();return false}if(Date.now()<p.ate){if($('presDlg').hidden)presMostra();return false}
-  presFecha();setMode('read');aviso('Timer pausado','Você não confirmou na prosa, então o timer parou antes da próxima leitura. O que já leu está guardado.','Entendi');return true}
+  presFecha();setMode('read');aviso('Timer pausado','Você não confirmou no Salão Comunal, então o timer parou antes do próximo estudo. O que já leu está guardado.','Entendi');return true}
 function presFecha(){if(LS.get('presenca',null))LS.set('presenca',null);if(!$('presDlg').hidden)$('presDlg').hidden=true}
 function presCheca(){const p=LS.get('presenca',null);if(!p||p.startAt==='solo')return false;if(p.startAt!==grupoJoined){presFecha();return false}
   if(Date.now()>=p.ate){presFecha();presSai();return true}if($('presDlg').hidden)presMostra();return false}
 async function presSai(){const was=grupoJoined;setTimeout(()=>fimSeVazio(was),1500);grupoJoined=0;LS.set('grupoJoined',0);gKey=null;clearInterval(tick);endAt=null;setMode('read');
   try{await db.collection('hgColetivo').doc('atual').collection('quem').doc(uid).delete()}catch{}
-  aviso('Você saiu do coletivo','Você não confirmou na prosa. Seus minutos lidos estão em "Resgatar meus minutos do coletivo".','Entendi');grupoUI()}
-$('presOk').onclick=()=>{presFecha();audio();toast('Boa prosa!')};
+  aviso('Você saiu do coletivo','Você não confirmou no Salão Comunal. Seus minutos lidos estão em "Resgatar meus minutos do coletivo".','Entendi');grupoUI()}
+$('presOk').onclick=()=>{presFecha();audio();toast('Aproveite o Salão Comunal!')};
 /* chat da Biblioteca: fica guardado (com ou sem sprint); spoiler fica escondido até a pessoa tocar */
 function chatChave(){return 0}
 const chatAbertos=new Set();
@@ -1372,11 +1392,11 @@ $('salaClose').onclick=salaFecha;
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3500)}
 
 /* ---------- tempos de Hogwarts ---------- */
-function seqTxt(g){if(g.livre)return `organização ${ABERTURA} min, depois leitura de ${g.read} min e prosa de ${g.prosa} min, repetindo`;const n=gCiclos(g);let s=`organização ${ABERTURA} min`;for(let k=0;k<n;k++){s+=`, leitura ${g.read} min`;s+=`, prosa ${gIntervalo(g,k)} min`}return s}
+function seqTxt(g){if(g.livre)return `organização ${ABERTURA} min, depois estudo de ${g.read} min e Salão Comunal de ${g.prosa} min, repetindo`;const n=gCiclos(g);let s=`organização ${ABERTURA} min`;for(let k=0;k<n;k++){s+=`, estudo ${g.read} min`;s+=`, Salão Comunal ${gIntervalo(g,k)} min`}return s}
 function totalMin(n){const g={read:COL_LER,prosa:COL_PROSA,ciclos:n};let t=ABERTURA;for(let k=0;k<n;k++)t+=g.read+gIntervalo(g,k);return t}
 $('opR1').textContent=`1 rodada (${totalMin(1)} min no total)`;$('opR2').textContent=`2 rodadas (${totalMin(2)} min no total)`;
-$('grupoHelp').textContent=`Começa com ${ABERTURA} minutos de organização e prosa inicial. Depois, leitura de ${COL_LER} min e prosa de ${COL_PROSA} min. No modo livre isso se repete até todas saírem do coletivo. Também dá para escolher 1 ou 2 rodadas. Tudo passa sozinho, igual para todas, e os minutos de leitura contam no ranking da LC.`;
-$('temposSeq').textContent=`Sprint coletivo: organização ${ABERTURA} min, depois leitura ${COL_LER} min e prosa ${COL_PROSA} min. No modo livre, leitura e prosa se repetem até todas saírem. No sprint individual você pode ajustar os tempos nas configurações.`;
+$('grupoHelp').textContent=`Começa com ${ABERTURA} minutos de organização no Salão Comunal. Depois, estudo de ${COL_LER} min e Salão Comunal de ${COL_PROSA} min. No modo livre isso se repete até todas saírem do coletivo. Também dá para escolher 1 ou 2 rodadas. Tudo passa sozinho, igual para todas, e os minutos de leitura contam no ranking da LC.`;
+$('temposSeq').textContent=`Sprint coletivo: organização ${ABERTURA} min, depois estudo ${COL_LER} min e Salão Comunal ${COL_PROSA} min. No modo livre, estudo e Salão Comunal se repetem até todas saírem. No sprint individual você pode ajustar os tempos nas configurações.`;
 $('temposBtn').onclick=()=>{$('temposDlg').hidden=false};
 $('alarmeBtn').onclick=()=>{$('settings').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{try{$('cSound').focus()}catch(e){}},600)};$('temposOk').onclick=()=>{$('temposDlg').hidden=true};
 $('temposDlg').addEventListener('click',e=>{if(e.target.id==='temposDlg')$('temposDlg').hidden=true});

@@ -125,7 +125,7 @@ function telaClube(db,uid){return new Promise(done=>{const g=document.createElem
   <p class="hg-erro" hidden></p><button class="hg-btn">Continuar</button></form>`;document.body.appendChild(g);
   const f=g.querySelector('form'),inp=f.querySelector('input'),er=f.querySelector('.hg-erro'),bt=f.querySelector('button');setTimeout(()=>inp.focus(),80);
   f.onsubmit=async ev=>{ev.preventDefault();const chave=inp.value.trim().toLowerCase();if(!chave)return;bt.disabled=true;er.hidden=true;
-    try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadia:membroOk',JSON.stringify(uid))}catch(e){}g.remove();done()}
+    try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadia:chave',JSON.stringify(chave))}catch(e){}try{localStorage.setItem('arcadia:membroOk',JSON.stringify(uid))}catch(e){}g.remove();done()}
     catch(e){er.textContent='Senha incorreta. Confira com a administração do clube.';er.hidden=false}bt.disabled=false}})}
 function telaSalao(db,uid){return new Promise(done=>{const g=document.createElement('div');g.className='hg-gate';
   g.innerHTML=`<form class="hg-perg hg-form"><div class="hg-topo"><span style="color:#7a4a12">${icone('chapeu','hg-ic-grande')}</span><h2>Acesso ao Salão Principal</h2></div>
@@ -139,7 +139,7 @@ function telaSalao(db,uid){return new Promise(done=>{const g=document.createElem
   f.onsubmit=async ev=>{ev.preventDefault();er.hidden=true;const s=normSenha(f.s.value),c=normCodigo(f.c.value),pid=pidDoCodigo(c);
     if(!s||!pid){er.textContent='Confira a senha e o código (ele tem um traço, como NOME-1ABC).';er.hidden=false;return}
     bt.disabled=true;bt.textContent='Conferindo…';
-    try{await db.collection('hgSessoes').doc(uid).set({senha:await sha(s),cod:await sha(c),pid,em:Date.now()});
+    try{const ses={senha:await sha(s),cod:await sha(c),pid};await db.collection('hgSessoes').doc(uid).set(Object.assign({em:Date.now()},ses));LS.set('ses',ses);
       g.querySelector('form').innerHTML=`<div class="hg-topo"><span style="color:#7a4a12">${icone('pergaminho','hg-ic-grande')}</span><h2>Anote seu código</h2></div>
         <p class="hg-centro">Seu código pessoal é</p><p class="hg-centro" style="font:800 26px var(--ui);letter-spacing:.12em;color:#4a2f0f">${esc(c)}</p>
         <p class="hg-centro hg-muted">Guarde-o: você vai precisar dele para entrar por outro celular ou navegador. Não passe para ninguém, porque ele mostra ao site que é você.</p>
@@ -155,11 +155,13 @@ function entrar(){if(!ctxP)ctxP=(async()=>{
   let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});if(!u)u=(await auth.signInAnonymously()).user;const uid=u.uid;
   /* 1) senha do clube */
   let membro=false;try{membro=JSON.parse(localStorage.getItem('arcadia:membroOk')||'""')===uid}catch(e){}
-  if(!membro){try{membro=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!membro)await telaClube(db,uid);try{localStorage.setItem('arcadia:membroOk',JSON.stringify(uid))}catch(e){}}
+  if(!membro){try{membro=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!membro){try{const k=JSON.parse(localStorage.getItem('arcadia:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});membro=true}}catch(e){}}if(!membro)await telaClube(db,uid);try{localStorage.setItem('arcadia:membroOk',JSON.stringify(uid))}catch(e){}}
   /* 2) senha do Salão + código pessoal (vale para este aparelho até a senha ou o código mudarem) */
   let pessoa=null,ses=null;
   for(let i=0;i<5&&!pessoa;i++){
     try{const d=await db.collection('hgSessoes').doc(uid).get();ses=d.exists?d.data():null}catch(e){ses=null}
+    /* este aparelho ganhou um login novo (o iPhone às vezes perde): entra de novo sozinho com a senha e o código já usados aqui */
+    if(!ses&&i===0){const g=LS.get('ses',null);if(g&&g.senha&&g.cod&&g.pid){try{await db.collection('hgSessoes').doc(uid).set({senha:g.senha,cod:g.cod,pid:g.pid,em:Date.now()});ses=g}catch(e){LS.set('ses',null)}}}
     if(ses){try{const p=await db.collection('hgPessoas').doc(ses.pid).get();if(p.exists)pessoa=p.data()}catch(e){}}
     if(!pessoa)await telaSalao(db,uid)}
   if(!pessoa)throw new Error('sem-acesso');
@@ -167,7 +169,7 @@ function entrar(){if(!ctxP)ctxP=(async()=>{
   const [perf,dt,ge]=await Promise.all([db.collection('hgPerfis').doc(pid).get().catch(()=>null),db.collection('hgConfig').doc('datas').get().catch(()=>null),db.collection('hgConfig').doc('geral').get().catch(()=>null)]);
   const datas=Object.assign({},DATAS_PADRAO,(dt&&dt.exists)?dt.data():{}),geral=Object.assign({},GERAL_PADRAO,(ge&&ge.exists)?ge.data():{});
   return{db,uid,pid,nome:pessoa.nome,casa:perf&&perf.exists?perf.data().casa:null,datas,geral}})();return ctxP}
-async function sair(){try{localStorage.removeItem('hogwarts:pid')}catch(e){}try{const c=await ctxP;await c.db.collection('hgSessoes').doc(c.uid).delete()}catch(e){}location.href='/integrantes/'}
+async function sair(){try{localStorage.removeItem('hogwarts:pid');localStorage.removeItem('hogwarts:ses')}catch(e){}try{const c=await ctxP;await c.db.collection('hgSessoes').doc(c.uid).delete()}catch(e){}location.href='/integrantes/'}
 
 
 /* ---------- magia leve (só CSS, poucos elementos; nada roda por quadro em JS) ----------
