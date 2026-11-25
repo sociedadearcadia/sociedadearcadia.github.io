@@ -2,128 +2,142 @@
 window.HG_FIGS=[
 {
 "id": "lc01",
-"nome": "Chegou carta de Hogwarts!",
+"nome": "Hoje tem HOGWARTS!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/01-carta-de-hogwarts.webp",
-"mini": "/hogwarts/figurinhas/01-carta-de-hogwarts-mini.webp"
+"img": "/hogwarts/figurinhas/01-hoje-tem-hogwarts.webp",
+"mini": "/hogwarts/figurinhas/01-hoje-tem-hogwarts-mini.webp"
 },
 {
 "id": "lc02",
-"nome": "Juro solenemente que vou ler.",
+"nome": "Não estou psicologicamente PRONTA!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/02-juro-solenemente.webp",
-"mini": "/hogwarts/figurinhas/02-juro-solenemente-mini.webp"
+"img": "/hogwarts/figurinhas/02-nao-estou-pronta.webp",
+"mini": "/hogwarts/figurinhas/02-nao-estou-pronta-mini.webp"
 },
 {
 "id": "lc03",
-"nome": "Eu sabia!",
+"nome": "O Expresso vai partir!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/03-eu-sabia.webp",
-"mini": "/hogwarts/figurinhas/03-eu-sabia-mini.webp"
+"img": "/hogwarts/figurinhas/03-expresso-vai-partir.webp",
+"mini": "/hogwarts/figurinhas/03-expresso-vai-partir-mini.webp"
 },
 {
 "id": "lc04",
-"nome": "Hoje tem sprint na Biblioteca!",
+"nome": "Tô de chapéu passado!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/04-sprint-biblioteca.webp",
-"mini": "/hogwarts/figurinhas/04-sprint-biblioteca-mini.webp"
+"img": "/hogwarts/figurinhas/04-chapeu-passado.webp",
+"mini": "/hogwarts/figurinhas/04-chapeu-passado-mini.webp"
 },
 {
 "id": "lc05",
-"nome": "Só mais um capítulo!",
+"nome": "Pelas barbas de Merlim!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/05-so-mais-um-capitulo.webp",
-"mini": "/hogwarts/figurinhas/05-so-mais-um-capitulo-mini.webp"
+"img": "/hogwarts/figurinhas/05-barbas-de-merlim.webp",
+"mini": "/hogwarts/figurinhas/05-barbas-de-merlim-mini.webp"
 },
 {
 "id": "lc06",
-"nome": "Correio-coruja chegou!",
+"nome": "Que cena foi essa?!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/06-correio-coruja.webp",
-"mini": "/hogwarts/figurinhas/06-correio-coruja-mini.webp"
+"img": "/hogwarts/figurinhas/06-que-cena-foi-essa.webp",
+"mini": "/hogwarts/figurinhas/06-que-cena-foi-essa-mini.webp"
 },
 {
 "id": "lc07",
-"nome": "Feliz Natal em Hogwarts!",
+"nome": "Eu não tava pronta pra isso!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/07-feliz-natal.webp",
-"mini": "/hogwarts/figurinhas/07-feliz-natal-mini.webp"
+"img": "/hogwarts/figurinhas/07-nao-tava-pronta.webp",
+"mini": "/hogwarts/figurinhas/07-nao-tava-pronta-mini.webp"
 },
 {
 "id": "lc08",
-"nome": "É Leviôsa, não Leviosá!",
+"nome": "Eu sabia!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/08-leviosa.webp",
-"mini": "/hogwarts/figurinhas/08-leviosa-mini.webp"
+"img": "/hogwarts/figurinhas/08-eu-sabia.webp",
+"mini": "/hogwarts/figurinhas/08-eu-sabia-mini.webp"
 },
 {
 "id": "lc09",
-"nome": "DEZ PONTOS para a minha casa!",
+"nome": "Preciso falar sobre isso AGORA!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/09-dez-pontos.webp",
-"mini": "/hogwarts/figurinhas/09-dez-pontos-mini.webp"
+"img": "/hogwarts/figurinhas/09-preciso-falar.webp",
+"mini": "/hogwarts/figurinhas/09-preciso-falar-mini.webp"
 },
 {
 "id": "lc10",
-"nome": "Malfeito feito.",
+"nome": "Não superei!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/10-malfeito-feito.webp",
-"mini": "/hogwarts/figurinhas/10-malfeito-feito-mini.webp"
+"img": "/hogwarts/figurinhas/10-nao-superei.webp",
+"mini": "/hogwarts/figurinhas/10-nao-superei-mini.webp"
 },
 {
 "id": "lc11",
-"nome": "Pelas barbas de Merlim!",
+"nome": "Quero rever imediatamente!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/11-barbas-de-merlim.webp",
-"mini": "/hogwarts/figurinhas/11-barbas-de-merlim-mini.webp"
+"img": "/hogwarts/figurinhas/11-quero-rever.webp",
+"mini": "/hogwarts/figurinhas/11-quero-rever-mini.webp"
 },
 {
 "id": "lc12",
-"nome": "Nada de SPOILER, trouxa!",
+"nome": "Isso merece um banquete!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/12-nada-de-spoiler.webp",
-"mini": "/hogwarts/figurinhas/12-nada-de-spoiler-mini.webp"
+"img": "/hogwarts/figurinhas/12-banquete.webp",
+"mini": "/hogwarts/figurinhas/12-banquete-mini.webp"
 },
 {
 "id": "lc13",
-"nome": "Preciso de um vira-tempo para ler tudo.",
+"nome": "Segura os SPOILERS!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/13-vira-tempo.webp",
-"mini": "/hogwarts/figurinhas/13-vira-tempo-mini.webp"
+"img": "/hogwarts/figurinhas/13-segura-spoilers.webp",
+"mini": "/hogwarts/figurinhas/13-segura-spoilers-mini.webp"
 },
 {
 "id": "lc14",
-"nome": "Me lança um Obliviate para eu ler de nov",
+"nome": "Volto quando assistir!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/14-obliviate.webp",
-"mini": "/hogwarts/figurinhas/14-obliviate-mini.webp"
+"img": "/hogwarts/figurinhas/14-volto-quando-assistir.webp",
+"mini": "/hogwarts/figurinhas/14-volto-quando-assistir-mini.webp"
 },
 {
 "id": "lc15",
-"nome": "Me leva para Hogwarts.",
+"nome": "Agora podemos SURTAR!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/15-me-leva-pra-hogwarts.webp",
-"mini": "/hogwarts/figurinhas/15-me-leva-pra-hogwarts-mini.webp"
+"img": "/hogwarts/figurinhas/15-agora-podemos-surtar.webp",
+"mini": "/hogwarts/figurinhas/15-agora-podemos-surtar-mini.webp"
 },
 {
 "id": "lc16",
-"nome": "Isso merece um banquete!",
+"nome": "Juro solenemente que vou ler.",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/16-banquete.webp",
-"mini": "/hogwarts/figurinhas/16-banquete-mini.webp"
+"img": "/hogwarts/figurinhas/16-juro-solenemente.webp",
+"mini": "/hogwarts/figurinhas/16-juro-solenemente-mini.webp"
 },
 {
 "id": "lc17",
-"nome": "Acordei SONSERINA hoje.",
+"nome": "Hoje tem sprint na Biblioteca!",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/17-acordei-sonserina.webp",
-"mini": "/hogwarts/figurinhas/17-acordei-sonserina-mini.webp"
+"img": "/hogwarts/figurinhas/17-sprint-biblioteca.webp",
+"mini": "/hogwarts/figurinhas/17-sprint-biblioteca-mini.webp"
 },
 {
 "id": "lc18",
-"nome": "Desconfio de todo mundo nesse castelo.",
+"nome": "Preciso de um vira-tempo para ler tudo.",
 "grupo": "LC de Natal",
-"img": "/hogwarts/figurinhas/18-desconfio.webp",
-"mini": "/hogwarts/figurinhas/18-desconfio-mini.webp"
+"img": "/hogwarts/figurinhas/18-vira-tempo.webp",
+"mini": "/hogwarts/figurinhas/18-vira-tempo-mini.webp"
+},
+{
+"id": "lc19",
+"nome": "Me lança um Obliviate pra eu ler de novo",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/19-obliviate.webp",
+"mini": "/hogwarts/figurinhas/19-obliviate-mini.webp"
+},
+{
+"id": "lc20",
+"nome": "É Leviôsa, não Leviosá!",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/20-leviosa.webp",
+"mini": "/hogwarts/figurinhas/20-leviosa-mini.webp"
 }
 ];
