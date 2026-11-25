@@ -36,7 +36,7 @@
 <script src="/hogwarts/hg.js"></script>
 <script>
 (async()=>{
-  const {$,esc,icone,casaIc,CASAS,PERSONAGENS,janela,fmtD}=HG;HG.neve();$('icTopo').innerHTML=icone('chapeu','hg-ic-grande');
+  const {$,esc,icone,casaIc,CASAS,PERSONAGENS,janela,fmtD}=HG;HG.neve();HG.velas();$('icTopo').innerHTML=icone('chapeu','hg-ic-grande');
   let ctx;try{ctx=await HG.entrar()}catch(e){$('estado').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
   const db=ctx.db,cx=$('caixa'),topo=cx.querySelector('.hg-topo').outerHTML;
   const INSTR=`<div class="hg-instr"><b>Como funciona:</b> cada uma das oito integrantes recebe, por sorteio, um personagem diferente do primeiro livro. Acompanhe esse personagem durante a leitura e conte suas impressões no encontro de encerramento (19/12). A casa não interfere no sorteio, e o sorteio não pode ser repetido.</div>`;
@@ -64,8 +64,9 @@
     <p class="hg-erro" id="erro" hidden></p>
     <div class="hg-btns"><button class="hg-btn" id="revelar" ${ctx.casa?'':'disabled'}>Revelar minha missão</button></div>`;
     $('naoSou').onclick=e=>{e.preventDefault();HG.sair()};
-    $('casaBox').innerHTML=ctx.casa?`<p>${casaIc(ctx.casa)} ${esc(CASAS[ctx.casa].n)} <span class="hg-muted hg-small">(${esc(CASAS[ctx.casa].a)})</span></p>`
+    $('casaBox').innerHTML=ctx.casa?`<div id="b3dCasa"></div><p class="hg-centro"><b>${esc(CASAS[ctx.casa].n)}</b> <span class="hg-muted hg-small">(${esc(CASAS[ctx.casa].a)})</span></p>`
       :`<p>Informe sua casa para liberar o sorteio.</p><div class="hg-btns" style="justify-content:flex-start;margin-top:8px"><button class="hg-btn peq" id="casaBt">Informar minha casa</button></div>`;
+    if(ctx.casa)HG.brasao3d($('b3dCasa'),ctx.casa,{tam:150});
     if(!ctx.casa)$('casaBt').onclick=async()=>{await HG.pedirCasa(ctx,{titulo:'Qual é a sua casa de Hogwarts?'});tela()};
     $('revelar').onclick=sortear}
   async function sortear(){const bt=$('revelar');bt.disabled=true;$('erro').hidden=true;$('anim').classList.add('mexe');const t0=Date.now();

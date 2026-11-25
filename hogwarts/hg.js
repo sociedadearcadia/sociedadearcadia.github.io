@@ -48,7 +48,27 @@ const IC={
 };
 const ICASA={grifinoria:'leao',sonserina:'serpente',corvinal:'aguia',lufalufa:'texugo'};
 function icone(k,cls){return '<svg class="hg-ic'+(cls?' '+cls:'')+'" viewBox="0 0 32 32" aria-hidden="true">'+(IC[k]||IC.brilho)+'</svg>'}
-function casaIc(c){return CASAS[c]?'<svg class="hg-ic c-'+c+'" viewBox="0 0 32 32" role="img" aria-label="'+CASAS[c].n+' ('+CASAS[c].a+')"><title>'+CASAS[c].n+'</title>'+IC[ICASA[c]]+'</svg>':''}
+const CASA_IMG='/hogwarts/img/casas/';
+function casaIc(c){return CASAS[c]?'<img class="hg-ic hg-casa-ic" src="'+CASA_IMG+c+'.webp" alt="'+CASAS[c].n+'" title="'+CASAS[c].n+'" width="128" height="128" decoding="async">':''}
+function casaEscudo(c,cls){return CASAS[c]?'<img class="hg-escudo'+(cls?' '+cls:'')+'" src="'+CASA_IMG+c+'-escudo.webp" alt="Brasão da '+CASAS[c].n+'" width="320" height="320" decoding="async">':''}
+/* brasão em 3D (só CSS: camadas de profundidade + brilho; balança sozinho, gira ao tocar, inclina ao arrastar). Para quando sai da tela. */
+function brasao3d(el,c,{tam=190}={}){if(!el||!CASAS[c])return;const src=CASA_IMG+c+'-escudo.webp';
+  const cam=[6,5,4,3,2,1].map(z=>'<img class="b3d-lado" src="'+src+'" alt="" style="transform:translateZ(-'+z*1.6+'px)">').join('');
+  const fa=Array.from({length:9},(_,i)=>'<i style="--a:'+(i*40)+'deg;--d:'+(i*.37).toFixed(2)+'s"></i>').join('');
+  el.innerHTML='<div class="b3d" style="--t:'+tam+'px" role="img" aria-label="Brasão da '+CASAS[c].n+' em 3D" title="Toque para girar"><div class="b3d-faiscas" aria-hidden="true">'+fa+'</div><div class="b3d-gira">'+cam+'<img class="b3d-frente" src="'+src+'" alt=""><span class="b3d-brilho" style="-webkit-mask-image:url('+src+');mask-image:url('+src+')"></span></div></div>';
+  const b=el.firstChild,g=b.querySelector('.b3d-gira');let arr=null;
+  if(window.IntersectionObserver)new IntersectionObserver(es=>es.forEach(e=>b.classList.toggle('pausa',!e.isIntersecting))).observe(b);
+  b.addEventListener('pointerdown',e=>{arr={x:e.clientX,y:e.clientY,m:false};});
+  b.addEventListener('pointermove',e=>{if(!arr)return;const dx=e.clientX-arr.x,dy=e.clientY-arr.y;if(Math.abs(dx)+Math.abs(dy)>6)arr.m=true;if(!arr.m)return;
+    b.classList.add('mao');g.style.transform='rotateY('+Math.max(-40,Math.min(40,dx/2))+'deg) rotateX('+Math.max(-25,Math.min(25,-dy/3))+'deg)'});
+  const solta=()=>{if(!arr)return;const m=arr.m;arr=null;g.style.transform='';b.classList.remove('mao');
+    if(!m){b.classList.remove('gira');void b.offsetWidth;b.classList.add('gira');setTimeout(()=>b.classList.remove('gira'),1300)}};
+  b.addEventListener('pointerup',solta);b.addEventListener('pointercancel',()=>{arr=null;g.style.transform='';b.classList.remove('mao')});b.addEventListener('pointerleave',solta)}
+/* velas flutuantes do Salão Principal (poucas, só transform/opacity, nada de JS por quadro) */
+function velas(){if(document.querySelector('.hg-velas'))return;const n=innerWidth<600?6:10,v=document.createElement('div');v.className='hg-velas';v.setAttribute('aria-hidden','true');
+  let h='';for(let i=0;i<n;i++){const x=(i+.5)/n*100+(Math.random()*6-3),y=10+Math.random()*45,s=.45+Math.random()*.4;
+    h+='<span class="vela" style="left:'+x.toFixed(1)+'%;top:'+y.toFixed(1)+'%;--s:'+s.toFixed(2)+';--d:'+(5+Math.random()*4).toFixed(1)+'s;--atr:-'+(Math.random()*6).toFixed(1)+'s"><b></b></span>'}
+  v.innerHTML=h;const f=document.querySelector('.hg-fundo');if(f)f.after(v);else document.body.prepend(v)}
 function nomeCasa(nome,casa){return '<span class="hg-nome">'+casaIc(casa)+'<span>'+esc(nome)+'</span></span>'}
 
 /* ---------- datas ---------- */
@@ -154,7 +174,7 @@ function pedirCasa(ctx,{titulo='Qual é a sua casa de Hogwarts?',texto=''}={}){r
   const d=dialogo(`<div class="hg-form"><div class="hg-topo"><span style="color:#7a4a12">${icone('chapeu','hg-ic-grande')}</span><h2>${esc(titulo)}</h2></div>
     ${texto?'<p class="hg-centro">'+esc(texto)+'</p>':''}
     <p class="hg-centro hg-small">Você é <b>${esc(ctx.nome)}</b>.</p>
-    <div class="hg-casas">${Object.entries(CASAS).map(([k,c])=>`<button type="button" class="hg-casa" data-c="${k}" aria-pressed="false">${casaIc(k)}${c.n}<small>${c.a}</small></button>`).join('')}</div>
+    <div class="hg-casas">${Object.entries(CASAS).map(([k,c])=>`<button type="button" class="hg-casa" data-c="${k}" aria-pressed="false">${casaEscudo(k)}${c.n}<small>${c.a}</small></button>`).join('')}</div>
     <button type="button" class="hg-btn sec" data-nao>Ainda não sei minha casa</button>
     <div data-teste hidden class="hg-instr">Ainda não passou pelo Chapéu Seletor? Faça o teste oficial, descubra sua casa e volte para receber sua missão!<div class="hg-btns" style="margin-top:10px;justify-content:flex-start"><a class="hg-btn peq" href="https://www.harrypotter.com/sorting-hat" target="_blank" rel="noopener">Descobrir minha casa</a></div></div>
     <p class="hg-erro" hidden></p>
@@ -170,6 +190,6 @@ function pedirCasa(ctx,{titulo='Qual é a sua casa de Hogwarts?',texto=''}={}){r
 function casasAoVivo(ctx,cb){return ctx.db.collection('hgPerfis').onSnapshot(q=>{const m={};q.docs.forEach(d=>{const v=d.data();m[d.id]=v.casa;if(v.nome)m['n:'+norm(v.nome)]=v.casa});cb(m)},e=>console.warn('perfis',e))}
 const norm=n=>String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();
 
-window.HG={$,esc,LS,T,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,CASAS,PERSONAGENS,IC,icone,casaIc,nomeCasa,fmtD,fmtDH,fmtH,janela,firebaseCarrega,sha,normSenha,normCodigo,pidDoCodigo,
+window.HG={$,esc,LS,T,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,CASAS,PERSONAGENS,IC,icone,casaIc,casaEscudo,brasao3d,velas,nomeCasa,fmtD,fmtDH,fmtH,janela,firebaseCarrega,sha,normSenha,normCodigo,pidDoCodigo,
   toast,dialogo,neve,entrar,sair,pedirCasa,casasAoVivo,norm,FUSO};
 })();
