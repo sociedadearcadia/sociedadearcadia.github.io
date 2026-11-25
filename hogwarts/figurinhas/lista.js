@@ -139,5 +139,75 @@ window.HG_FIGS=[
 "grupo": "LC de Natal",
 "img": "/hogwarts/figurinhas/20-leviosa.webp",
 "mini": "/hogwarts/figurinhas/20-leviosa-mini.webp"
+},
+{
+"id": "lc21",
+"nome": "Meu pai vai ficar sabendo disso!",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/21-draco.webp",
+"mini": "/hogwarts/figurinhas/21-draco-mini.webp"
+},
+{
+"id": "lc22",
+"nome": "Fama não é tudo.",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/22-snape.webp",
+"mini": "/hogwarts/figurinhas/22-snape-mini.webp"
+},
+{
+"id": "lc23",
+"nome": "Não faz bem viver sonhando e se esquecer",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/23-dumbledore.webp",
+"mini": "/hogwarts/figurinhas/23-dumbledore-mini.webp"
+},
+{
+"id": "lc24",
+"nome": "Alguém viu o Trevor?",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/24-trevor.webp",
+"mini": "/hogwarts/figurinhas/24-trevor-mini.webp"
+},
+{
+"id": "lc25",
+"nome": "Ou pior: EXPULSAS!",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/25-expulsas.webp",
+"mini": "/hogwarts/figurinhas/25-expulsas-mini.webp"
+},
+{
+"id": "lc26",
+"nome": "Fora da cama a essa hora?!",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/26-fora-da-cama.webp",
+"mini": "/hogwarts/figurinhas/26-fora-da-cama-mini.webp"
+},
+{
+"id": "lc27",
+"nome": "Isso vai dar CONFUSÃO!",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/27-confusao.webp",
+"mini": "/hogwarts/figurinhas/27-confusao-mini.webp"
+},
+{
+"id": "lc28",
+"nome": "Fiquei quase sem cabeça com esse capítul",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/28-quase-sem-cabeca.webp",
+"mini": "/hogwarts/figurinhas/28-quase-sem-cabeca-mini.webp"
+},
+{
+"id": "lc29",
+"nome": "Só 36 presentes?!",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/29-36-presentes.webp",
+"mini": "/hogwarts/figurinhas/29-36-presentes-mini.webp"
+},
+{
+"id": "lc30",
+"nome": "Eu sou o quê?!",
+"grupo": "LC de Natal",
+"img": "/hogwarts/figurinhas/30-eu-sou-o-que.webp",
+"mini": "/hogwarts/figurinhas/30-eu-sou-o-que-mini.webp"
 }
 ];
