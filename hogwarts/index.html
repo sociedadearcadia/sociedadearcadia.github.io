@@ -70,7 +70,7 @@
     {ic:'livro',t:'Biblioteca de Hogwarts — Sprints',d:'Um espaço para ler na companhia das outras integrantes. Participe dos sprints coletivos ou comece uma sessão individual, no seu ritmo.',
       u:'/hogwarts/biblioteca/',j:janela(D,'biblioteca'),rot:'Entrar na Biblioteca'},
     {ic:'chave',t:'Primeiros Mistérios de Hogwarts',d:'Os mistérios de Hogwarts serão revelados aos poucos, acompanhando nosso cronograma de leitura. Escolha sua etapa e descubra o que lembra dos capítulos!',
-      u:'/hogwarts/misterios/',j:janela(D,'r1','misteriosFim'),antesTxt:'Primeira rodada em '+fmtD(D.r1),rot:comecou?'Continuar':'Participar',
+      u:'/hogwarts/misterios/',j:(()=>{const a=janela(D,'r1','misteriosFim');return a.antes?{aberta:true}:a})(),rot:comecou?'Continuar':'Participar',
       st:feitas===4&&proFeito?['Concluído','ok']:feitas?[feitas+' de 4 rodadas'+(proFeito?' + aventura':''),'ok']:null},
     {ic:'espelho',t:'Espelho de Ojesed — Memórias da Arcádia',d:'Uma oportunidade para guardar uma lembrança de 2026 e compartilhar o que desejamos para a próxima fase do clube.',
       u:'/hogwarts/espelho/',j:janela(D,'espelho','espelhoFim'),rot:esp?'Ver ou editar':'Participar',st:esp?['Concluído','ok']:null},

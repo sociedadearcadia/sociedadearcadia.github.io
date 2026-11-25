@@ -212,13 +212,13 @@ async function figs(){const L=(await lista('hgFigurinhas')).sort((a,b)=>(a.ordem
 /* ---------- Mistérios e Sete Proteções ---------- */
 let qr=HG.LS.get('admQuiz','r1');
 async function quiz(){const R=[['r1','Rodada 1'],['r2','Rodada 2'],['r3','Rodada 3'],['r4','Rodada 4'],['protecoes','Sete Proteções']];
-  const [Q,prog,ps,resp,estats]=await Promise.all([pega('hgQuiz',qr),lista('hgProgresso'),lista('hgPessoas'),lista('hgRespostas'),lista('hgEstat')]);const q=Q||JSON.parse(JSON.stringify(HG_CONTEUDO[qr]));const pro=qr==='protecoes';
+  const [Q,prog,ps,resp,estats,lidos]=await Promise.all([pega('hgQuiz',qr),lista('hgProgresso'),lista('hgPessoas'),lista('hgRespostas'),lista('hgEstat'),lista('hgLido')]);const q=Q||JSON.parse(JSON.stringify(HG_CONTEUDO[qr]));const pro=qr==='protecoes';
   const NQ={r1:4,r2:3,r3:5,r4:5};
   const est=(pid,r)=>{if(r!=='protecoes'){const L=resp.filter(x=>x.pid===pid&&x.rodada===r);if(!L.length)return '—';return L.filter(x=>x.certa).length+' de '+L.length+(L.length<NQ[r]?' (respondendo)':'')}
     const p=prog.find(x=>x._id===pid+'_'+r);return !p?'—':p.feito?'✔ concluída'+(p.vezes>1?' ('+p.vezes+'x)':''):'etapa '+(p.atual+1)};
   const pctTxt=r=>Array.from({length:NQ[r]},(_,i)=>{const e=estats.find(x=>x._id===r+'_'+i);return 'P'+(i+1)+': '+(e&&e.n?Math.round(100*e.certas/e.n)+'% ('+e.certas+'/'+e.n+')':'—')}).join(' · ');
-  C().innerHTML=`<section class="hg-painel sec"><h2>Progresso das participantes</h2><div class="rolar"><table class="tab"><tr><th>Participante</th>${R.map(r=>`<th>${r[1]}</th>`).join('')}</tr>
-    ${ps.sort((a,b)=>a.nome.localeCompare(b.nome)).map(p=>`<tr><td>${esc(p.nome)}</td>${R.map(r=>`<td>${est(p._id,r[0])}</td>`).join('')}</tr>`).join('')}</table></div><p class="hg-muted hg-small">Acertos de cada uma: só você vê. As participantes veem só a própria pontuação e a porcentagem de acertos de cada pergunta, sem nomes. A primeira resposta vale e não pode ser trocada.</p>
+  C().innerHTML=`<section class="hg-painel sec"><h2>Progresso das participantes</h2><div class="rolar"><table class="tab"><tr><th>Participante</th><th>Leu até</th>${R.map(r=>`<th>${r[1]}</th>`).join('')}</tr>
+    ${ps.sort((a,b)=>a.nome.localeCompare(b.nome)).map(p=>`<tr><td>${esc(p.nome)}</td><td>${(()=>{const l=lidos.find(x=>x._id===p._id);return l&&l.cap?'cap. '+l.cap:'—'})()}</td>${R.map(r=>`<td>${est(p._id,r[0])}</td>`).join('')}</tr>`).join('')}</table></div><p class="hg-muted hg-small">Acertos de cada uma: só você vê. As participantes veem só a própria pontuação e a porcentagem de acertos de cada pergunta, sem nomes. A primeira resposta vale e não pode ser trocada. Cada rodada abre na data do cronograma ou antes, para quem marcar que já terminou o último capítulo dela (coluna "Leu até").</p>
     ${['r1','r2','r3','r4'].map(r=>`<p class="hg-small"><b>${r.replace('r','Rodada ')}:</b> ${pctTxt(r)}</p>`).join('')}</section>
     <section class="hg-painel sec"><h2>Perguntas</h2><div class="hg-btns" style="justify-content:flex-start">${R.map(r=>`<button class="hg-btn peq ${r[0]===qr?'':'sec'}" data-q="${r[0]}">${r[1]}</button>`).join('')}</div>
     <form class="sec" id="qf"><label class="hg-campo"><span>Título</span><input class="hg-in" name="titulo" value="${esc(q.titulo)}"></label>
