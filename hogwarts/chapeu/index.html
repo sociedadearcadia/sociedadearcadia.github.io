@@ -6,7 +6,10 @@
 <meta name="robots" content="noindex">
 <title>Chapéu Seletor · Salão Principal de Hogwarts</title>
 <meta name="theme-color" content="#0b1730">
-<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="icon" type="image/png" href="/hogwarts/img/icone-64.png">
+<link rel="apple-touch-icon" href="/hogwarts/img/icone-180.png">
+<link rel="manifest" href="/hogwarts/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Hogwarts">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
@@ -36,7 +39,7 @@
 <script src="/hogwarts/hg.js"></script>
 <script>
 (async()=>{
-  const {$,esc,icone,casaIc,CASAS,PERSONAGENS,janela,fmtD}=HG;HG.neve();HG.velas();$('icTopo').innerHTML=icone('chapeu','hg-ic-grande');
+  const {$,esc,icone,casaIc,CASAS,PERSONAGENS,janela,fmtD}=HG;HG.neve();HG.velas();HG.magia({varinha:true});$('icTopo').innerHTML=icone('chapeu','hg-ic-grande');
   let ctx;try{ctx=await HG.entrar()}catch(e){$('estado').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
   const db=ctx.db,cx=$('caixa'),topo=cx.querySelector('.hg-topo').outerHTML;
   const INSTR=`<div class="hg-instr"><b>Como funciona:</b> cada uma das oito integrantes recebe, por sorteio, um personagem diferente do primeiro livro. Acompanhe esse personagem durante a leitura e conte suas impressões no encontro de encerramento (19/12). A casa não interfere no sorteio, e o sorteio não pode ser repetido.</div>`;

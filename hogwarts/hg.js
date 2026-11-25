@@ -169,6 +169,30 @@ function entrar(){if(!ctxP)ctxP=(async()=>{
   return{db,uid,pid,nome:pessoa.nome,casa:perf&&perf.exists?perf.data().casa:null,datas,geral}})();return ctxP}
 async function sair(){try{localStorage.removeItem('hogwarts:pid')}catch(e){}try{const c=await ctxP;await c.db.collection('hgSessoes').doc(c.uid).delete()}catch(e){}location.href='/integrantes/'}
 
+
+/* ---------- magia leve (só CSS, poucos elementos; nada roda por quadro em JS) ----------
+   HG.magia({varinha:true, vassoura:true, chaves:true, coruja:true}) */
+const MG_CALMO=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SVG_VASSOURA='<svg viewBox="0 0 120 40" aria-hidden="true"><path d="M6 21 L78 17" stroke="#8a5a24" stroke-width="3.2" stroke-linecap="round"/><path d="M6 21 L78 17" stroke="#c99a52" stroke-width="1.2" stroke-linecap="round" opacity=".8"/><path d="M76 13 C88 10 104 6 116 4 C110 12 112 20 117 30 C104 27 90 24 76 23 Z" fill="#c9a05a" stroke="#7a5420" stroke-width="1"/><path d="M80 15 L113 7 M80 18 L114 15 M80 20 L114 23 M80 22 L113 28" stroke="#7a5420" stroke-width=".7" opacity=".7"/><path d="M74 13 L78 23" stroke="#e6be6e" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const SVG_CHAVE='<svg viewBox="0 0 40 28" aria-hidden="true"><g class="mg-asa"><path d="M18 12 C12 2 4 2 2 6 C6 7 9 9 12 12 C8 11 5 12 3 14 C8 15 13 15 18 14 Z" fill="#f4eedb" stroke="#c9a865" stroke-width=".6"/></g><g class="mg-asa d"><path d="M22 12 C28 2 36 2 38 6 C34 7 31 9 28 12 C32 11 35 12 37 14 C32 15 27 15 22 14 Z" fill="#f4eedb" stroke="#c9a865" stroke-width=".6"/></g><circle cx="20" cy="13" r="3.6" fill="none" stroke="#e6be6e" stroke-width="2"/><path d="M20 16.6 V26 M20 22 h3 M20 25 h2.4" stroke="#e6be6e" stroke-width="2" stroke-linecap="round"/></svg>';
+const SVG_CORUJA='<svg viewBox="0 0 80 60" aria-hidden="true"><g class="mg-asa"><path d="M30 26 C18 8 4 10 0 16 C8 18 14 22 18 28 C12 26 6 28 2 32 C12 34 22 34 32 32 Z" fill="#f3efe6" stroke="#b9ad98" stroke-width=".8"/></g><ellipse cx="40" cy="32" rx="12" ry="14" fill="#f7f4ec" stroke="#b9ad98" stroke-width=".8"/><circle cx="35.5" cy="27" r="3.2" fill="#fff"/><circle cx="44.5" cy="27" r="3.2" fill="#fff"/><circle cx="35.5" cy="27" r="1.7" fill="#d9a12c"/><circle cx="44.5" cy="27" r="1.7" fill="#d9a12c"/><circle cx="35.5" cy="27" r=".8" fill="#222"/><circle cx="44.5" cy="27" r=".8" fill="#222"/><path d="M40 29.5 l-1.4 2.6 h2.8z" fill="#3b2f22"/><path d="M34 36 h0 M38 39 h0 M43 37 h0 M46 40 h0" stroke="#9a8f7c" stroke-width="1.4" stroke-linecap="round"/><g class="mg-asa d"><path d="M50 26 C62 8 76 10 80 16 C72 18 66 22 62 28 C68 26 74 28 78 32 C68 34 58 34 48 32 Z" fill="#f3efe6" stroke="#b9ad98" stroke-width=".8"/></g><rect x="33" y="45" width="14" height="10" rx="1" fill="#efe2bd" stroke="#a87d36" stroke-width=".7" transform="rotate(-8 40 50)"/><circle cx="40" cy="50" r="1.8" fill="#a3261c" transform="rotate(-8 40 50)"/></svg>';
+function faiscas(x,y,n){if(MG_CALMO)return;const c=document.createElement('div');c.className='mg-faiscas';c.style.left=x+'px';c.style.top=y+'px';
+  let h='';for(let i=0;i<(n||9);i++){const a=Math.random()*6.283,d=22+Math.random()*34;h+='<i style="--dx:'+(Math.cos(a)*d).toFixed(0)+'px;--dy:'+(Math.sin(a)*d).toFixed(0)+'px;--t:'+(.5+Math.random()*.4).toFixed(2)+'s"></i>'}
+  c.innerHTML=h;document.body.appendChild(c);setTimeout(()=>c.remove(),1000)}
+function magia(op){op=op||{};if(MG_CALMO)return;
+  if(op.varinha)document.addEventListener('pointerdown',e=>{if(e.target.closest('a,button,input,textarea,select,label,summary,.b3d,.mg-voa,[contenteditable],.hg-dlg'))return;faiscas(e.clientX,e.clientY)},{passive:true});
+  const voa=(svg,cls,cada,ao)=>{const el=document.createElement('div');el.className='mg-voa '+cls;el.innerHTML='<div class="mg-ondula">'+svg+'</div>';el.setAttribute('aria-hidden','true');document.body.appendChild(el);
+    const vai=()=>{if(document.hidden){setTimeout(vai,5000);return}el.style.top=(8+Math.random()*48)+'vh';el.classList.remove('vai');void el.offsetWidth;el.classList.add('vai');setTimeout(vai,cada*1000*(0.8+Math.random()*.5))};
+    setTimeout(vai,2500+Math.random()*3000);
+    el.addEventListener('click',e=>{const r=el.getBoundingClientRect();faiscas(r.left+r.width/2,r.top+r.height/2,14);el.classList.remove('pirueta');void el.offsetWidth;el.classList.add('pirueta');if(ao)ao(el)})};
+  if(op.vassoura)voa(SVG_VASSOURA,'mg-vassoura',26);
+  if(op.coruja)voa(SVG_CORUJA,'mg-coruja',30);
+  if(op.chaves){const n=innerWidth<600?5:8,box=document.createElement('div');box.className='mg-chaves';box.setAttribute('aria-hidden','true');
+    for(let i=0;i<n;i++){const k=document.createElement('div');k.className='mg-voa mg-chave';k.innerHTML=SVG_CHAVE;
+      k.style.cssText='left:'+(4+Math.random()*86).toFixed(1)+'%;top:'+(6+Math.random()*55).toFixed(1)+'%;--d:'+(7+Math.random()*6).toFixed(1)+'s;--atr:-'+(Math.random()*8).toFixed(1)+'s;--s:'+(.75+Math.random()*.5).toFixed(2);
+      k.addEventListener('click',()=>{const r=k.getBoundingClientRect();faiscas(r.left+r.width/2,r.top+r.height/2,10);k.classList.add('foge');setTimeout(()=>{k.classList.remove('foge');k.style.left=(4+Math.random()*86).toFixed(1)+'%'},5200)});box.appendChild(k)}
+    document.body.appendChild(box)}}
+
 /* ---------- casa de Hogwarts (informada pela participante, uma vez) ---------- */
 function pedirCasa(ctx,{titulo='Qual é a sua casa de Hogwarts?',texto=''}={}){return new Promise(done=>{
   const d=dialogo(`<div class="hg-form"><div class="hg-topo"><span style="color:#7a4a12">${icone('chapeu','hg-ic-grande')}</span><h2>${esc(titulo)}</h2></div>
@@ -190,6 +214,6 @@ function pedirCasa(ctx,{titulo='Qual é a sua casa de Hogwarts?',texto=''}={}){r
 function casasAoVivo(ctx,cb){return ctx.db.collection('hgPerfis').onSnapshot(q=>{const m={};q.docs.forEach(d=>{const v=d.data();m[d.id]=v.casa;if(v.nome)m['n:'+norm(v.nome)]=v.casa});cb(m)},e=>console.warn('perfis',e))}
 const norm=n=>String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();
 
-window.HG={$,esc,LS,T,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,CASAS,PERSONAGENS,IC,icone,casaIc,casaEscudo,brasao3d,velas,nomeCasa,fmtD,fmtDH,fmtH,janela,firebaseCarrega,sha,normSenha,normCodigo,pidDoCodigo,
+window.HG={$,esc,LS,T,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,CASAS,PERSONAGENS,IC,icone,casaIc,casaEscudo,brasao3d,velas,magia,faiscas,nomeCasa,fmtD,fmtDH,fmtH,janela,firebaseCarrega,sha,normSenha,normCodigo,pidDoCodigo,
   toast,dialogo,neve,entrar,sair,pedirCasa,casasAoVivo,norm,FUSO};
 })();
