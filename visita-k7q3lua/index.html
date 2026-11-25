@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Visita guiada · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/leitura/leitura.css">
+<style>
+/* Visita guiada: só imagens de exemplo. Esta página não usa o Firebase e não tem links para as páginas de verdade. */
+.aviso{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:rgba(232,201,138,.12);border:1px dashed rgba(232,201,138,.6);color:var(--cream);font-size:14px;line-height:1.45;margin:14px 0 0}
+.aviso b{color:#e8c98a}
+.grupo{display:flex;flex-direction:column;gap:10px}
+.atalhos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.atalhos button{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--cream);padding:13px 14px;border-radius:14px;
+  background:rgba(23,15,51,.55);border:1px solid var(--line);transition:border-color .2s,background .2s}
+.atalhos button:hover,.atalhos button:focus-visible{border-color:var(--gold);background:rgba(43,23,72,.75)}
+.atalhos .ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,rgba(120,72,190,.55),rgba(23,15,51,.92) 70%);box-shadow:0 0 0 1px rgba(214,180,108,.55),inset 0 0 8px rgba(214,180,108,.18)}
+.atalhos .tx{display:flex;flex-direction:column;min-width:0}
+.atalhos b{font:600 16px var(--display)}
+.atalhos small{color:var(--muted);font-size:13px;line-height:1.35}
+.atalhos .seta{margin-left:auto;color:var(--lilac);flex:none}
+.comecar{margin-top:14px}
+/* visualizador */
+.ver{display:flex;flex-direction:column;gap:14px}
+.ver[hidden]{display:none}
+.barra{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.barra button{all:unset;cursor:pointer;color:var(--lilac);font:600 14px var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(23,15,51,.55)}
+.barra button:hover,.barra button:focus-visible{border-color:var(--gold)}
+.barra .pos{color:var(--muted);font-size:13px}
+.sobre h2{margin:4px 0 6px}
+.sobre ul{margin:8px 0 0;padding-left:18px;color:var(--cream);font-size:14.5px;line-height:1.5}
+.sobre li+li{margin-top:4px}
+.tela{align-self:center;width:100%;max-width:400px;border-radius:34px;padding:10px;background:linear-gradient(160deg,#3a2a5e,#120b26);
+  box-shadow:0 0 0 1px rgba(214,180,108,.55),0 18px 40px rgba(0,0,0,.45)}
+.tela .vid{border-radius:26px;overflow:hidden;background:#170f33;max-height:78vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.tela img{display:block;width:100%;height:auto}
+.dica{color:var(--muted);font-size:13px;text-align:center;margin:0}
+.navfim{display:flex;gap:10px}
+.navfim .btn{flex:1}
+</style>
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" id="topo" href="/">← Sociedade Arcádia</a>
+
+  <div id="inicio" style="display:flex;flex-direction:column;gap:16px">
+    <section class="panel arch">
+      <div class="top">
+        <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+        <p class="lbl">Visita guiada</p>
+        <h1>O site por dentro</h1>
+      </div>
+      <p class="muted" style="text-align:center;margin:12px 0 0">Estas são as páginas que as integrantes da Sociedade Arcádia usam. Toque em uma página para ver como ela é.</p>
+      <p class="aviso"><span aria-hidden="true">✦</span><span><b>Tudo aqui é exemplo.</b> Os nomes, números, respostas e datas foram inventados para a visita. Nada do que aparece aqui é do clube de verdade.</span></p>
+      <button class="btn wide comecar" type="button" id="comecar">Começar a visita</button>
+    </section>
+    <div id="grupos" style="display:flex;flex-direction:column;gap:16px"></div>
+  </div>
+
+  <div class="ver" id="ver" hidden>
+    <div class="barra">
+      <button type="button" id="voltar">← Todas as páginas</button>
+      <span class="pos" id="pos"></span>
+    </div>
+    <section class="panel sobre">
+      <p class="lbl" id="vGrupo"></p>
+      <h2 id="vTitulo"></h2>
+      <p class="muted" id="vTexto" style="margin:0"></p>
+      <ul id="vItens"></ul>
+    </section>
+    <div class="tela"><div class="vid" id="vid"><img id="vImg" alt=""></div></div>
+    <p class="dica">Role dentro da tela para ver a página inteira.</p>
+    <div class="navfim">
+      <button class="btn ghost" type="button" id="ant">‹ Anterior</button>
+      <button class="btn" type="button" id="prox">Próxima ›</button>
+    </div>
+  </div>
+</main>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/icones.js"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const ic=k=>window.ARC_ICONE?ARC_ICONE(k):'✦';
+  const GRUPOS=[
+    {t:'Entrada',itens:[
+      {id:'integrantes',ic:'lacre',n:'Área das integrantes',d:'A porta de entrada, com senha do clube',
+        tx:'Depois de digitar a senha do clube uma vez, a integrante vê todas as páginas organizadas por assunto.',
+        li:['A senha é a mesma para todas e fica guardada no aparelho.','Dá para instalar o site como app na tela inicial do celular.']}]},
+    {t:'Nosso clube',itens:[
+      {id:'codigo',ic:'pergaminho',n:'Código da Sociedade Arcádia',d:'Nossos combinados e como o clube funciona',
+        tx:'O regulamento do clube, dividido em capítulos, com índice e busca.',
+        li:['A administração atualiza o texto pelo site, sem mexer em código.','Na visita aparece só um resumo de exemplo.']}]},
+    {t:'Leitura do mês',itens:[
+      {id:'leitura',ic:'livro',n:'Atualização de leitura',d:'Quanto você já leu do livro do mês',
+        tx:'Cada integrante marca a porcentagem que já leu. O grupo vê a média e a leitura de cada uma.',
+        li:['Gera uma imagem pronta para os stories.','Guarda o histórico dos meses anteriores.','Tem um botão para mandar a listinha no WhatsApp.']},
+      {id:'questionario',ic:'pergunta',n:'Questionário do mês',d:'Perguntas sobre o livro do mês',
+        tx:'Perguntas de múltipla escolha e abertas sobre o livro. Cada integrante responde uma vez.',
+        li:['As respostas certas aparecem só quando a administração libera.','Vale ponto na Arcadiana do Ano.']},
+      {id:'cartas',ic:'lacre',n:'Cartas Seladas',d:'Lacre sua teoria sobre o livro e abra junto com todas',
+        tx:'Antes de terminar o livro, cada uma escreve uma teoria e lacra a carta. Ninguém lê antes do dia marcado.',
+        li:['Aparece quem já lacrou, mas não o que escreveu.','No dia combinado todas as cartas abrem juntas.']},
+      {id:'estante',ic:'estrela',n:'Estante do clube',d:'Livros já lidos e a nota de cada um',
+        tx:'Todos os livros que o clube já leu, com a nota média do grupo de 1 a 5 estrelas.',
+        li:['Ninguém vê a nota de cada uma, só a média.','Dá para mudar a própria nota depois.']},
+      {id:'votacao',ic:'carta',n:'Votação do livro do mês',d:'Escolha entre os livros sorteados',
+        tx:'Os livros sorteados ficam abertos para votação por alguns dias. Cada integrante vota uma vez.',
+        li:['O resultado não aparece na página: o vencedor é revelado no encontro.']},
+      {id:'livros',ic:'estante',n:'Livros sugeridos',d:'Lista para o sorteio e as LCs extras',
+        tx:'A lista de livros que entram no sorteio da leitura oficial, com busca e filtro por gênero.',
+        li:['As integrantes sugerem livros novos e a administração aprova.','As leituras coletivas extras têm listas separadas.']}]},
+    {t:'Encontros e leituras juntas',itens:[
+      {id:'agenda',ic:'calendario',n:'Agenda',d:'Encontros e confirmação de presença',
+        tx:'Calendário com os encontros do mês. Cada integrante confirma se vai, talvez ou não.',
+        li:['Mostra quantas faltam dias para o próximo encontro.','Cada encontro tem local, horário e detalhes.']},
+      {id:'sprint',ic:'ampulheta',n:'Sprint de leitura',d:'Ler junto com o cronômetro e o ranking',
+        tx:'Um cronômetro para ler junto, sozinha ou em grupo, com rodadas de leitura e de conversa.',
+        li:['Ranking de minutos lidos no mês, no trimestre e no ano.','Sala coletiva com chat.','Botão para abrir a playlist no Spotify.']},
+      {id:'ideias',ic:'lanterna',n:'Ideias de encontros',d:'Sugira oficinas e encontros extras',
+        tx:'Formulário para sugerir oficinas e encontros fora do livro do mês.',
+        li:['Quem sugere ajuda a organizar.','A resposta da administração aparece na própria página.']}]},
+    {t:'LC Especial de Natal',itens:[
+      {id:'hogwarts',ic:'chama',n:'Salão Principal de Hogwarts',d:'Área temática da leitura especial de Natal',
+        tx:'Uma área com tema próprio para a leitura coletiva de Natal, com missões, sprints e atividades.',
+        li:['Tem uma senha só dela e um código pessoal para cada participante.','Na visita aparece só a porta de entrada.']}]},
+    {t:'Jogos',itens:[
+      {id:'bingo',ic:'cartela',n:'Bingo',d:'Sua cartela e os desafios',
+        tx:'Cada integrante tem uma cartela de 25 desafios de leitura e manda um print quando cumpre um.',
+        li:['A administração confere cada desafio.','Cada desafio aprovado vale ponto.']},
+      {id:'arcadiana',ic:'coroa',n:'Arcadiana do Ano',d:'Ranking de pontos do ano',
+        tx:'O ranking anual do clube. Os pontos vêm de livros terminados, presença nos encontros e atividades extras.',
+        li:['Cada uma vê os próprios pontos e o histórico.','Os empates têm critério de desempate.']}]},
+    {t:'Divulgação',itens:[
+      {id:'redes',ic:'brilho',n:'Sugestões para as redes',d:'Mande ideias para o Instagram',
+        tx:'Formulário para mandar ideias de posts, trends e fotos para o Instagram do clube.',
+        li:['Cada sugestão aparece como recebida, aprovada ou publicada.']},
+      {id:'artes',ic:'moldura',n:'Artes do clube',d:'Baixar artes e montar stories',
+        tx:'Galeria de artes do clube para baixar e um montador de stories com os modelos do clube.',
+        li:['Escolhe o modelo e o fundo, coloca as capas e a arte sai pronta para postar.']}]},
+    {t:'Ajuda',itens:[
+      {id:'mensagem',ic:'balao',n:'Fale com a administração',d:'Elogio, reclamação ou problema, com ou sem nome',
+        tx:'Um canal direto com a administração. A integrante escolhe se manda com o nome ou sem nome.',
+        li:['A resposta aparece na própria página.']},
+      {id:'guia',ic:'bussola',n:'Guia do site',d:'Passo a passo de cada página',
+        tx:'O manual do site, com perguntas e respostas para cada página e busca.',
+        li:['Ajuda quem está entrando pela primeira vez.']}]}
+  ];
+  const TODOS=[];GRUPOS.forEach(g=>g.itens.forEach(i=>{i.g=g.t;TODOS.push(i)}));
+
+  $('grupos').innerHTML=GRUPOS.map(g=>'<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p><ul class="atalhos">'+g.itens.map(i=>
+    '<li><button type="button" data-id="'+i.id+'"><span class="ic" aria-hidden="true">'+ic(i.ic)+'</span><span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span><span class="seta" aria-hidden="true">›</span></button></li>').join('')+'</ul></section>').join('');
+  $('grupos').addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b)location.hash=b.dataset.id});
+  $('comecar').onclick=()=>{location.hash=TODOS[0].id};
+  $('voltar').onclick=()=>{location.hash=''};
+  const ir=d=>{const k=TODOS.findIndex(i=>i.id===atual);const n=TODOS[k+d];location.hash=n?n.id:''};
+  $('ant').onclick=()=>ir(-1);$('prox').onclick=()=>ir(1);
+  let atual=null;
+  function mostrar(){
+    const id=decodeURIComponent(location.hash.slice(1));const k=TODOS.findIndex(i=>i.id===id);
+    if(k<0){atual=null;$('topo').style.display='';$('ver').hidden=true;$('inicio').hidden=false;$('inicio').style.display='flex';return}
+    const i=TODOS[k];atual=id;
+    $('inicio').hidden=true;$('inicio').style.display='none';$('ver').hidden=false;
+    $('topo').style.display='none';$('pos').textContent=(k+1)+' de '+TODOS.length;
+    $('vGrupo').textContent=i.g;$('vTitulo').textContent=i.n;$('vTexto').textContent=i.tx;
+    $('vItens').innerHTML=i.li.map(x=>'<li>'+esc(x)+'</li>').join('');
+    $('vImg').src=i.id+'.webp';$('vImg').alt='Página '+i.n+' com dados de exemplo';
+    $('vid').scrollTop=0;
+    $('ant').disabled=k===0;$('ant').style.visibility=k===0?'hidden':'visible';
+    $('prox').textContent=k===TODOS.length-1?'Voltar ao início':'Próxima ›';
+    window.scrollTo(0,0)}
+  window.addEventListener('hashchange',mostrar);mostrar();
+  /* pré-carrega a próxima imagem */
+  window.addEventListener('load',()=>TODOS.slice(0,4).forEach(i=>{const im=new Image();im.src=i.id+'.webp'}));
+})();
+</script>
+</body>
+</html>
