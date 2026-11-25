@@ -41,6 +41,8 @@
   function place(box,A,S,c){const W=box.clientWidth,H=box.clientHeight,s=Math.max(W/S.w,H/S.h)*c.zoom;
     let ty=H/2-c.cy*S.h*s;ty=Math.min(0,Math.max(H-S.h*s,ty));
     let tx=W/2-c.cx*S.w*s;tx=Math.min(0,Math.max(W-S.w*s,tx));
+    /* profundidade: a arte desliza um pouco com o mouse (window.ARC_PAR, só no computador) */
+    const P=window.ARC_PAR;if(P&&A===art){tx=Math.min(0,Math.max(W-S.w*s,tx+P.x));ty=Math.min(0,Math.max(H-S.h*s,ty+P.y))}
     A.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')'}
   /* câmera: zoom e centro vertical (fração da altura da ilustração) */
   const cam={zoom:1.07,cy:.5,cx:.5};
@@ -48,6 +50,7 @@
   function fit(){const k=orient();if(k!==cur){cur=k;populate(art,SCENES[SET[k]]);scene.classList.add('ready')}place(scene,art,SCENES[SET[k]],cam);fitAlt()}
   window.ARC_CAM=(z,cy,cx)=>{cam.zoom=z;cam.cy=cy;cam.cx=cx==null?.5:cx;fit()};
   window.ARC_ORIENT=()=>cur;
+  window.ARC_REFIT=()=>fit();
   /* artes alternativas que entram por cima da principal (troca suave por seção) */
   const alts={};let altOn=null;
   function altLayer(name){if(alts[name])return alts[name];const box=document.createElement('div');box.className='scene alt'+(name==='estampa'?' pattern':'');box.setAttribute('aria-hidden','true');
