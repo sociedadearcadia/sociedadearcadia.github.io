@@ -647,12 +647,12 @@
     uid=u.uid;db=firebase.firestore();
   }catch(e){console.warn(e);return}
   if(LS.get('membroOk','')===uid)return;
-  let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}
+  let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadia:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
   if(ok){LS.set('membroOk',uid);return}
   $('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
   $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
     $('gateBtn').disabled=true;$('gateErr').hidden=true;
-    try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});$('gate').hidden=true;LS.set('membroOk',uid)}
+    try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadia:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;LS.set('membroOk',uid)}
     catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
     $('gateBtn').disabled=false};
 })();

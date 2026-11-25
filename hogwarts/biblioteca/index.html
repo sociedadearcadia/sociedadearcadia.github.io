@@ -1053,13 +1053,19 @@ function rankRender(){const ol=$('rank');ol.innerHTML='';
 
 let writing=Promise.resolve();
 function pushShared(e){if(!db||!uid||!me)return;writing=writing.then(async()=>{
-  const base=mine||{};const doc={nome:me.name,min:Math.min(100000,(+base.min||0)+e.min),sprints:(+base.sprints||0)+1,livro:String(e.book||base.livro||'').slice(0,80),atualizado:new Date().toISOString()};
-  try{await db.collection('hgLeitoras').doc(PID).set(doc);mine=doc}catch(err){console.warn('ranking',err)}
+  /* soma em cima do que está no banco (outro aparelho da mesma pessoa pode ter salvo antes) */
+  try{const ref=db.collection('hgLeitoras').doc(PID);await db.runTransaction(async tx=>{const d=await tx.get(ref);const base=d.exists?(d.data()||{}):{};
+    const doc={nome:me.name,min:Math.min(100000,(+base.min||0)+e.min),sprints:(+base.sprints||0)+1,livro:String(e.book||base.livro||'').slice(0,80),atualizado:new Date().toISOString()};
+    tx.set(ref,doc);mine=doc})}catch(err){console.warn('ranking',err)}
   /* soma também no ranking geral do sprint (só nesta direção: o geral nunca entra na Biblioteca) */
   try{const ref=db.collection('leitoras').doc(uid);await db.runTransaction(async tx=>{const d=await tx.get(ref);const b=d.exists?(d.data()||{}):{};
     const mins=Object.assign({},b.min||{});const k=monthKey(e.t||Date.now());mins[k]=(+mins[k]||0)+e.min;
     tx.set(ref,{nome:String(b.nome||me.name).slice(0,30),min:mins,paginas:b.paginas||{},livro:String(b.livro||e.book||'').slice(0,80),sprints:(+b.sprints||0)+1,atualizado:new Date().toISOString()})})}
   catch(err){console.warn('ranking geral',err)}
+  /* entra também em "Seus sprints" do sprint geral, pelo nome (igual em todos os aparelhos) */
+  try{const k=normName(me.name).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40),t=Math.round(e.t||Date.now());
+    if(k)await db.collection('historico').doc(k).collection('s').doc('hg-'+t+'-'+Math.random().toString(36).slice(2,6)).set({t,min:Math.max(0,Math.min(720,Math.round(e.min))),book:String(e.book||'').slice(0,120),
+      pages:Math.max(0,Math.min(5000,Math.round(+e.pages||0))),uid,nome:String(me.name).slice(0,30),bib:true})}catch(err){console.warn('historico geral',err)}
   try{await db.collection('hgLog').add({pid:PID,t:Math.round(e.t),min:Math.max(1,Math.min(720,Math.round(e.min))),livro:String(e.book||'').slice(0,80),pags:Math.max(0,Math.round(+e.pages||0)),coletivo:!!e.coletivo})}catch(err){console.warn('historico',err)}}).catch(()=>{})}
 async function syncName(){}
 
