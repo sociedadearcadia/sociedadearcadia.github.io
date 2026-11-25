@@ -48,7 +48,7 @@ code{background:rgba(23,15,51,.8);padding:3px 8px;border-radius:6px;word-break:b
   try{await auth.getRedirectResult()}catch(e){console.warn(e)}
   function login(){st.innerHTML='<p>Esta página é só para a administração do clube.</p><div class="row"><button class="btn" id="g">Entrar com Google</button></div>';
     $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);else st.insertAdjacentHTML('beforeend','<p class="muted">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
-  let rows=[];
+  let rows=[],podeApagar=false;
   function csv(){const cols=['criadoEm','nome','nascimento','whatsapp','instagram','cidade','ritmo','generos','favoritos','clube','expectativas','origem'];
     const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
     const out=[cols.join(';')].concat(rows.map(r=>cols.map(c=>q(c==='generos'?(r.generos||[]).join(', '):c==='criadoEm'?(r.criadoEm?r.criadoEm.toDate().toLocaleString('pt-BR'):''):r[c])).join(';')));
@@ -61,12 +61,15 @@ code{background:rgba(23,15,51,.8);padding:3px 8px;border-radius:6px;word-break:b
       '<dt>Campo Grande</dt><dd>'+esc(r.cidade)+'</dd><dt>Livros/mês</dt><dd>'+esc(r.ritmo)+'</dd><dt>Gêneros</dt><dd>'+esc((r.generos||[]).join(', '))+'</dd>'+
       (r.favoritos?'<dt>Favoritos</dt><dd>'+esc(r.favoritos)+'</dd>':'')+'<dt>Já fez clube</dt><dd>'+esc(r.clube)+'</dd>'+
       (r.expectativas?'<dt>Espera</dt><dd>'+esc(r.expectativas)+'</dd>':'')+'<dt>Conheceu por</dt><dd>'+esc(r.origem)+'</dd></dl>'+
-      '<button class="del" data-id="'+esc(r._id)+'">Apagar resposta</button></article>'}).join('');
+      (podeApagar?'<button class="del" data-id="'+esc(r._id)+'">Apagar resposta</button>':'')+'</article>'}).join('');
     list.querySelectorAll('.del').forEach(b=>b.onclick=async()=>{if(!confirm('Apagar esta resposta para sempre?'))return;await db.collection('interessadas').doc(b.dataset.id).delete()})}
   auth.onAuthStateChanged(async u=>{
     if(!u||u.isAnonymous)return login();
-    let admin=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
-    if(!admin){st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted">Para liberar, no console do Firebase crie em Firestore a coleção <code>admins</code> com um documento cujo ID é:</p><p><code>'+esc(u.uid)+'</code></p><div class="row"><button class="btn ghost" id="out">Sair</button></div>';$('out').onclick=()=>auth.signOut();return}
+    let admin=false,conselho=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+    // conselho: e-mail Google na lista do conselho (a Bia mantém em /admin). Vê e baixa; não apaga.
+    if(!admin&&u.email){try{conselho=(await db.collection('conselho').doc(u.email.toLowerCase()).get()).exists}catch(e){}}
+    podeApagar=admin;
+    if(!admin&&!conselho){st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted">Se você faz parte do conselho, peça para a Bia incluir este e-mail na lista do conselho.</p><div class="row"><button class="btn ghost" id="out">Sair</button></div>';$('out').onclick=()=>auth.signOut();return}
     st.innerHTML='<div class="row"><span id="cnt" class="muted"></span><button class="btn" id="dl">Baixar planilha (CSV)</button><button class="btn ghost" id="out">Sair</button></div>';
     $('out').onclick=()=>auth.signOut();$('dl').onclick=csv;
     db.collection('interessadas').orderBy('criadoEm','desc').onSnapshot(s=>{rows=s.docs.map(d=>Object.assign({_id:d.id},d.data()));$('cnt').textContent=rows.length+' inscrições';render()},
