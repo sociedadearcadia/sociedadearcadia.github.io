@@ -7,7 +7,11 @@
 <title>Área das integrantes · Sociedade Arcádia</title>
 <meta name="theme-color" content="#170f33">
 <link rel="icon" type="image/png" href="/selo-arcadia.png">
-<link rel="apple-touch-icon" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
@@ -71,6 +75,7 @@
 <script src="/fx.js"></script>
 <script src="/config.js"></script>
 <script src="/icones.js"></script>
+<script src="/instalar.js"></script>
 <script>
 (async function(){
   const $=id=>document.getElementById(id);
@@ -140,6 +145,7 @@
   LS.set('integrante',1);
   $('estado').textContent='Escolha para onde quer ir.';
   desenhar();$('grupos').hidden=false;
+  if(window.ARC_INSTALAR)ARC_INSTALAR($('grupos'));
   /* a limpeza da lista só aparece enquanto estiver aberta */
   db.collection('limpezas').onSnapshot(s=>{const agora=Date.now();
     limpezaAberta=s.docs.some(d=>{const x=d.data();return !x.encerrada&&x.fechaEm&&x.fechaEm.toMillis()>=agora});desenhar()},e=>console.warn(e));
