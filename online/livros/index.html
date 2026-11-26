@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Livros sugeridos · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="livros.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/">← Sociedade Arcádia</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl" id="topoLbl">Leitura oficial do mês</p>
+      <h1>Livros sugeridos</h1>
+    </div>
+    <div class="abas" id="abas" role="tablist" aria-label="Escolha a lista"></div>
+    <div id="sobreOficial">
+      <div class="generos"><span class="tag g-romantasia">Romantasia</span><span class="tag g-fantasia">Fantasia</span></div>
+      <div class="aviso">
+        <p>Esta é a lista de sugestões para o <b>sorteio e a votação da leitura oficial do mês</b>.</p>
+        <p>Só entram livros de <b>romantasia</b> e <b>fantasia</b>.</p>
+        <p class="nao">As LCs extras têm listas separadas, nos botões acima.</p>
+      </div>
+      <details class="criterios">
+        <summary>Critérios da lista</summary>
+        <ul>
+          <li>Livros com edição brasileira, em português.</li>
+          <li>Volumes únicos ou primeiros livros de séries.</li>
+          <li>Distopias entram em Fantasia.</li>
+          <li>Leituras anteriores da Sociedade Arcádia não participam do sorteio.</li>
+        </ul>
+      </details>
+    </div>
+    <div id="sobreLc" hidden>
+      <div class="aviso">
+        <p>Esta é a lista de sugestões da <b>LC extra <span id="lcNome"></span></b>.</p>
+        <p class="nao">Não é a lista da leitura oficial do mês.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="limpezaP" hidden>
+    <p class="lbl">Aberta até <span id="limpezaAte"></span></p>
+    <h2>Limpeza da lista</h2>
+    <p class="muted small" style="margin:-6px 0 12px">Marque os livros que você não leria de jeito nenhum. Só a administração vê.</p>
+    <a class="btn wide" href="/online/limpeza/" style="display:block;text-align:center;text-decoration:none">Marcar meus livros</a>
+  </section>
+
+  <section class="panel">
+    <p class="lbl" id="listaLbl">Lista para o sorteio</p>
+    <h2 id="totalT">Livros da lista</h2>
+    <p class="muted" id="carregando" style="margin:0">Carregando…</p>
+    <div id="listaBox" hidden>
+      <div class="filtro" id="filtro" role="group" aria-label="Filtrar por gênero"></div>
+      <div class="busca"><input type="text" id="busca" placeholder="Procurar título ou autora" aria-label="Procurar na lista" autocomplete="off"></div>
+      <ul class="livros" id="livros"></ul>
+    </div>
+  </section>
+
+  <section class="panel" id="sugP">
+    <p class="lbl" id="sugLbl">Sugestões</p>
+    <h2>Sugerir um livro</h2>
+    <div id="sugBox"><p class="muted" style="margin:0">Carregando…</p></div>
+  </section>
+
+  <section class="panel" id="minhasP" hidden>
+    <p class="lbl">Neste aparelho</p>
+    <h2>Suas sugestões</h2>
+    <ul class="minhas" id="minhas"></ul>
+  </section>
+
+  <p class="foot"><a href="/online/leitura/">Atualização de leitura</a> · <a href="/online/agenda/">Agenda</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const L=window.LIVROS,{esc,slug,icon}=L;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  document.querySelector('.busca').insertAdjacentHTML('afterbegin',icon('busca'));
+
+  /* nome de quem está usando este aparelho (o mesmo das outras páginas) */
+  let eu=(()=>{const l=LS.get('livrosNome','')||LS.get('agendaNome','')||LS.get('leituraNome','')||((LS.get('me',null)||{}).name||'');return MEMBROS.find(n=>slug(n)===slug(l))||''})();
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const V='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);$('carregando').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* ---------- listas: leitura oficial e LCs extras ---------- */
+  let todos=[],filtro=LS.get('livrosFiltro','todos'),cfg=null,cfgLc=null,minhas=[],carregou=false;
+  let aba=(location.hash.slice(1)||LS.get('livrosAba','oficial'));
+  if(!['todos','romantasia','fantasia'].includes(filtro))filtro='todos';
+  const lcsAtivas=()=>L.lcs(cfgLc,true);
+  const nomeLista=id=>id==='oficial'?'Leitura oficial':'LC '+((lcsAtivas().find(l=>l.id===id)||L.lcs(cfgLc).find(l=>l.id===id)||{}).nome||'extra');
+  const daAba=()=>todos.filter(l=>L.listaDe(l)===aba);
+  function abas(){
+    if(aba!=='oficial'&&cfgLc&&!lcsAtivas().some(l=>l.id===aba))aba='oficial';
+    $('abas').innerHTML=[{id:'oficial',nome:'Leitura oficial'}].concat(lcsAtivas().map(l=>({id:l.id,nome:'LC '+l.nome}))).map(t=>
+      '<button type="button" class="chip" role="tab" data-aba="'+esc(t.id)+'" aria-pressed="'+(aba===t.id)+'" aria-selected="'+(aba===t.id)+'">'+esc(t.nome)+'</button>').join('');
+    const of=aba==='oficial',lc=lcsAtivas().find(l=>l.id===aba);
+    $('topoLbl').textContent=of?'Leitura oficial do mês':'LC extra';
+    $('sobreOficial').hidden=!of;$('sobreLc').hidden=of;if(lc)$('lcNome').textContent=lc.nome;
+    $('listaLbl').textContent=of?'Lista para o sorteio':'Lista da LC '+(lc?lc.nome:'');
+    $('sugLbl').textContent=of?'Sugestões · leitura oficial':'Sugestões · LC '+(lc?lc.nome:'');
+    $('filtro').hidden=!of}
+  $('abas').onclick=e=>{const b=e.target.closest('[data-aba]');if(!b)return;aba=b.dataset.aba;LS.set('livrosAba',aba);
+    history.replaceState(null,'',aba==='oficial'?location.pathname:'#'+aba);$('busca').value='';tudo()};
+  function tudo(){abas();desenhar();estavaAberto=null;formulario();checar();desenharMinhas()}
+
+  /* limpeza da lista aberta? (aviso com o botão) */
+  db.collection('limpezas').onSnapshot(s=>{const agora=Date.now();
+    const l=s.docs.map(d=>d.data()).filter(x=>!x.encerrada&&x.fechaEm&&x.fechaEm.toMillis()>=agora).sort((a,b)=>b.fechaEm.toMillis()-a.fechaEm.toMillis())[0];
+    $('limpezaP').hidden=!l;if(l)$('limpezaAte').textContent=L.dataLonga(l.ate)},e=>console.warn(e));
+  db.collection('sugestoes').where('status','==','lista').onSnapshot(s=>{
+    todos=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort(L.ordem);
+    carregou=true;$('carregando').hidden=true;$('listaBox').hidden=false;desenhar();checar()
+  },e=>{console.warn(e);$('carregando').textContent='Não foi possível carregar agora. Tente recarregar a página.'});
+
+  function desenhar(){if(!carregou)return;
+    const livros=daAba(),of=aba==='oficial';
+    const c={todos:livros.length,romantasia:0,fantasia:0};if(of)livros.forEach(l=>c[L.genero(l.genero)]++);
+    $('totalT').textContent=livros.length===1?'1 livro na lista':livros.length+' livros na lista';
+    $('filtro').innerHTML=[['todos','Todos'],['romantasia','Romantasia'],['fantasia','Fantasia']].map(([k,t])=>
+      '<button type="button" class="chip" data-f="'+k+'" aria-pressed="'+(filtro===k)+'">'+t+'<b>'+c[k]+'</b></button>').join('');
+    const q=L.chave($('busca').value);
+    const ls=livros.filter(l=>(!of||filtro==='todos'||L.genero(l.genero)===filtro)&&(!q||L.chave(l.titulo+' '+(l.autor||'')).includes(q)));
+    $('livros').innerHTML=ls.length?ls.map(l=>'<li class="livro '+(of?'g-'+L.genero(l.genero):'g-lc')+'"><span class="lombada"></span><div class="bd">'+
+        '<h3>'+esc(l.titulo)+'</h3>'+(l.autor?'<p class="au">'+esc(l.autor)+'</p>':'')+
+        (l.obs?'<p class="obs">“'+esc(l.obs)+'”</p>':'')+
+        (l.nome?'<p class="por">Sugerido por '+esc(l.nome)+'</p>':'')+(of?L.tag(l.genero):'')+'</div></li>').join('')
+      :'<li class="vazio muted small">'+(livros.length?'Nenhum livro encontrado.':'A lista ainda está vazia.'+(of?'':' Que tal sugerir o primeiro?'))+'</li>'}
+  $('filtro').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;filtro=b.dataset.f;LS.set('livrosFiltro',filtro);desenhar()};
+  $('busca').oninput=desenhar;
+
+  /* ---------- sugestões abertas ou fechadas ---------- */
+  db.collection('config').doc('sugestoes').onSnapshot(s=>{cfg=s.exists?s.data():{};formulario()},e=>{console.warn(e);cfg={};formulario()});
+  db.collection('config').doc('lcs').onSnapshot(s=>{cfgLc=s.exists?s.data():{};tudo()},e=>{console.warn(e);cfgLc={};tudo()});
+  let estavaAberto=null;
+  function formulario(){
+    const of=aba==='oficial';if(!cfg||(!of&&!cfgLc))return;
+    const lc=of?null:lcsAtivas().find(l=>l.id===aba);
+    const ab=of?L.aberto(cfg):!!(lc&&lc.aberto),k=aba+'|'+ab+'|'+(of?(cfg.ate||'')+'|'+(cfg.proxima||''):'');
+    if(k===estavaAberto)return;estavaAberto=k;
+    if(!ab){
+      $('sugBox').innerHTML='<div class="fechado">'+icon('cadeado')+'<div><p><b>As sugestões '+(of?'':'desta LC ')+'estão fechadas agora.</b></p>'+
+        (of?'<p class="muted small" style="margin-top:4px">'+(cfg&&cfg.proxima&&cfg.proxima>=L.hojeISO()?'Próxima abertura: <b style="color:var(--cream)">'+esc(L.dataLonga(cfg.proxima))+'</b>.':'O aviso sai no grupo quando abrir.')+'</p>':'')+'</div></div>';
+      return}
+    $('sugBox').innerHTML=(of?(cfg.ate?'<span class="aberto-ate">Abertas até '+esc(L.dataLonga(cfg.ate))+'</span>':'<span class="aberto-ate">Sugestões abertas</span>'):'<span class="aberto-ate">Sugestões abertas</span>')+
+      '<p class="repetido" style="margin:0 0 12px"><b>Antes de sugerir, procure o livro na lista acima</b> para ver se ele já não está lá.</p>'+
+      '<p class="muted small" style="margin:0 0 14px">'+(of?'Sua sugestão vai para a administração, que olha e decide se entra na lista. Livros de outros gêneros ficam para as LCs extras.'
+        :'Esta sugestão é só para a LC '+esc(lc.nome)+'. A administração olha e decide se entra na lista.')+'</p>'+
+      '<form class="form" id="sugF">'+
+        '<label>Seu nome<select id="sNome" required><option value="">Escolha seu nome</option>'+MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label>'+
+        '<label>Nome do livro<input type="text" id="sTitulo" maxlength="120" required autocomplete="off"></label>'+
+        '<label>Autora ou autor<input type="text" id="sAutor" maxlength="120" required autocomplete="off"></label>'+
+        (of?'<div class="field">Gênero<div class="radios" id="sGen">'+
+          '<label class="g-romantasia"><input type="radio" name="gen" value="romantasia" required>Romantasia</label>'+
+          '<label class="g-fantasia"><input type="radio" name="gen" value="fantasia">Fantasia</label></div></div>':'')+
+        '<label>Por que você indica? <small>Opcional</small><textarea id="sObs" maxlength="400" rows="3"></textarea></label>'+
+        '<p class="repetido" id="sRep" hidden></p>'+
+        '<button class="btn wide" type="submit" id="sBtn">Enviar sugestão</button>'+
+      '</form>';
+    const gen=$('sGen');if(gen)gen.onchange=()=>gen.querySelectorAll('label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));
+    $('sTitulo').oninput=checar;
+    $('sNome').onchange=e=>{eu=e.target.value;LS.set('livrosNome',eu)};
+    $('sugF').onsubmit=enviar}
+  function repetido(t){const k=L.chave(t);if(k.length<3)return null;
+    return daAba().find(l=>L.chave(l.titulo)===k)||minhas.find(l=>l.status==='pendente'&&L.listaDe(l)===aba&&L.chave(l.titulo)===k)||null}
+  function checar(){const el=$('sRep');if(!el)return;const r=repetido($('sTitulo').value);
+    el.hidden=!r;if(r)el.textContent=r.status==='lista'?'“'+r.titulo+'” já está nesta lista.':'Você já sugeriu “'+r.titulo+'”. Está aguardando a administração.'}
+  async function enviar(ev){ev.preventDefault();
+    const of=aba==='oficial';
+    const g=of?(document.querySelector('input[name=gen]:checked')||{}).value:'';
+    const v={titulo:$('sTitulo').value.trim(),autor:$('sAutor').value.trim(),genero:g,obs:$('sObs').value.trim(),nome:$('sNome').value};
+    if(!v.nome){toast('Escolha seu nome');$('sNome').focus();return}
+    if(!v.titulo){toast('Escreva o nome do livro');$('sTitulo').focus();return}
+    if(!v.autor){toast('Escreva a autora ou o autor');$('sAutor').focus();return}
+    if(of&&!L.GEN[v.genero]){toast('Marque se é romantasia ou fantasia');return}
+    if(repetido(v.titulo)){toast('Esse livro já está na lista');return}
+    if(!of)v.lista=aba;
+    const b=$('sBtn');b.disabled=true;
+    try{await db.collection('sugestoes').add(Object.assign(v,{status:'pendente',uid,criadoEm:firebase.firestore.FieldValue.serverTimestamp()}));
+      eu=v.nome;LS.set('livrosNome',eu);
+      $('sTitulo').value='';$('sAutor').value='';$('sObs').value='';$('sRep').hidden=true;
+      document.querySelectorAll('input[name=gen]').forEach(i=>i.checked=false);if($('sGen'))$('sGen').onchange();
+      toast('Sugestão enviada! A administração vai olhar ✨')}
+    catch(e){console.warn(e);toast(e.code==='permission-denied'?'As sugestões fecharam. Tente na próxima abertura.':'Não foi possível enviar. Tente de novo.')}
+    b.disabled=false}
+
+  /* ---------- minhas sugestões (deste aparelho) ---------- */
+  const ST={pendente:'Aguardando',lista:'Entrou na lista',recusada:'Não entrou'};
+  function desenharMinhas(){$('minhasP').hidden=!minhas.length;
+    $('minhas').innerHTML=minhas.map(m=>{const of=L.listaDe(m)==='oficial';
+      return '<li><span>'+esc(m.titulo)+'<small>'+esc(of?'Leitura oficial · '+L.GEN[L.genero(m.genero)]:nomeLista(L.listaDe(m)))+(m.motivo?' · '+esc(m.motivo):'')+'</small></span><span class="st '+esc(m.status)+'">'+(ST[m.status]||'')+'</span></li>'}).join('')}
+  db.collection('sugestoes').where('uid','==',uid).onSnapshot(s=>{
+    minhas=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort((a,b)=>((b.criadoEm&&b.criadoEm.seconds)||9e9)-((a.criadoEm&&a.criadoEm.seconds)||9e9));
+    desenharMinhas();checar()},e=>console.warn(e));
+  abas();
+})();
+</script>
+</body>
+</html>

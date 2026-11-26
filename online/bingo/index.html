@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Bingo · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="/online/livros/livros.css">
+<link rel="stylesheet" href="bingo.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<main class="wrap">
+  <a class="back" href="/">← Sociedade Arcádia</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Bingo do clube</p>
+      <h1 id="titulo">Bingo Literário</h1>
+      <p class="periodo" id="periodo" hidden></p>
+    </div>
+  </section>
+
+  <section class="panel" id="comoP">
+    <div class="como" id="como"></div>
+  </section>
+
+  <section class="panel" id="cartelaP">
+    <p class="lbl">Tabela</p>
+    <h2>Tabela do bingo</h2>
+    <div id="emBreve" class="em-breve" hidden>
+      <p class="eb-t">Tabela em breve</p>
+      <p>Previsão de lançamento: <b>1º de janeiro de 2027</b>.</p>
+      <p class="muted small">É só uma previsão e pode ser antes.</p>
+    </div>
+    <div id="tabelaBox" hidden>
+      <form class="acesso" id="acesso" hidden>
+        <p class="ac-t">Entre na sua cartela.</p>
+        <label>Seu nome<select id="nome"><option value="">Escolha seu nome</option></select></label>
+        <label id="pinL">Seu código <small id="pinDica">4 números.</small><input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off"></label>
+        <label id="pin2L" hidden>Repita o código<input type="password" id="pin2" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off"></label>
+        <p class="err" id="acErr" hidden></p>
+        <button class="btn wide" type="submit" id="acBtn">Abrir minha cartela</button>
+      </form>
+      <div class="dona" id="dona" hidden><span>Cartela de <b id="donaN"></b></span><button class="lnk" type="button" id="sairC">Sair</button></div>
+      <div class="placar" id="placarP" hidden><span>Desafios aprovados <b id="placar">0</b></span><span class="bingos" id="bingosT"></span></div>
+      <div class="cartao" id="cartao">
+        <div class="cab5" aria-hidden="true"><span>B</span><span>I</span><span>N</span><span>G</span><span>O</span></div>
+        <div class="grade" id="grade"></div>
+      </div>
+      <div class="legenda" id="legenda"></div>
+      <p class="muted small" style="margin:10px 0 0;text-align:center" id="dicaCasa">Toque numa casa para ver a explicação.</p>
+      <details class="expl" id="expl" open>
+        <summary>Explicação de cada desafio</summary>
+        <div id="explL"></div>
+      </details>
+    </div>
+    <p class="muted" id="tabCarregando" style="margin:0">Carregando…</p>
+  </section>
+
+  <section class="panel" id="rankP" hidden>
+    <p class="lbl">Ranking</p>
+    <h2>Quanto cada uma já cumpriu</h2>
+    <ul class="people" id="rank"></ul>
+  </section>
+
+  <section class="panel" id="envioP">
+    <p class="lbl">Provas</p>
+    <h2>Mandar prova</h2>
+    <div id="formBox"><p class="muted" style="margin:0">Carregando…</p></div>
+  </section>
+
+  <section class="panel" id="minhasP" hidden>
+    <p class="lbl">Enviadas</p>
+    <h2>Suas provas</h2>
+    <ul class="provas" id="minhas"></ul>
+  </section>
+
+  <p class="foot"><a href="/online/agenda/">Agenda</a> · <a href="/online/sprint/">Sprint de leitura</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="folha-fundo" id="folhaF" hidden></div>
+<div class="folha" id="folha" role="dialog" aria-modal="true" aria-labelledby="folhaT" hidden>
+  <button type="button" class="folha-x" id="folhaX" aria-label="Fechar">×</button>
+  <div id="folhaC"></div>
+</div>
+<div class="zoom" id="zoom" hidden><img id="zoomImg" alt="Print enviado"><button type="button" id="zoomX" aria-label="Fechar">×</button></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="/online/livros/comum.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const L=window.LIVROS,{esc,slug}=L,B=window.BINGO;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3000)}
+  const zoom=src=>{$('zoomImg').src=src;$('zoom').hidden=false};
+  $('zoomX').onclick=$('zoom').onclick=e=>{if(e.target.id!=='zoomImg'){$('zoom').hidden=true;$('zoomImg').removeAttribute('src')}};
+
+  /* nome sugerido (o mesmo das outras páginas deste aparelho) */
+  const sugerido=(()=>{const l=LS.get('bingoNome','')||LS.get('ideiasNome','')||LS.get('livrosNome','')||LS.get('agendaNome','')||LS.get('leituraNome','')||((LS.get('me',null)||{}).name||'');return MEMBROS.find(n=>slug(n)===slug(l))||''})();
+  $('nome').insertAdjacentHTML('beforeend',MEMBROS.map(n=>'<option'+(n===sugerido?' selected':'')+'>'+esc(n)+'</option>').join(''));
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const V='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);$('formBox').innerHTML='<p class="muted" style="margin:0">Sem conexão agora. Verifique a internet e recarregue a página.</p>';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  const FV=firebase.firestore.FieldValue;
+  let cfg=undefined,provas=[],fotos=[],enviando=false,parar=null,pararC=null,cart=null;
+  /* cartela aberta neste aparelho: nome e chave (a chave vem do nome + código; sem o código ninguém chega nela) */
+  let eu='',chave='';{const c=LS.get('bingoCartela',null);if(c&&c.h&&MEMBROS.includes(c.nome)){eu=c.nome;chave=c.h}}
+
+  /* ---------- tabela do bingo: só aparece depois que a administração libera ---------- */
+  function ouvirCfg(){
+    const off=db.collection('config').doc('bingo').onSnapshot(s=>{cfg=s.exists?s.data():null;atualizar()},
+      e=>{/* tabela ainda escondida: tenta de novo daqui a pouco */cfg=null;atualizar();off();setTimeout(ouvirCfg,60000)})}
+  ouvirCfg();
+  function atualizar(){
+    if(cfg&&cfg.titulo)$('titulo').textContent=cfg.titulo;
+    $('periodo').hidden=!(liberada()&&cfg.ate);if(!$('periodo').hidden)$('periodo').textContent='Provas até '+L.dataBR(cfg.ate);
+    ouvirRank();ouvir();desenharForm();desenharCartela()}
+  const liberada=()=>!!(cfg&&cfg.visivel&&Array.isArray(cfg.desafios)&&cfg.desafios.length);
+  const desafios=()=>liberada()?cfg.desafios:[];
+  const aberto=()=>liberada()&&L.aberto(cfg);
+  /* ranking: só a porcentagem de cada uma (a administração atualiza quando confere as provas) */
+  let pararR=null,rankOn=false;
+  function ouvirRank(){if(!liberada()){if(pararR){pararR();pararR=null}rankOn=false;$('rankP').hidden=true;return}if(rankOn)return;rankOn=true;
+    pararR=db.collection('config').doc('bingoRanking').onSnapshot(s=>{const r=s.exists?s.data():{},tot=desafios().length||25;
+      const it=r.edicao===cfg.edicao?Object.values(r.itens||{}):[];
+      const lista=MEMBROS.map(n=>{const x=it.find(y=>y.nome===n);return {n,f:x?x.feitos:0}}).sort((a,b)=>b.f-a.f||a.n.localeCompare(b.n,'pt-BR'));
+      $('rankP').hidden=false;const zero=lista.filter(x=>!x.f).length;
+      $('rank').innerHTML=lista.filter(x=>x.f).map(x=>{const pc=Math.round(100*x.f/tot);return '<li class="'+(x.f?'':'none')+(x.n===eu?' me':'')+'"><span class="n">'+esc(x.n)+'</span><span class="v">'+pc+'%</span><div class="bar"><i style="width:'+pc+'%"></i></div></li>'}).join('')+
+        (zero?'<li class="none"><span class="n" style="white-space:normal">'+(zero===lista.length?'Ninguém tem desafio aprovado ainda.':(zero===1?'1 integrante ainda está':zero+' integrantes ainda estão')+' em 0%.')+'</span></li>':'')},
+      e=>{console.warn(e);$('rankP').hidden=true})}
+  /* explicação simples */
+  $('como').innerHTML=B.COMO.map(g=>'<p class="lbl">'+esc(g.t)+'</p><ul class="resumo">'+g.itens.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul>').join('');
+
+  /* ---------- abrir a própria cartela (nome + código de 4 números) ---------- */
+  async function hash(nome,pin){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('arcadia-bingo:'+slug(nome)+':'+pin));
+    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+  let temCodigo=null;
+  async function verNome(){const n=$('nome').value;temCodigo=null;$('acErr').hidden=true;
+    if(!n){$('pin2L').hidden=true;$('pinDica').textContent='4 números.';$('acBtn').textContent='Abrir minha cartela';return}
+    try{temCodigo=(await db.collection('pessoas').doc(slug(n)).get()).exists}catch(e){temCodigo=true}
+    if(n!==$('nome').value)return;
+    $('pin2L').hidden=temCodigo;$('pinDica').textContent=temCodigo?'O código que você criou.':'Primeira vez: crie um código de 4 números e guarde.';
+    $('acBtn').textContent=temCodigo?'Abrir minha cartela':'Criar minha cartela'}
+  $('nome').onchange=verNome;verNome();
+  $('acesso').onsubmit=async ev=>{ev.preventDefault();const n=$('nome').value,pin=$('pin').value.trim(),err=t=>{$('acErr').textContent=t;$('acErr').hidden=false};
+    $('acErr').hidden=true;
+    if(!n)return err('Escolha seu nome.');
+    if(!/^\d{4}$/.test(pin))return err('O código tem 4 números.');
+    if(temCodigo===null)await verNome();
+    if(!temCodigo&&$('pin2').value.trim()!==pin)return err('Os dois códigos estão diferentes.');
+    const b=$('acBtn');b.disabled=true;
+    try{const h=await hash(n,pin),ref=db.collection('cartelas').doc(h);
+      if(temCodigo){const c=await ref.get();if(!c.exists){b.disabled=false;return err('Código errado. Se esqueceu, peça para a administração apagar o seu código e crie outro.')}}
+      else{const bt=db.batch();bt.set(db.collection('pessoas').doc(slug(n)),{em:FV.serverTimestamp()});
+        bt.set(ref,{nome:n,slug:slug(n),marcadas:[],edicao:'',em:FV.serverTimestamp()});await bt.commit()}
+      eu=n;chave=h;LS.set('bingoCartela',{nome:n,h});LS.set('bingoNome',n);$('pin').value=$('pin2').value='';
+      toast(temCodigo?'Cartela aberta':'Cartela criada! Guarde o seu código ✨');ouvir();desenharCartela();desenharForm()}
+    catch(e){console.warn(e);err(e.code==='permission-denied'?'Este nome já tem código. Digite o código que você criou.':'Não foi possível agora. Tente de novo.');verNome()}
+    b.disabled=false};
+  $('sairC').onclick=()=>{if(!confirm('Sair da sua cartela neste aparelho? Para voltar, use o seu código.'))return;
+    LS.set('bingoCartela',null);eu='';chave='';cart=null;ouvir();desenharCartela();desenharForm()};
+
+  /* ---------- cartela e provas da integrante (só com a chave) ---------- */
+  let ouvindo='';
+  function ouvir(){const k=(liberada()?cfg.edicao:'')+'|'+chave;if(k===ouvindo)return;ouvindo=k;
+    if(parar){parar();parar=null}if(pararC){pararC();pararC=null}provas=[];cart=null;desenharCartela();desenharMinhas();
+    if(!chave||!liberada()||!cfg.edicao)return;
+    const ref=db.collection('cartelas').doc(chave);
+    pararC=ref.onSnapshot(s=>{if(!s.exists){/* código apagado pela administração */LS.set('bingoCartela',null);eu='';chave='';ouvir();desenharCartela();desenharForm();toast('Abra a sua cartela de novo');return}
+      cart=s.data();desenharCartela()},e=>console.warn(e));
+    parar=ref.collection('provas').where('edicao','==',cfg.edicao).onSnapshot(s=>{
+      provas=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort(B.recentes);desenharCartela();desenharMinhas()},e=>console.warn(e))}
+  const marcadas=()=>new Set(cart&&cart.edicao===(cfg&&cfg.edicao)?(cart.marcadas||[]):[]);
+  async function marcar(id,on){const ms=marcadas();if(on)ms.add(id);else ms.delete(id);
+    const lista=desafios().map(d=>d.id).filter(x=>ms.has(x));
+    cart=Object.assign({},cart,{marcadas:lista,edicao:cfg.edicao});desenharCartela();
+    try{await db.collection('cartelas').doc(chave).update({marcadas:lista,edicao:cfg.edicao,em:FV.serverTimestamp()})}catch(e){console.warn(e);toast('Não foi possível salvar a marcação')}}
+
+  function desenharCartela(){
+    if(cfg===undefined)return;
+    const ds=desafios(),m=B.cartela(provas),mk=marcadas();
+    $('tabCarregando').hidden=true;$('emBreve').hidden=!!ds.length;$('tabelaBox').hidden=!ds.length;if(!ds.length)return;
+    $('acesso').hidden=!!chave;$('dona').hidden=!chave;$('donaN').textContent=eu;
+    $('cartao').style.setProperty('--lin',Math.ceil(ds.length/5));
+    const cats0=[...new Set(ds.map(d=>d.c||''))];
+    const ok=new Set(ds.filter(d=>m[d.id]&&m[d.id].status==='aprovada').map(d=>d.id));
+    $('placarP').hidden=!chave;$('placar').textContent=ok.size+' de '+ds.length;
+    $('bingosT').textContent=B.bingo(ds,ok)?'BINGO!':'';
+    {let cat=null,h='';ds.forEach((d,i)=>{if((d.c||'')!==cat){cat=d.c||'';h+=cat?'<p class="ex-cat k'+(cats0.indexOf(cat)%4)+'">'+esc(cat)+'</p>':''}
+      h+='<div class="ex k'+(cats0.indexOf(d.c||'')%4)+'"><b><span>'+B.num(i)+'</span> '+esc(d.t)+'</b>'+(d.d?'<p>'+esc(d.d)+'</p>':'')+'</div>'});$('explL').innerHTML=h}
+    /* cartela de bingo: 5 colunas; cada categoria tem uma cor */
+    const cats=[...new Set(ds.map(d=>d.c||''))];
+    $('grade').innerHTML=ds.map((d,i)=>{const p=m[d.id],mar=mk.has(d.id);
+      return '<button type="button" class="casa k'+(cats.indexOf(d.c||'')%4)+' '+(p?esc(p.status):'')+(mar?' marcada':'')+'" data-casa="'+esc(d.id)+'" aria-label="Desafio '+B.num(i)+': '+esc(d.t)+(mar?', marcado por você':'')+(p?', prova '+B.ST[p.status]:'')+'">'+
+        '<span class="cn">'+B.num(i)+'</span><span class="ct">'+esc(d.t)+'</span>'+
+        (p&&p.status==='aprovada'?'<img class="selo" src="/selo-arcadia.png" alt="">':(mar?'<span class="marca" aria-hidden="true">✓</span>':''))+
+        (p&&p.status==='pendente'?'<span class="espera" aria-hidden="true"></span>':'')+'</button>'}).join('');
+    $('legenda').innerHTML=cats.filter(Boolean).map(c=>'<span class="lc k'+(cats.indexOf(c)%4)+'"><i></i>'+esc(c)+'</span>').join('')+
+      (chave?'<span class="lc"><b class="lm">✓</b>Cumpri</span><span class="lc"><i class="lp"></i>Prova enviada</span><span class="lc"><img src="/selo-arcadia.png" alt="">Aprovado</span>':'');
+    if(aberta)abrirFolha(aberta)}
+  /* folha com o desafio */
+  let aberta='';
+  function abrirFolha(id){const ds=desafios(),i=ds.findIndex(d=>d.id===id),d=ds[i];if(!d)return;aberta=id;
+    const p=B.cartela(provas)[id],cats=[...new Set(ds.map(x=>x.c||''))],mar=marcadas().has(id);
+    $('folhaC').innerHTML='<div class="folha-cab k'+(cats.indexOf(d.c||'')%4)+'"><span class="cn">'+B.num(i)+'</span>'+(d.c?'<span class="fc">'+esc(d.c)+'</span>':'')+'</div>'+
+      '<h3 id="folhaT">'+esc(d.t)+'</h3>'+(d.d?'<p class="desc">'+esc(d.d)+'</p>':'')+
+      (chave?'<label class="check-casa"><input type="checkbox" id="folhaMar"'+(mar?' checked':'')+'><span>Já cumpri</span></label>':'<p class="muted small" style="margin:14px 0 0">Entre na sua cartela para marcar.</p>')+
+      (p?'<p style="margin:12px 0 0">Prova: <span class="st '+esc(p.status)+'">'+B.ST[p.status]+'</span></p>'+(p.nota?'<p class="nota"><b>Recado da administração:</b> '+esc(p.nota)+'</p>':''):'')+
+      (chave&&aberto()&&(!p||p.status==='recusada')?'<button class="btn wide" type="button" id="folhaIr" style="margin-top:16px">Mandar prova deste desafio</button>':'');
+    $('folha').hidden=$('folhaF').hidden=false;document.body.classList.add('travado');
+    const mc=$('folhaMar');if(mc)mc.onchange=()=>marcar(id,mc.checked);
+    const ir=$('folhaIr');if(ir)ir.onclick=()=>{fecharFolha();const s=$('fDesafio');if(s){s.value=id;s.onchange();$('envioP').scrollIntoView({behavior:'smooth',block:'start'})}}}
+  function fecharFolha(){$('folha').hidden=$('folhaF').hidden=true;document.body.classList.remove('travado');aberta=''}
+  $('folhaX').onclick=$('folhaF').onclick=fecharFolha;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&aberta)fecharFolha()});
+  $('grade').onclick=e=>{const b=e.target.closest('[data-casa]');if(b)abrirFolha(b.dataset.casa)};
+
+  /* ---------- formulário ---------- */
+  function desenharForm(){if(enviando)return;
+    if(!liberada()){$('formBox').innerHTML='<div class="fechado-box">'+L.icon('cadeado')+'<p>O envio de provas abre junto com a tabela do bingo.</p></div>';return}
+    if(!chave){$('formBox').innerHTML='<div class="fechado-box">'+L.icon('cadeado')+'<p>Entre na sua cartela, lá em cima, para mandar provas.</p></div>';return}
+    if(!aberto()){$('formBox').innerHTML='<div class="fechado-box">'+L.icon('cadeado')+'<div><p><b>Envio de provas fechado.</b></p><p class="muted small" style="margin-top:4px">'+(cfg.ate&&L.hojeISO()>cfg.ate?'O prazo terminou em '+esc(L.dataBR(cfg.ate))+'.':'A administração avisa quando abrir.')+'</p></div></div>';return}
+    const antes=$('fDesafio')?$('fDesafio').value:'',obs=$('fObs')?$('fObs').value:'',livro=$('fLivro')?$('fLivro').value:'';
+    $('formBox').innerHTML='<form class="form" id="f">'+
+      (cfg.ate?'<span class="aberto-ate" style="align-self:flex-start;margin:0">Envio até '+esc(L.dataBR(cfg.ate))+'</span>':'')+
+      '<label>Desafio<select id="fDesafio" required><option value="">Escolha o desafio</option>'+
+        desafios().map((d,i)=>'<option value="'+esc(d.id)+'">'+B.num(i)+'. '+esc(d.t)+'</option>').join('')+'</select></label>'+
+      '<p class="desc-sel" id="fDesc" hidden></p>'+
+      '<div class="field">Print <small style="font-weight:400;color:var(--muted);font-size:12.5px">Até '+B.MAX.fotos+' imagens.</small>'+
+        '<div class="fotos-in"><label class="escolher" id="escolher"><input type="file" id="fFoto" accept="image/*" multiple><span id="escolherT">Escolher imagem</span></label>'+
+        '<div class="miniaturas" id="minis"></div></div></div>'+
+      '<label>Livro <small>Se o desafio usar um livro.</small><input type="text" id="fLivro" maxlength="'+B.MAX.desafio+'" autocomplete="off"></label>'+
+      '<label>Comentário <small>Opcional.</small><textarea id="fObs" maxlength="'+B.MAX.obs+'" rows="3"></textarea></label>'+
+      '<p class="muted small" style="margin:0">Só a administração vê. Pode ter spoiler.</p>'+
+      '<button class="btn wide" type="submit" id="fBtn">Enviar prova</button>'+
+      '<p class="enviando" id="fMsg" hidden></p>'+
+    '</form>';
+    $('fObs').value=obs;$('fLivro').value=livro;
+    $('fDesafio').onchange=()=>{const d=desafios().find(x=>x.id===$('fDesafio').value);$('fDesc').hidden=!(d&&d.d);if(d)$('fDesc').textContent=d.d};
+    $('fDesafio').value=antes;$('fDesafio').onchange();desenharFotos();
+    $('fFoto').onchange=async e=>{const fs=[...e.target.files];e.target.value='';
+      for(const f of fs){if(fotos.length>=B.MAX.fotos){toast('No máximo '+B.MAX.fotos+' imagens por prova');break}
+        if(f.type&&!f.type.startsWith('image/')){toast('Escolha um arquivo de imagem');continue}
+        const item={src:''};fotos.push(item);desenharFotos();
+        try{item.src=await B.comprimir(f)}catch(er){console.warn(er);fotos=fotos.filter(x=>x!==item);toast('Não foi possível usar esta imagem. Tente outra.')}
+        desenharFotos()}};
+    $('minis').onclick=e=>{const x=e.target.closest('[data-x]');if(x){fotos.splice(+x.dataset.x,1);desenharFotos();return}
+      const im=e.target.closest('img');if(im)zoom(im.src)};
+    $('f').onsubmit=enviar}
+  function desenharFotos(){const m=$('minis');if(!m)return;
+    m.innerHTML=fotos.map((f,i)=>f.src?'<div class="m"><img src="'+f.src+'" alt="Imagem '+(i+1)+'"><button type="button" class="x" data-x="'+i+'" aria-label="Tirar imagem">×</button></div>':'<div class="m carregando">Preparando…</div>').join('');
+    $('escolher').hidden=fotos.length>=B.MAX.fotos;$('escolherT').textContent=fotos.length?'Adicionar outra imagem':'Escolher imagem'}
+
+  async function enviar(ev){ev.preventDefault();
+    const ds=desafios(),i=ds.findIndex(x=>x.id===$('fDesafio').value),d=ds[i];
+    if(!chave){toast('Abra a sua cartela lá em cima');return}
+    if(!d){toast('Escolha o desafio');$('fDesafio').focus();return}
+    if(fotos.some(f=>!f.src)){toast('Espere as imagens ficarem prontas');return}
+    if(!fotos.length){toast('Escolha o print do desafio');return}
+    const p=B.cartela(provas)[d.id];
+    if(p&&p.status==='aprovada'){toast('Este desafio já foi aprovado');return}
+    if(p&&p.status==='pendente'&&!confirm('Você já mandou uma prova deste desafio e ela está aguardando. Mandar outra mesmo assim?'))return;
+    const b=$('fBtn');b.disabled=true;enviando=true;$('fMsg').hidden=false;$('fMsg').textContent='Enviando… não feche a página.';
+    try{
+      const ref=db.collection('cartelas').doc(chave).collection('provas').doc(B.novoId()),bt=db.batch();
+      bt.set(ref,{edicao:cfg.edicao,nome:eu,desafio:d.id,desafioTexto:(B.num(i)+'. '+d.t).slice(0,200),livro:$('fLivro').value.trim(),obs:$('fObs').value.trim(),fotos:fotos.length,
+        status:'pendente',criadoEm:FV.serverTimestamp()});
+      bt.set(ref.collection('img').doc('0'),{imgs:fotos.map(f=>f.src)});
+      await bt.commit();
+      fotos=[];enviando=false;$('fDesafio').value='';$('fObs').value='';$('fLivro').value='';desenharForm();
+      toast('Prova enviada! A administração vai conferir ✨');
+      setTimeout(()=>$('minhasP').scrollIntoView({behavior:'smooth',block:'start'}),300)}
+    catch(e){console.warn(e);enviando=false;b.disabled=false;$('fMsg').hidden=true;
+      toast(e.code==='permission-denied'?'O envio foi recusado. Confira se o bingo está aberto e tente de novo.':'Não foi possível enviar. Tente de novo.')}}
+
+  /* ---------- provas enviadas ---------- */
+  const cacheImg={};
+  function desenharMinhas(){
+    $('minhasP').hidden=!provas.length;
+    $('minhas').innerHTML=provas.map(p=>{const minha=true;
+      return '<li class="prova '+esc(p.status)+'" data-id="'+esc(p._id)+'">'+
+      '<div class="topo"><h3>'+esc(p.desafioTexto)+'</h3><span class="st '+esc(p.status)+'">'+(B.ST[p.status]||'')+'</span></div>'+
+      (p.criadoEm&&p.criadoEm.toDate?'<p class="por">Enviada em '+p.criadoEm.toDate().toLocaleDateString('pt-BR')+'</p>':'')+
+      (p.livro?'<p class="txt"><b>Livro:</b> '+esc(p.livro)+'</p>':'')+
+      (p.obs&&minha?'<p class="txt">'+esc(p.obs)+'</p>':'')+
+      (p.nota?'<p class="nota"><b>Recado da administração:</b> '+esc(p.nota)+'</p>':'')+
+      (p.status==='recusada'?'<p class="muted small" style="margin:0">Você pode mandar outra prova para este desafio.</p>':'')+
+      (minha?'<div class="miniaturas" data-imgs></div>':'')+
+      (minha&&p.status==='pendente'?'<div class="ed"><button class="del" type="button" data-apagar>Cancelar envio</button></div>':'')+
+      '</li>'}).join('');
+    $('minhas').querySelectorAll('[data-imgs]').forEach(async el=>{const id=el.closest('[data-id]').dataset.id;
+      try{if(!cacheImg[id]){const s=await db.collection('cartelas').doc(chave).collection('provas').doc(id).collection('img').doc('0').get();cacheImg[id]=s.exists?(s.data().imgs||[]):[]}
+        el.innerHTML=cacheImg[id].map((src,i)=>'<div class="m"><img src="'+src+'" alt="Print '+(i+1)+'"></div>').join('')}catch(e){}})}
+  $('minhas').onclick=async e=>{const im=e.target.closest('img');if(im){zoom(im.src);return}
+    const b=e.target.closest('[data-apagar]');if(!b)return;const id=b.closest('[data-id]').dataset.id;
+    if(!confirm('Cancelar o envio desta prova?'))return;b.disabled=true;
+    try{const ref=db.collection('cartelas').doc(chave).collection('provas').doc(id),bt=db.batch();bt.delete(ref.collection('img').doc('0'));bt.delete(ref);await bt.commit();toast('Envio cancelado')}
+    catch(er){console.warn(er);toast('Não foi possível agora. Tente de novo.');b.disabled=false}};
+})();
+</script>
+</body>
+</html>

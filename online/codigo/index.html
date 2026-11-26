@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Código da Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="codigo.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/online/integrantes/">← Área das integrantes</a>
+
+  <section class="panel arch capa-cod" id="topo">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Sociedade Arcádia</p>
+      <h1>Código da Sociedade Arcádia</h1>
+    </div>
+    <p class="ed" id="edicao" hidden></p>
+    <p class="sub">Os princípios que orientam nossa comunidade</p>
+    <div class="intro-cod corpo" id="intro" hidden></div>
+    <p class="muted" id="carregando" style="margin:14px 0 0">Carregando…</p>
+  </section>
+
+  <section class="panel" id="indiceP" hidden>
+    <p class="lbl">Índice</p>
+    <nav class="indice" id="indice" aria-label="Seções do Código"></nav>
+    <input type="search" class="busca-cod" id="busca" placeholder="Procurar no Código (ex.: spoiler, sorteio)" aria-label="Procurar no Código" autocomplete="off">
+    <p class="muted small" id="semRes" hidden style="margin:10px 0 0">Nada encontrado.</p>
+  </section>
+
+  <div id="secoes" style="display:flex;flex-direction:column;gap:16px"></div>
+
+  <p class="foot"><a href="/online/integrantes/">Área das integrantes</a> · <a href="/online/guia/">Guia do site</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const C=window.CODIGO,esc=C.esc;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const V='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);$('carregando').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* ---------- código ---------- */
+  let secs=[];
+  function desenhar(d){
+    if(!d||!d.texto){$('carregando').textContent='O Código ainda não foi publicado no site.';$('carregando').hidden=false;$('intro').hidden=true;$('indiceP').hidden=true;$('secoes').innerHTML='';return}
+    const r=C.ler(d.texto);secs=r.secoes;
+    $('carregando').hidden=true;
+    $('edicao').hidden=!d.edicao;$('edicao').textContent=d.edicao||'';
+    $('intro').innerHTML=r.intro;$('intro').hidden=!r.intro;
+    $('indiceP').hidden=!secs.length;
+    $('indice').innerHTML=secs.map(s=>'<a href="#'+esc(s.id)+'"><b>'+s.n+'</b>'+esc(s.titulo)+'</a>').join('');
+    $('secoes').innerHTML=secs.map(s=>'<section class="panel sec" id="'+esc(s.id)+'"><div class="cab-s"><span class="nr">'+s.n+'</span><h2>'+esc(s.titulo)+'</h2></div><div class="corpo">'+s.html+'</div><a class="topo-link" href="#indiceP">↑ Voltar ao índice</a></section>').join('');
+    filtrar();
+    if(location.hash){const el=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(el)setTimeout(()=>el.scrollIntoView(),60)}}
+  function filtrar(){const q=$('busca').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();let n=0;
+    secs.forEach(s=>{const v=!q||s.busca.includes(q);if(v)n++;const el=document.getElementById(s.id);if(el)el.hidden=!v;
+      const a=$('indice').querySelector('a[href="#'+s.id+'"]');if(a)a.hidden=!v});
+    $('semRes').hidden=n>0}
+  $('busca').addEventListener('input',filtrar);
+  db.collection('codigo').doc('atual').onSnapshot(s=>desenhar(s.exists?s.data():null),
+    e=>{console.warn(e);$('carregando').textContent='Não foi possível carregar o Código. Recarregue a página.'});
+})();
+</script>
+</body>
+</html>

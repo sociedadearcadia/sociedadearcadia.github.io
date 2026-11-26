@@ -1,0 +1,27 @@
+{
+ "name": "Salão Principal de Hogwarts",
+ "short_name": "Hogwarts",
+ "start_url": "/online/hogwarts/",
+ "scope": "/online/hogwarts/",
+ "display": "standalone",
+ "background_color": "#0b1730",
+ "theme_color": "#0b1730",
+ "icons": [
+  {
+   "src": "/online/hogwarts/img/icone-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/online/hogwarts/img/icone-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/online/hogwarts/img/icone-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

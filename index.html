@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sociedade Arcádia</title>
-<meta name="description" content="Clube de leitura presencial para mulheres em Campo Grande, MS. Fantasia e romantasia.">
+<meta name="description" content="Clube de leitura para mulheres, presencial em Campo Grande, MS, e online. Fantasia e romantasia.">
 <meta name="theme-color" content="#170f33">
 <meta property="og:title" content="Sociedade Arcádia">
-<meta property="og:description" content="Clube de leitura presencial para mulheres em Campo Grande, MS. Fantasia e romantasia.">
+<meta property="og:description" content="Clube de leitura para mulheres, presencial em Campo Grande, MS, e online. Fantasia e romantasia.">
 <meta property="og:image" content="https://sociedadearcadia.com.br/selo-arcadia.png">
 <link rel="icon" type="image/png" href="/selo-arcadia.png">
 <link rel="apple-touch-icon" href="/app-icone-apple.png">
@@ -74,6 +74,7 @@ body{margin:0;min-height:100vh;color:var(--cream);font-family:var(--body);font-s
 .orbit{position:absolute;left:50%;top:50%;width:0;height:0}
 .orbit i{position:absolute;width:16px;height:16px;margin:-8px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 6px #f2a8e0)}
 .cta-blk .btn{display:inline-flex;margin-top:calc(26 * var(--u));pointer-events:auto}
+.cta-blk .duo{display:flex;flex-wrap:wrap;justify-content:center;gap:0 calc(22 * var(--u))}
 .skip{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:8;font:600 13px var(--body);color:var(--cream);background:rgba(23,15,51,.55);
   border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .scroll{text-shadow:0 0 10px rgba(12,4,22,.9),0 0 4px rgba(12,4,22,.9);position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:8;color:var(--lilac);font:600 13px var(--body);text-decoration:none;opacity:0;transition:opacity 1s;
@@ -246,7 +247,8 @@ html{scroll-behavior:smooth}
     <li><a href="#leitura">Leitura atual</a></li>
     <li><a href="#atividades">O que fazemos</a></li>
     <li><a href="#vagas">Vagas</a></li>
-    <li><a href="/integrantes/">Área das integrantes <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;vertical-align:-2px;margin-left:4px;fill:none;stroke:#e7c987;stroke-width:1.6;stroke-linecap:round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a></li>
+    <li><a href="/integrantes/">Área das integrantes presencial <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;vertical-align:-2px;margin-left:4px;fill:none;stroke:#e7c987;stroke-width:1.6;stroke-linecap:round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a></li>
+    <li><a href="/online/integrantes/">Área das integrantes online <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;vertical-align:-2px;margin-left:4px;fill:none;stroke:#e7c987;stroke-width:1.6;stroke-linecap:round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a></li>
     <li><a class="hl" href="lista-de-espera/">Lista de espera</a></li>
   </ul>
 </nav>
@@ -262,7 +264,7 @@ html{scroll-behavior:smooth}
   <div class="blk" id="s1l" style="top:calc(470 / 1920 * 100%)"><p class="lbl">Clube do livro para mulheres</p></div>
   <div class="blk" id="s1p" style="top:calc(550 / 1920 * 100%)"><p class="phr"><span>Para quem ama</span><span class="hl">fantasia e romantasia</span><span>e quer viver isso junto.</span></p><i class="uspark"></i></div>
   <div class="blk" id="s2l" style="top:calc(400 / 1920 * 100%)"><p class="lbl">Como funciona</p></div>
-  <div class="blk" id="s2p" style="top:calc(480 / 1920 * 100%)"><p class="phr"><span>Todo mês, um livro</span><span class="hl">escolhido em votação</span><span>e um encontro presencial</span><span>para conversar sobre ele.</span></p><i class="uspark"></i></div>
+  <div class="blk" id="s2p" style="top:calc(480 / 1920 * 100%)"><p class="phr"><span>Todo mês, um livro</span><span class="hl">escolhido em votação</span><span>e um encontro, presencial ou online,</span><span>para conversar sobre ele.</span></p><i class="uspark"></i></div>
   <div class="blk" id="s3l" style="top:calc(380 / 1920 * 100%)"><p class="lbl">E tem mais</p></div>
   <div class="blk" id="s3p" style="top:calc(460 / 1920 * 100%)"><p class="phr"><span class="hl">Leituras coletivas extras,</span><span>sorteios, premiações</span><span>e dinâmicas literárias.</span></p><i class="uspark"></i></div>
   <div class="blk" id="s4l" style="top:calc(330 / 1920 * 100%)"><p class="lbl">Novidade para 2027</p></div>
@@ -273,7 +275,8 @@ html{scroll-behavior:smooth}
     <p class="k">SOCIEDADE ARCÁDIA</p>
     <p>Lista de espera aberta</p>
     <p>Ingresso em janeiro</p>
-    <p>Encontros em Campo Grande/MS</p>
+    <p>Presencial em Campo Grande/MS</p>
+    <p>Online para o Brasil e o mundo</p>
     <p>Para mulheres a partir de 18 anos</p>
     <p class="v">Vagas limitadas</p>
   </div>
@@ -288,9 +291,9 @@ html{scroll-behavior:smooth}
     <h1 class="sr">Sociedade Arcádia</h1><div class="letreiro3d hero3d" data-letreiro3d aria-hidden="true"></div>
     <div class="orbit" id="orbit" aria-hidden="true"></div>
   </div>
-  <div class="blk" id="f1" style="top:calc(790 / 1920 * 100%)"><p class="phr" style="font-size:max(19px,calc(62 * var(--u)))"><span class="hl">Lista de espera aberta</span><span style="font-size:.72em">Ingresso de novas integrantes em janeiro</span></p></div>
+  <div class="blk" id="f1" style="top:calc(790 / 1920 * 100%)"><p class="phr" style="font-size:max(19px,calc(62 * var(--u)))"><span class="hl">Lista de espera aberta</span><span style="font-size:.72em">Vagas presenciais e online</span><span style="font-size:.72em">Ingresso em janeiro</span></p></div>
   <div class="blk cta-blk" id="f2" style="top:calc(1040 / 1920 * 100%)"><p class="lbl">Preencha o formulário de interesse</p>
-    <a class="btn primary" href="lista-de-espera/">Quero entrar na lista de espera</a></div>
+    <div class="duo"><a class="btn primary" href="lista-de-espera/?m=presencial">Tenho interesse presencial</a><a class="btn primary" href="lista-de-espera/?m=online">Tenho interesse online</a></div></div>
 
   <button class="skip" id="skip" type="button">Pular</button>
   <a class="scroll" href="#sobre">Conheça o clube<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
@@ -300,7 +303,7 @@ html{scroll-behavior:smooth}
   <section class="panel reveal" id="sobre">
     <p class="eyebrow">Sobre</p>
     <h2>O clube</h2>
-    <p>A Sociedade Arcádia é um clube de leitura presencial para mulheres em Campo Grande, MS. Todo mês um livro de fantasia ou romantasia é escolhido em votação e discutido no encontro presencial. Além dele, há leituras coletivas extras de outros gêneros para quem quiser participar.</p>
+    <p>A Sociedade Arcádia é um clube de leitura para mulheres, com duas turmas: a presencial, em Campo Grande, MS, e a online, para quem mora em qualquer lugar do Brasil ou do mundo. Todo mês um livro de fantasia ou romantasia é escolhido em votação e discutido no encontro de cada turma. Além dele, há leituras coletivas extras de outros gêneros para quem quiser participar.</p>
   </section>
 
   <section class="panel reveal" id="leitura">
@@ -332,7 +335,7 @@ html{scroll-behavior:smooth}
     <p class="eyebrow">No clube</p>
     <h2>O que fazemos</h2>
     <ul class="acts cards">
-      <li><span class="ic" data-ic="livro"></span><div><h3>Encontro do Livro do Mês</h3><p>Encontro presencial para conversar sobre a leitura oficial do mês.</p></div></li>
+      <li><span class="ic" data-ic="livro"></span><div><h3>Encontro do Livro do Mês</h3><p>Encontro para conversar sobre a leitura oficial do mês: presencial em Campo Grande ou online.</p></div></li>
       <li><span class="ic" data-ic="pergunta"></span><div><h3>Quiz literário</h3><p>Nos encontros, um quiz sobre o Livro do Mês, com prêmio para quem vencer.</p></div></li>
       <li><span class="ic" data-ic="carta"></span><div><h3>Sorteio do mês</h3><p>Todo mês uma integrante é sorteada e ganha um livro da sua lista de desejos.</p></div></li>
       <li><span class="ic" data-ic="estante"></span><div><h3>Leituras coletivas extras</h3><p>LCs de outros gêneros, além da leitura oficial, com reuniões on-line para conversar sobre cada livro.</p></div></li>
@@ -347,10 +350,11 @@ html{scroll-behavior:smooth}
     <div class="status"><i></i>Lista de espera aberta</div>
     <ul class="acts">
       <li><span class="ic" data-ic="calendario"></span><div><h3>Ingresso em janeiro</h3><p>As novas integrantes entram em janeiro de 2027.</p></div></li>
-      <li><span class="ic" data-ic="bussola"></span><div><h3>Encontros em Campo Grande, MS</h3><p>Os encontros são presenciais.</p></div></li>
+      <li><span class="ic" data-ic="bussola"></span><div><h3>Vagas presenciais</h3><p>Para quem mora em Campo Grande, MS. Os encontros são presenciais.</p></div></li>
+      <li><span class="ic" data-ic="celular"></span><div><h3>Vagas online</h3><p>Para quem mora em qualquer lugar do Brasil ou do mundo. Os encontros são online.</p></div></li>
       <li><span class="ic" data-ic="estrela"></span><div><h3>Para mulheres a partir de 18 anos</h3><p>Vagas limitadas.</p></div></li>
     </ul>
-    <div class="btns"><a class="btn primary" href="lista-de-espera/">Quero entrar na lista de espera</a></div>
+    <div class="btns"><a class="btn primary" href="lista-de-espera/?m=presencial">Tenho interesse presencial</a><a class="btn primary" href="lista-de-espera/?m=online">Tenho interesse online</a></div>
   </section>
 
   <div class="band reveal" aria-hidden="true">
@@ -380,7 +384,7 @@ html{scroll-behavior:smooth}
     </div>
   </section>
 
-  <footer>Sociedade Arcádia · Campo Grande, MS</footer>
+  <footer>Sociedade Arcádia · Campo Grande, MS e online</footer>
 </main>
 
 <script src="/fx.js"></script>
