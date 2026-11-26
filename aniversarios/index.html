@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mural de aniversário · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/leitura/leitura.css">
+<link rel="stylesheet" href="/desejos/desejos.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/integrantes/">← Área das integrantes</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Presentes</p>
+      <h1>Mural de aniversário</h1>
+    </div>
+    <p class="muted intro">Os aniversários do clube, em ordem do próximo, com a lista da Amazon e outros links de presentes de cada integrante. Todas do clube veem este mural.</p>
+  </section>
+
+  <section class="panel">
+    <p class="lbl">Próximos aniversários</p>
+    <h2>Aniversários e presentes</h2>
+    <ul class="mural" id="mural"><li class="muted">Carregando…</li></ul>
+    <p class="muted small faltam" id="faltam" hidden></p>
+  </section>
+
+  <section class="panel" id="meuP">
+    <p class="lbl">O seu cartão</p>
+    <h2>Colocar ou mudar os meus links</h2>
+    <div id="acesso"><button class="btn wide" type="button" id="bAbrir">Editar o meu cartão</button></div>
+    <form class="form" id="fMeu" hidden autocomplete="off">
+      <div class="ola"><p>Cartão de <b id="quem"></b></p><div class="links-mini"><button type="button" id="bSair">Sair deste aparelho</button></div></div>
+      <label>Link da sua lista da Amazon <small>(na Amazon: Contas e listas › sua lista › Enviar para outras pessoas › Copiar link)</small>
+        <input type="text" autocapitalize="off" autocorrect="off" spellcheck="false" id="mAmz" maxlength="600" inputmode="url" placeholder="https://www.amazon.com.br/hz/wishlist/…"></label>
+      <div class="field">Outros links <small>(outras lojas, produtos, o que quiser)</small></div>
+      <div id="mLinks" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button class="btn ghost" type="button" id="bMais">+ Outro link</button>
+      <p class="err" id="mErr" hidden></p>
+      <button class="btn wide" type="submit" id="mBtn">Salvar no mural</button>
+      <button class="btn ghost wide perigo" type="button" id="bTirar" hidden>Tirar o meu cartão do mural</button>
+      <p class="muted small" style="margin:0;text-align:center">O cartão usa o mesmo código da sua <a href="/desejos/" style="color:var(--lilac)">lista de desejos</a>.</p>
+    </form>
+  </section>
+
+  <p class="foot"><a href="/desejos/">Minha lista de desejos</a> · <a href="/integrantes/">Área das integrantes</a> · <a href="/guia/#aniversarios">Guia</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/config.js"></script>
+<script src="/sprint/config.js"></script>
+<script src="/icones.js"></script>
+<script src="/desejos/comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const D=window.DESEJOS,{esc,slug,link,site,MEMBROS}=D;
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3000)}
+
+  let db,uid;
+  try{({db,uid}=await D.conectar())}catch(e){console.warn(e);$('mural').innerHTML='<li class="muted">Sem conexão agora. Verifique a internet e recarregue a página.</li>';return}
+  const FV=firebase.firestore.FieldValue;
+
+  let cartoes={},datas={},nome='';
+  const MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  /* dias até o próximo aniversário (0 = hoje) */
+  function falta(dm){const m=/^(\d{1,2})\/(\d{1,2})$/.exec(dm||'');if(!m)return 999;const h=new Date();h.setHours(0,0,0,0);
+    let a=new Date(h.getFullYear(),+m[2]-1,+m[1]);if(a<h)a=new Date(h.getFullYear()+1,+m[2]-1,+m[1]);return Math.round((a-h)/864e5)}
+  const dataTxt=dm=>{const m=/^(\d{1,2})\/(\d{1,2})$/.exec(dm||'');return m?(+m[1])+' de '+MES[+m[2]-1]:''};
+  function desenhar(){
+    const pessoas={};
+    Object.entries(datas).forEach(([k,v])=>{if(v&&v.d)pessoas[k]={nome:v.nome||k,d:v.d}});
+    Object.entries(cartoes).forEach(([k,v])=>{pessoas[k]=Object.assign(pessoas[k]||{nome:v.nome||k},{c:v})});
+    const l=Object.entries(pessoas).map(([k,v])=>Object.assign({_k:k,f:falta(v.d)},v))
+      .sort((a,b)=>a.f-b.f||String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+    const hoje=new Date().getMonth()+1;
+    $('mural').innerHTML=l.length?l.map(p=>{const c=p.c||{},amz=link(c.amazon);
+      const outros=(c.links||[]).map(x=>({n:String(x.n||'').trim(),u:link(x.u)})).filter(x=>x.u);
+      const mesP=/\/(\d{1,2})$/.exec(p.d||'');const nesteMes=mesP&&+mesP[1]===hoje;
+      const sel=p.f===0?'<span class="tg prio">Hoje!</span>':p.f<=7?'<span class="tg prio">Em '+p.f+(p.f===1?' dia':' dias')+'</span>':nesteMes?'<span class="tg dura">Este mês</span>':'';
+      return '<li class="cartao'+(p.f===0?' hoje':'')+'"><h3>'+ARC_ICONE(p.f===0?'bolo':'presente')+esc(p.nome)+'</h3>'+(slug(p.nome)===slug(nome)?'<span class="eu">Você</span>':'')+
+        (p.d?'<p class="dia">'+ARC_ICONE('bolo')+'<span>'+esc(dataTxt(p.d))+'</span>'+sel+'</p>':'')+
+        (amz||outros.length?'<div class="lks">'+
+        (amz?'<a class="amz" href="'+esc(amz)+'" target="_blank" rel="noopener"><span>Lista da Amazon</span><span class="seta" aria-hidden="true">↗</span></a>':'')+
+        outros.map(x=>'<a href="'+esc(x.u)+'" target="_blank" rel="noopener"><span>'+esc(x.n||site(x.u)||'Link')+(x.n&&site(x.u)?' <small>'+esc(site(x.u))+'</small>':'')+'</span><span class="seta" aria-hidden="true">↗</span></a>').join('')+
+        '</div>':'<p class="muted small" style="margin:0">Ainda sem links de presentes.</p>')+'</li>'}).join(''):'<li class="muted small">Ninguém colocou links ainda. Seja a primeira!</li>';
+    $('faltam').hidden=true}
+  db.collection('aniversarios').onSnapshot(s=>{cartoes={};s.docs.forEach(d=>cartoes[d.id]=d.data());desenhar();if(nome&&!$('fMeu').hidden&&!preenchido)preencher()},
+    e=>{console.warn(e);$('mural').innerHTML='<li class="muted">Não foi possível carregar o mural. Recarregue a página.</li>'});
+  db.collection('aniversariosDatas').doc('lista').onSnapshot(s=>{datas=(s.exists&&s.data().datas)||{};desenhar()},e=>console.warn(e));
+
+  /* ---- o meu cartão ---- */
+  let ctl=null,preenchido=false;
+  function linhaLink(x){const d=document.createElement('div');d.className='linha-link';
+    d.innerHTML='<div class="campos"><input type="text" class="ln" maxlength="60" placeholder="O que é (ex.: Shopee, caneca, marcador)"><input type="text" autocapitalize="off" autocorrect="off" spellcheck="false" class="lu" maxlength="600" inputmode="url" placeholder="https://"></div><button type="button" aria-label="Tirar este link">Tirar</button>';
+    d.querySelector('.ln').value=(x&&x.n)||'';d.querySelector('.lu').value=(x&&x.u)||'';
+    d.querySelector('button').onclick=()=>d.remove();$('mLinks').appendChild(d)}
+  function preencher(){const c=cartoes[slug(nome)]||{};preenchido=true;
+    $('mAmz').value=c.amazon||'';$('mLinks').innerHTML='';(c.links||[]).forEach(linhaLink);if(!(c.links||[]).length)linhaLink();
+    $('bTirar').hidden=!cartoes[slug(nome)]}
+  function abrir(){
+    $('acesso').innerHTML='';
+    ctl=D.acesso($('acesso'),db,uid,n=>{nome=n;$('quem').textContent=n;$('acesso').hidden=true;$('fMeu').hidden=false;preencher();desenhar()})}
+  $('bAbrir').onclick=abrir;
+  /* se este aparelho já abriu a lista antes, já mostra o cartão para editar */
+  if(D.LS.get('desejosNome',''))abrir();
+  $('bMais').onclick=()=>{if($('mLinks').children.length>=12){toast('Até 12 links.');return}linhaLink();$('mLinks').lastChild.querySelector('.ln').focus()};
+  $('bSair').onclick=async()=>{$('fMeu').hidden=true;$('acesso').hidden=false;nome='';preenchido=false;desenhar();await ctl.sair()};
+  $('fMeu').onsubmit=async ev=>{ev.preventDefault();const err=$('mErr');err.hidden=true;
+    const ab=$('mAmz').value.trim(),amazon=link(ab);
+    if(ab&&!amazon){err.textContent='Confira o link da Amazon (começa com https://).';err.hidden=false;return}
+    const links=[];let ruim=false;
+    $('mLinks').querySelectorAll('.linha-link').forEach(d=>{const n=d.querySelector('.ln').value.trim().slice(0,60),b=d.querySelector('.lu').value.trim(),u=link(b);
+      if(b&&!u)ruim=true;else if(u)links.push({n,u:u.slice(0,600)})});
+    if(ruim){err.textContent='Algum link não está certo. Confira (começa com https://).';err.hidden=false;return}
+    if(!amazon&&!links.length){err.textContent='Coloque pelo menos um link.';err.hidden=false;return}
+    $('mBtn').disabled=true;
+    try{await db.collection('aniversarios').doc(slug(nome)).set({nome,amazon:amazon.slice(0,600),links,em:FV.serverTimestamp()});toast('Seu cartão está no mural ✨');$('bTirar').hidden=false}
+    catch(e){console.warn(e);err.textContent=e.code==='permission-denied'?'Este aparelho perdeu o acesso. Recarregue a página e digite o código de novo.':'Não foi possível salvar. Tente de novo.';err.hidden=false}
+    $('mBtn').disabled=false};
+  $('bTirar').onclick=async()=>{if(!confirm('Tirar o seu cartão do mural?'))return;
+    try{await db.collection('aniversarios').doc(slug(nome)).delete();preencher();toast('Cartão tirado do mural')}catch(e){console.warn(e);toast('Não foi possível agora.')}};
+})();
+</script>
+</body>
+</html>
