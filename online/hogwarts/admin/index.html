@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Administração do Salão Principal · Sociedade Arcádia</title>
+<meta name="theme-color" content="#0b1730">
+<link rel="icon" type="image/png" href="/online/hogwarts/img/icone-64.png">
+<link rel="apple-touch-icon" href="/online/hogwarts/img/icone-180.png">
+<link rel="manifest" href="/online/hogwarts/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Hogwarts">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="/online/hogwarts/hg.css">
+<style>
+body{font-family:var(--ui);font-size:15px}
+.hg-wrap{max-width:900px}
+.abas{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:5;background:rgba(11,23,48,.95);padding:8px;border-radius:14px;border:1px solid var(--linha)}
+.abas button{border:1px solid var(--linha);background:none;color:var(--texto);border-radius:999px;padding:7px 12px;font:700 13px var(--ui);cursor:pointer}
+.abas button[aria-pressed="true"]{background:var(--ouro);color:#2b1a05;border-color:var(--ouro)}
+.sec{display:flex;flex-direction:column;gap:14px}
+.tab{width:100%;border-collapse:collapse;font-size:14px}
+.tab th,.tab td{text-align:left;padding:8px 6px;border-bottom:1px solid rgba(230,190,110,.18);vertical-align:top}
+.tab th{font:800 12px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--ouro)}
+.tab select,.tab input{background:rgba(5,12,28,.6);color:var(--texto);border:1px solid var(--linha);border-radius:8px;padding:5px 6px;font:500 14px var(--ui);max-width:100%}
+.rolar{overflow-x:auto}
+.cod{font:800 16px var(--ui);letter-spacing:.08em;color:var(--ouro2);white-space:nowrap}
+.lnk{background:none;border:0;color:var(--ouro2);text-decoration:underline;cursor:pointer;font:700 13px var(--ui);padding:2px 0}
+.lnk.perigo{color:var(--erro)}
+.linha{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.linha .hg-campo{flex:1 1 180px}
+.qbox{border:1px solid var(--linha);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:rgba(5,12,28,.35)}
+.qbox .ops{display:grid;grid-template-columns:1fr;gap:6px}
+.qbox textarea.hg-in{min-height:60px;font-family:var(--ui);font-size:14px}
+.qbox .hg-in{font-size:14px;padding:8px 10px}
+.resp{border:1px solid var(--linha);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;background:rgba(5,12,28,.35)}
+.resp .cab{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:800}
+.figs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.fig{border:1px solid var(--linha);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.fig img{width:100%;aspect-ratio:1;object-fit:contain;background:rgba(255,255,255,.05);border-radius:8px}
+.fig input{font-size:13px;padding:6px 8px}
+.fig .bt{display:flex;gap:6px;justify-content:space-between;flex-wrap:wrap}
+.ok{color:var(--ok)}
+</style>
+</head>
+<body>
+<div class="hg-fundo" aria-hidden="true"></div>
+<main class="hg-wrap">
+  <a class="hg-voltar" href="/online/admin/">← Painel da administração</a>
+  <section class="hg-painel hg-form">
+    <div class="hg-topo"><p class="hg-lbl">Administração</p><h1>Salão Principal de Hogwarts</h1></div>
+    <p class="hg-centro hg-muted" id="estado">Carregando…</p>
+    <div class="hg-btns" id="loginBox" hidden><button class="hg-btn" id="g">Entrar com o Google</button></div>
+  </section>
+  <nav class="abas" id="abas" hidden></nav>
+  <div id="conteudo" class="sec"></div>
+</main>
+<script src="/online/config.js"></script>
+<script src="/online/hogwarts/hg.js"></script>
+<script src="/online/hogwarts/admin/conteudo.js"></script>
+<script src="/online/hogwarts/questionario/cerimonia.js"></script>
+<script>
+(async()=>{
+const {$,esc,CASAS,PERSONAGENS,DATAS_PADRAO,DATAS_NOMES,GERAL_PADRAO,casaIc,fmtDH,toast}=HG;
+const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+try{const V='10.12.2';await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`)}
+catch(e){$('estado').textContent='Sem conexão agora. Recarregue a página.';return}
+const app=firebase.initializeApp(window.ARCADIA_FIREBASE,'admin'),auth=app.auth(),db=app.firestore();
+if(window.HG_EMULADOR){auth.useEmulator('http://127.0.0.1:9099');db.useEmulator('127.0.0.1',8080)}
+try{await auth.getRedirectResult()}catch(e){}
+$('g').onclick=async()=>{try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())}catch(e){try{await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())}catch(e2){toast('Não deu para entrar com o Google')}}};
+auth.onAuthStateChanged(async u=>{if(!u){$('estado').textContent='Entre com a conta Google da administração.';$('loginBox').hidden=false;return}
+  let ok=false;try{ok=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+  if(!ok){$('estado').textContent='Esta conta não é da administração.';$('loginBox').hidden=false;return}
+  $('loginBox').hidden=true;$('estado').textContent='Tudo o que você mudar aqui vale na hora para as participantes.';iniciar()});
+
+/* ---------- utilidades ---------- */
+const col=c=>db.collection(c);
+const pega=async(c,id)=>{try{const d=await col(c).doc(id).get();return d.exists?d.data():null}catch(e){console.warn(e);return null}};
+const lista=async c=>{try{return (await col(c).get()).docs.map(d=>Object.assign({_id:d.id},d.data()))}catch(e){console.warn(c,e);return []}};
+const fusoParaInput=ms=>ms?new Date(ms-4*3600e3).toISOString().slice(0,16):'';
+const inputParaFuso=v=>{if(!v)return 0;const [d,h]=v.split('T'),[y,m,dd]=d.split('-').map(Number),[hh,mi]=(h||'00:00').split(':').map(Number);return HG.T(y,m,dd,hh,mi)};
+const slug=n=>String(n).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z]/g,'').slice(0,20)||'pessoa';
+const SEM='23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+const novoCodigo=pid=>{const r=crypto.getRandomValues(new Uint32Array(4));return pid.toUpperCase()+'-'+'23456789'[r[0]%8]+[1,2,3].map(i=>SEM[r[i]%SEM.length]).join('')};
+async function copiar(t){try{await navigator.clipboard.writeText(t);toast('Copiado!')}catch(e){prompt('Copie o texto:',t)}}
+
+/* ---------- abas ---------- */
+const ABAS=[['pessoas','Participantes'],['senha','Senha'],['datas','Datas'],['chapeu','Chapéu Seletor'],['bib','Biblioteca'],['figs','Figurinhas'],['quiz','Mistérios'],['espelho','Espelho'],['correio','Correio-Coruja'],['questionario','Cerimônia (questionário)']];
+let aba=HG.LS.get('admAba','pessoas');
+function abas(){$('abas').hidden=false;$('abas').innerHTML=ABAS.map(([k,n])=>`<button type="button" data-a="${k}" aria-pressed="${k===aba}">${n}</button>`).join('');
+  $('abas').querySelectorAll('button').forEach(b=>b.onclick=()=>{aba=b.dataset.a;HG.LS.set('admAba',aba);abas();mostra()})}
+const C=()=>$('conteudo');
+function mostra(){C().innerHTML='<section class="hg-painel"><p class="hg-muted">Carregando…</p></section>';({pessoas,senha,datas,chapeu,bib,figs,quiz,espelho,correio,questionario}[aba]||pessoas)().catch(e=>{console.warn(e);C().innerHTML='<section class="hg-painel"><p class="hg-erro">Não deu para carregar. Confira se as regras novas foram publicadas no Firebase.</p></section>'})}
+
+/* primeira vez: grava as datas, os tempos, as perguntas e os encontros padrão */
+async function semear(){const fz=[];
+  if(!await pega('hgConfig','datas'))fz.push(col('hgConfig').doc('datas').set(DATAS_PADRAO));
+  if(!await pega('hgConfig','geral'))fz.push(col('hgConfig').doc('geral').set(GERAL_PADRAO));
+  for(const r of ['r1','r2','r3','r4','protecoes'])if(!await pega('hgQuiz',r))fz.push(col('hgQuiz').doc(r).set(HG_CONTEUDO[r]));
+  if(!await pega('hgQuestionario','oficial'))fz.push(col('hgQuestionario').doc('oficial').set({perguntas:HG_CERIMONIA.perguntas,aberto:true,em:firebase.firestore.FieldValue.serverTimestamp()}));
+  await Promise.all(fz);return fz.length}
+function iniciar(){abas();mostra();
+  /* grava o que falta em segundo plano, sem travar o painel */
+  Promise.race([semear(),new Promise((_,no)=>setTimeout(()=>no(new Error('demorou')),20000))]).then(n=>{if(n){toast('Configurações iniciais gravadas.');mostra()}}).catch(e=>{console.warn(e);toast('Não deu para gravar a configuração inicial. As regras novas já foram coladas no Firebase?')})}
+
+/* ---------- participantes e códigos ---------- */
+async function pessoas(){const [ps,pv,perf]=await Promise.all([lista('hgPessoas'),lista('hgPrivado'),lista('hgPerfis')]);
+  const P={};pv.forEach(x=>P[x._id]=x);const F={};perf.forEach(x=>F[x._id]=x);ps.sort((a,b)=>a.nome.localeCompare(b.nome));
+  C().innerHTML=`<section class="hg-painel sec"><h2>Participantes (${ps.length} de 8)</h2>
+    <p class="hg-muted">Cadastre cada uma pelo nome. O site gera um código pessoal; mande para ela no privado com o botão "Copiar mensagem". Para entrar no Salão ela precisa da senha do clube, da senha do Salão e do código dela. O código fica sempre visível aqui.</p>
+    <form class="linha" id="add"><label class="hg-campo"><span>Nome (como vai aparecer)</span><input class="hg-in" id="nome" maxlength="30" required></label><button class="hg-btn">Cadastrar e gerar código</button></form>
+    <div class="rolar"><table class="tab"><tr><th>Nome</th><th>Código</th><th>Casa</th><th></th></tr>
+    ${ps.map(p=>{const v=P[p._id]||{};return `<tr><td><b>${esc(p.nome)}</b></td><td>${v.revogado?'<span class="hg-erro">Acesso revogado</span>':`<span class="cod">${esc(v.codigo||'?')}</span>`}</td>
+      <td>${F[p._id]?casaIc(F[p._id].casa)+' '+esc(CASAS[F[p._id].casa].n):'<span class="hg-muted">ainda não informou</span>'}</td>
+      <td style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">${v.revogado?'':`<button class="lnk" data-msg="${p._id}">Copiar mensagem</button>`}<button class="lnk" data-novo="${p._id}">${v.revogado?'Devolver acesso (novo código)':'Gerar novo código'}</button>${v.revogado?'':`<button class="lnk perigo" data-rev="${p._id}">Revogar acesso</button>`}<button class="lnk perigo" data-del="${p._id}">Excluir</button></td></tr>`}).join('')||'<tr><td colspan="4" class="hg-muted">Ninguém cadastrado ainda.</td></tr>'}</table></div>
+    <p class="hg-muted hg-small">"Gerar novo código" troca o código (o antigo para de funcionar e ela precisa entrar de novo com o novo). "Revogar acesso" tira a entrada dela no Salão sem apagar o que ela já fez.</p></section>`;
+  $('add').onsubmit=async ev=>{ev.preventDefault();const nome=$('nome').value.trim().slice(0,30);if(!nome)return;let pid=slug(nome.split(' ')[0]);const ids=new Set(ps.map(p=>p._id));
+    if(ids.has(pid)){let i=0;const base=pid;do{pid=base+'abcdefghij'[i++]}while(ids.has(pid))}
+    try{await col('hgPessoas').doc(pid).set({nome,em:Date.now()});await gerar(pid);toast(nome+' cadastrada!');pessoas()}catch(e){console.warn(e);toast('Não deu para cadastrar.')}};
+  C().querySelectorAll('[data-msg]').forEach(b=>b.onclick=()=>{const p=ps.find(x=>x._id===b.dataset.msg),v=P[p._id];
+    copiar(`Oi, ${p.nome}! Você está na LC Especial de Natal: Harry Potter e a Pedra Filosofal.\n\nEntre no Salão Principal de Hogwarts: https://sociedadearcadia.com.br/online/hogwarts/\n\nVocê vai precisar de:\n1. A senha do clube (a mesma do sprint)\n2. A senha do Salão (mandei no grupo da LC)\n3. Seu código pessoal: ${v.codigo}\n\nO código é só seu, não passe para ninguém. Guarde-o para entrar por outro celular.`)});
+  C().querySelectorAll('[data-novo]').forEach(b=>b.onclick=async()=>{if(!confirm('Gerar um código novo? O código antigo para de funcionar.'))return;try{await gerar(b.dataset.novo);toast('Código novo gerado.');pessoas()}catch(e){console.warn(e);toast('Não deu para gerar.')}});
+  C().querySelectorAll('[data-rev]').forEach(b=>b.onclick=async()=>{if(!confirm('Revogar o acesso desta participante ao Salão?'))return;const v=P[b.dataset.rev]||{};
+    try{if(v.hash)await col('hgCodigos').doc(v.hash).delete();await col('hgPrivado').doc(b.dataset.rev).set({revogado:true,codigo:'',hash:''});toast('Acesso revogado.');pessoas()}catch(e){toast('Não deu para revogar.')}});
+  C().querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const p=ps.find(x=>x._id===b.dataset.del);if(!confirm(`Excluir ${p.nome} do Salão? Ela perde o acesso. O que ela já respondeu continua guardado.`))return;const v=P[p._id]||{};
+    try{if(v.hash)await col('hgCodigos').doc(v.hash).delete();await col('hgPrivado').doc(p._id).delete();await col('hgPessoas').doc(p._id).delete();toast('Excluída.');pessoas()}catch(e){toast('Não deu para excluir.')}})}
+async function gerar(pid){const ant=await pega('hgPrivado',pid);const codigo=novoCodigo(pid),hash=await HG.sha(HG.normCodigo(codigo));
+  await col('hgCodigos').doc(hash).set({pid});if(ant&&ant.hash)try{await col('hgCodigos').doc(ant.hash).delete()}catch(e){}
+  await col('hgPrivado').doc(pid).set({codigo,hash,revogado:false,em:Date.now()})}
+
+/* ---------- senha do Salão ---------- */
+async function senha(){const ch=await lista('hgChave');
+  C().innerHTML=`<section class="hg-painel sec"><h2>Senha do Salão</h2>
+    <p>${ch.length?'<span class="ok">Já existe uma senha cadastrada.</span> Por segurança ela fica embaralhada e não aparece aqui.':'<span class="hg-erro">Nenhuma senha cadastrada ainda: ninguém consegue entrar no Salão.</span>'}</p>
+    <form class="linha" id="f"><label class="hg-campo"><span>${ch.length?'Nova senha':'Senha do Salão'}</span><input class="hg-in" id="s" autocomplete="off" required minlength="4"></label><button class="hg-btn">${ch.length?'Trocar senha':'Cadastrar senha'}</button></form>
+    <p class="hg-muted hg-small">Maiúsculas e minúsculas não fazem diferença. Ao trocar a senha, todas saem do Salão e entram de novo com a senha nova e o mesmo código pessoal.</p></section>`;
+  $('f').onsubmit=async ev=>{ev.preventDefault();const s=HG.normSenha($('s').value);if(s.length<4)return toast('Use pelo menos 4 letras ou números.');
+    if(ch.length&&!confirm('Trocar a senha do Salão? Todas vão precisar digitar a senha nova.'))return;
+    try{const h=await HG.sha(s);await col('hgChave').doc(h).set({em:Date.now()});for(const c of ch)if(c._id!==h)await col('hgChave').doc(c._id).delete();toast('Senha salva!');senha()}catch(e){console.warn(e);toast('Não deu para salvar a senha.')}}}
+
+/* ---------- datas ---------- */
+async function datas(){const D=Object.assign({},DATAS_PADRAO,await pega('hgConfig','datas')||{});
+  C().innerHTML=`<section class="hg-painel sec"><h2>Datas e horários de liberação</h2><p class="hg-muted">Horário de Campo Grande. Cada atividade abre e fecha sozinha nesses horários. Para testar antes, você pode antecipar uma data e depois voltar com "Restaurar datas originais".</p>
+    <form class="sec" id="f"><div class="rolar"><table class="tab">${Object.keys(DATAS_PADRAO).map(k=>`<tr><td>${esc(DATAS_NOMES[k]||k)}</td><td><input type="datetime-local" name="${k}" value="${fusoParaInput(D[k])}"></td></tr>`).join('')}</table></div>
+    <p class="hg-muted hg-small">"A Coruja Voltou" só abre quando você preencher o horário (depois de confirmar a estreia do primeiro episódio).</p>
+    <div class="hg-btns" style="justify-content:flex-start"><button class="hg-btn">Salvar datas</button><button type="button" class="hg-btn sec" id="rest">Restaurar datas originais</button></div></form></section>`;
+  $('f').onsubmit=async ev=>{ev.preventDefault();const n={};Object.keys(DATAS_PADRAO).forEach(k=>n[k]=inputParaFuso($('f')[k].value));try{await col('hgConfig').doc('datas').set(n);toast('Datas salvas!')}catch(e){toast('Não deu para salvar.')}};
+  $('rest').onclick=async()=>{if(!confirm('Voltar todas as datas para as originais do projeto?'))return;const n=Object.assign({},DATAS_PADRAO,{coruja:D.coruja||0});await col('hgConfig').doc('datas').set(n);toast('Datas restauradas.');datas()}}
+
+/* ---------- Chapéu Seletor ---------- */
+async function chapeu(){const [ps,perf,sorts]=await Promise.all([lista('hgPessoas'),lista('hgPerfis'),lista('hgSorteio')]);const F={},S={};perf.forEach(x=>F[x._id]=x);sorts.forEach(x=>S[x._id]=x);
+  ps.sort((a,b)=>a.nome.localeCompare(b.nome));
+  C().innerHTML=`<section class="hg-painel sec"><h2>Chapéu Seletor</h2><p class="hg-muted">Casas informadas por cada uma e personagens sorteados. Use as listas só para corrigir algo; cada personagem só pode ficar com uma pessoa.</p>
+    <div class="rolar"><table class="tab"><tr><th>Participante</th><th>Casa</th><th>Personagem</th><th>Sorteio</th></tr>
+    ${ps.map(p=>`<tr><td><b>${esc(p.nome)}</b></td><td><select data-casa="${p._id}"><option value="">—</option>${Object.entries(CASAS).map(([k,c])=>`<option value="${k}" ${F[p._id]&&F[p._id].casa===k?'selected':''}>${c.n}</option>`).join('')}</select></td>
+      <td><select data-pers="${p._id}"><option value="">— não sorteado —</option>${Object.entries(PERSONAGENS).map(([k,n])=>`<option value="${k}" ${S[p._id]&&S[p._id].personagem===k?'selected':''}>${n}</option>`).join('')}</select></td>
+      <td>${S[p._id]?esc(fmtDH(S[p._id].em)):'<span class="hg-muted">—</span>'}</td></tr>`).join('')}</table></div></section>`;
+  C().querySelectorAll('[data-casa]').forEach(s=>s.onchange=async()=>{const pid=s.dataset.casa,p=ps.find(x=>x._id===pid);try{if(s.value)await col('hgPerfis').doc(pid).set({nome:p.nome,casa:s.value,em:Date.now()});else await col('hgPerfis').doc(pid).delete();toast('Casa atualizada.')}catch(e){toast('Não deu para salvar.')}});
+  C().querySelectorAll('[data-pers]').forEach(s=>s.onchange=async()=>{const pid=s.dataset.pers,v=s.value,ant=S[pid]&&S[pid].personagem;
+    const dono=Object.values(S).find(x=>x.personagem===v&&x._id!==pid);if(v&&dono){toast('Esse personagem já está com '+((ps.find(p=>p._id===dono._id)||{}).nome||'outra pessoa')+'.');chapeu();return}
+    try{if(ant)await col('hgPersonagens').doc(ant).delete();if(v){await col('hgPersonagens').doc(v).set({em:Date.now()});await col('hgSorteio').doc(pid).set({personagem:v,em:Date.now()})}else await col('hgSorteio').doc(pid).delete();toast('Corrigido.');chapeu()}catch(e){console.warn(e);toast('Não deu para salvar.')}})}
+
+/* ---------- Biblioteca ---------- */
+async function bib(){const G=Object.assign({},GERAL_PADRAO,await pega('hgConfig','geral')||{});const [enc,leit,ps]=await Promise.all([lista('hgEncontros'),lista('hgLeitoras'),lista('hgPessoas')]);
+  enc.sort((a,b)=>String(a.data).localeCompare(String(b.data)));const pres={};await Promise.all(enc.map(async e=>{pres[e._id]=await lista('hgEncontros/'+e._id+'/presencas')}));
+  leit.sort((a,b)=>(b.min||0)-(a.min||0));
+  C().innerHTML=`<section class="hg-painel sec"><h2>Tempos dos cronômetros</h2>
+    <form class="sec" id="tf"><div class="linha">${[['org','Organização'],['leitura','Leitura'],['prosa','Prosa']].map(([k,n])=>`<label class="hg-campo"><span>${n} (min)</span><input class="hg-in" type="number" min="1" max="180" name="${k}" value="${G[k]}"></label>`).join('')}</div>
+    <label class="hg-campo"><span>Link da sala de vídeo da Biblioteca (Daily ou Google Meet)</span><input class="hg-in" name="sala" value="${esc(G.sala)}" placeholder="https://sociedadearcadia.daily.co/hogwarts"></label>
+    <div><button class="hg-btn">Salvar</button></div></form>
+    <p class="hg-muted hg-small">Padrão: 11, 31 e 11. A sala da Biblioteca é separada da sala geral, mas as duas usam os mesmos minutos gratuitos do Daily.</p></section>
+    <section class="hg-painel sec"><h2>Sprints coletivos programados</h2>
+    <div class="rolar"><table class="tab"><tr><th>Data</th><th>Horário</th><th>Título</th><th>Observação</th><th>Confirmadas</th><th></th></tr>
+    ${enc.map(e=>`<tr data-e="${e._id}"><td><input type="date" name="data" value="${esc(e.data)}"></td><td><input type="time" name="hora" value="${esc(e.hora||'')}" title="Vazio = horário a definir"></td><td><input name="titulo" value="${esc(e.titulo||'')}" maxlength="60"></td><td><input name="nota" value="${esc(e.nota||'')}" maxlength="120"></td>
+      <td>${(pres[e._id]||[]).filter(p=>p.vai).map(p=>esc(p.nome)).join(', ')||'—'}</td>
+      <td style="display:flex;flex-direction:column;gap:4px"><button class="lnk" data-salva>Salvar</button><button class="lnk" data-canc>${e.cancelado?'Reativar':'Cancelar'}</button><button class="lnk perigo" data-x>Apagar</button></td></tr>`).join('')}</table></div>
+    <div><button class="hg-btn sec peq" id="novoEnc">Adicionar sprint coletivo</button></div>
+    <p class="hg-muted hg-small">Deixe o horário vazio para aparecer "Horário a definir".</p></section>
+    <section class="hg-painel sec"><h2>Ranking da LC (só da Biblioteca)</h2>
+    <table class="tab">${leit.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.nome)}</td><td>${Math.floor((l.min||0)/60)}h ${String((l.min||0)%60).padStart(2,'0')}min</td><td>${l.sprints||0} sprints</td></tr>`).join('')||'<tr><td class="hg-muted">Ninguém leu ainda.</td></tr>'}</table>
+    <p class="hg-muted hg-small">Para apagar mensagens do chat ou tirar alguém do coletivo, abra a Biblioteca e toque em "Administração" (no painel do sprint coletivo).</p></section>`;
+  $('tf').onsubmit=async ev=>{ev.preventDefault();const f=$('tf'),n={sala:f.sala.value.trim()};
+    for(const k of ['org','leitura','prosa'])n[k]=Math.max(1,Math.min(180,Math.round(+f[k].value||GERAL_PADRAO[k])));
+    if(n.sala&&!/^https:\/\/([a-z0-9-]+\.daily\.co\/[\w-]+|meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3})$/i.test(n.sala))return toast('O link da sala precisa ser do Daily (https://nome.daily.co/sala) ou do Google Meet.');
+    try{await col('hgConfig').doc('geral').set(n);toast('Salvo!')}catch(e){toast('Não deu para salvar.')}};
+  C().querySelectorAll('[data-e]').forEach(tr=>{const id=tr.dataset.e,v=n=>tr.querySelector(`[name=${n}]`).value.trim(),e=enc.find(x=>x._id===id);
+    tr.querySelector('[data-salva]').onclick=async()=>{if(!v('data'))return toast('Escolha a data.');try{await col('hgEncontros').doc(id).set({data:v('data'),hora:v('hora'),titulo:v('titulo'),nota:v('nota'),cancelado:!!e.cancelado});toast('Salvo!')}catch(er){toast('Não deu para salvar.')}};
+    tr.querySelector('[data-canc]').onclick=async()=>{try{await col('hgEncontros').doc(id).set({cancelado:!e.cancelado},{merge:true});bib()}catch(er){toast('Não deu.')}};
+    tr.querySelector('[data-x]').onclick=async()=>{if(!confirm('Apagar este sprint coletivo da agenda?'))return;try{await col('hgEncontros').doc(id).delete();bib()}catch(er){toast('Não deu.')}}});
+  $('novoEnc').onclick=async()=>{await col('hgEncontros').add({data:new Date(Date.now()-4*3600e3).toISOString().slice(0,10),hora:'',titulo:'Sprint coletivo',nota:'',cancelado:false});bib()}}
+
+/* ---------- figurinhas exclusivas ---------- */
+async function figs(){const L=(await lista('hgFigurinhas')).sort((a,b)=>(a.ordem||0)-(b.ordem||0));
+  C().innerHTML=`<section class="hg-painel sec"><h2>Figurinhas da Biblioteca</h2><p class="hg-muted">O pacote “LC de Natal” (30 figurinhas animadas) já vem pronto no chat; aqui você acrescenta outras, se quiser. Só aparecem no chat da Biblioteca (as figurinhas gerais do site não entram aqui). Envie PNG, WEBP, GIF ou JPG; o site reduz para 256 px.</p>
+    <div class="linha"><label class="hg-campo"><span>Grupo (aba) das novas figurinhas</span><input class="hg-in" id="grupo" value="Hogwarts" maxlength="30"></label><label class="hg-btn">Adicionar figurinhas<input type="file" id="up" accept="image/*" multiple hidden></label></div>
+    <div class="figs">${L.map((f,i)=>`<div class="fig" data-f="${f._id}"><img src="${f.img}" alt=""><input class="hg-in" data-n value="${esc(f.nome||'')}" placeholder="Nome"><input class="hg-in" data-g value="${esc(f.grupo||'')}" placeholder="Grupo">
+      <div class="bt"><button class="lnk" data-up ${i?'':'disabled'}>◀</button><button class="lnk" data-dn ${i<L.length-1?'':'disabled'}>▶</button><button class="lnk" data-s>Salvar</button><label class="lnk">Trocar<input type="file" accept="image/*" data-tr hidden></label><button class="lnk perigo" data-x>Remover</button></div></div>`).join('')||'<p class="hg-muted">Nenhuma figurinha ainda.</p>'}</div></section>`;
+  const reduz=f=>new Promise((ok,no)=>{const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const k=Math.min(1,256/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/webp',.85);if(!d.startsWith('data:image/webp'))d=c.toDataURL('image/png');ok(d)};im.onerror=no;im.src=u});
+  $('up').onchange=async e=>{const fs=[...e.target.files];let o=L.length?Math.max(...L.map(f=>f.ordem||0))+1:1;
+    for(const f of fs){try{const img=await reduz(f);await col('hgFigurinhas').add({nome:f.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ').slice(0,40),grupo:$('grupo').value.trim()||'Hogwarts',img,ordem:o++})}catch(er){console.warn(er);toast('Não deu para enviar '+f.name)}}toast('Figurinhas adicionadas!');figs()};
+  C().querySelectorAll('[data-f]').forEach(el=>{const id=el.dataset.f,i=L.findIndex(f=>f._id===id),troca=async(a,b)=>{await col('hgFigurinhas').doc(L[a]._id).set({ordem:L[b].ordem||b},{merge:true});await col('hgFigurinhas').doc(L[b]._id).set({ordem:L[a].ordem||a},{merge:true});figs()};
+    el.querySelector('[data-s]').onclick=async()=>{await col('hgFigurinhas').doc(id).set({nome:el.querySelector('[data-n]').value.trim().slice(0,40),grupo:el.querySelector('[data-g]').value.trim().slice(0,30)||'Hogwarts'},{merge:true});toast('Salvo!')};
+    el.querySelector('[data-up]').onclick=()=>troca(i,i-1);el.querySelector('[data-dn]').onclick=()=>troca(i,i+1);
+    el.querySelector('[data-tr]').onchange=async e=>{const f=e.target.files[0];if(!f)return;await col('hgFigurinhas').doc(id).set({img:await reduz(f)},{merge:true});figs()};
+    el.querySelector('[data-x]').onclick=async()=>{if(!confirm('Remover esta figurinha?'))return;await col('hgFigurinhas').doc(id).delete();figs()}})}
+
+/* ---------- Mistérios e Sete Proteções ---------- */
+let qr=HG.LS.get('admQuiz','r1');
+async function quiz(){const R=[['r1','Rodada 1'],['r2','Rodada 2'],['r3','Rodada 3'],['r4','Rodada 4'],['protecoes','Sete Proteções']];
+  const [Q,prog,ps,resp,estats,lidos]=await Promise.all([pega('hgQuiz',qr),lista('hgProgresso'),lista('hgPessoas'),lista('hgRespostas'),lista('hgEstat'),lista('hgLido')]);const q=Q||JSON.parse(JSON.stringify(HG_CONTEUDO[qr]));const pro=qr==='protecoes';
+  const NQ={r1:4,r2:3,r3:5,r4:5};
+  const est=(pid,r)=>{if(r!=='protecoes'){const L=resp.filter(x=>x.pid===pid&&x.rodada===r);if(!L.length)return '—';return L.filter(x=>x.certa).length+' de '+L.length+(L.length<NQ[r]?' (respondendo)':'')}
+    const p=prog.find(x=>x._id===pid+'_'+r);return !p?'—':p.feito?'✔ concluída'+(p.vezes>1?' ('+p.vezes+'x)':''):'etapa '+(p.atual+1)};
+  const pctTxt=r=>Array.from({length:NQ[r]},(_,i)=>{const e=estats.find(x=>x._id===r+'_'+i);return 'P'+(i+1)+': '+(e&&e.n?Math.round(100*e.certas/e.n)+'% ('+e.certas+'/'+e.n+')':'—')}).join(' · ');
+  C().innerHTML=`<section class="hg-painel sec"><h2>Progresso das participantes</h2><div class="rolar"><table class="tab"><tr><th>Participante</th><th>Leu até</th>${R.map(r=>`<th>${r[1]}</th>`).join('')}</tr>
+    ${ps.sort((a,b)=>a.nome.localeCompare(b.nome)).map(p=>`<tr><td>${esc(p.nome)}</td><td>${(()=>{const l=lidos.find(x=>x._id===p._id);return l&&l.cap?'cap. '+l.cap:'—'})()}</td>${R.map(r=>`<td>${est(p._id,r[0])}</td>`).join('')}</tr>`).join('')}</table></div><p class="hg-muted hg-small">Acertos de cada uma: só você vê. As participantes veem só a própria pontuação e a porcentagem de acertos de cada pergunta, sem nomes. A primeira resposta vale e não pode ser trocada. Cada rodada abre na data do cronograma ou antes, para quem marcar que já terminou o último capítulo dela (coluna "Leu até").</p>
+    ${['r1','r2','r3','r4'].map(r=>`<p class="hg-small"><b>${r.replace('r','Rodada ')}:</b> ${pctTxt(r)}</p>`).join('')}</section>
+    <section class="hg-painel sec"><h2>Perguntas</h2><div class="hg-btns" style="justify-content:flex-start">${R.map(r=>`<button class="hg-btn peq ${r[0]===qr?'':'sec'}" data-q="${r[0]}">${r[1]}</button>`).join('')}</div>
+    <form class="sec" id="qf"><label class="hg-campo"><span>Título</span><input class="hg-in" name="titulo" value="${esc(q.titulo)}"></label>
+    ${q.perguntas.map((p,i)=>`<div class="qbox" data-i="${i}"><b>${pro?'Etapa':'Pergunta'} ${i+1}</b>
+      <input class="hg-in" data-k="cap" value="${esc(p.cap||'')}" placeholder="${pro?'Nome da etapa':'Capítulo'}">
+      <textarea class="hg-in" data-k="p" placeholder="Pergunta">${esc(p.p)}</textarea>
+      <div class="ops">${p.o.map((o,k)=>`<input class="hg-in" data-o="${k}" value="${esc(o)}" placeholder="Alternativa ${'ABCD'[k]}">`).join('')}</div>
+      <label class="hg-campo"><span>Resposta certa</span><select class="hg-in" data-k="c">${[0,1,2,3].map(k=>`<option value="${k}" ${+p.c===k?'selected':''}>${'ABCD'[k]}</option>`).join('')}</select></label>
+      ${pro?`<input class="hg-in" data-k="d" value="${esc(p.d||'')}" placeholder="Dica (aparece depois de errar)"><input class="hg-in" data-k="ok" value="${esc(p.ok||'')}" placeholder="Mensagem depois do acerto">`:''}
+      <textarea class="hg-in" data-k="e" placeholder="Explicação (aparece depois do acerto)">${esc(p.e||'')}</textarea></div>`).join('')}
+    <label class="hg-campo"><span>Título da conclusão</span><input class="hg-in" name="fimT" value="${esc(q.fimT||'')}"></label>
+    <label class="hg-campo"><span>Mensagem da conclusão</span><textarea class="hg-in" name="fimP">${esc(q.fimP||'')}</textarea></label>
+    <div class="hg-btns" style="justify-content:flex-start"><button class="hg-btn">Salvar ${pro?'etapas':'perguntas'}</button><button type="button" class="hg-btn sec" id="orig">Restaurar texto original</button></div></form></section>`;
+  C().querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{qr=b.dataset.q;HG.LS.set('admQuiz',qr);quiz()});
+  $('qf').onsubmit=async ev=>{ev.preventDefault();const n=Object.assign({},q,{titulo:$('qf').titulo.value.trim(),fimT:$('qf').fimT.value.trim(),fimP:$('qf').fimP.value.trim()});
+    n.perguntas=[...C().querySelectorAll('.qbox')].map(b=>{const o={};b.querySelectorAll('[data-k]').forEach(x=>o[x.dataset.k]=x.dataset.k==='c'?+x.value:x.value.trim());o.o=[...b.querySelectorAll('[data-o]')].map(x=>x.value.trim());return o});
+    if(n.perguntas.some(p=>!p.p||p.o.some(o=>!o)))return toast('Preencha a pergunta e as quatro alternativas.');
+    try{await col('hgQuiz').doc(qr).set(n);toast('Salvo!')}catch(e){toast('Não deu para salvar.')}};
+  $('orig').onclick=async()=>{if(!confirm('Voltar ao texto original do projeto?'))return;await col('hgQuiz').doc(qr).set(HG_CONTEUDO[qr]);toast('Restaurado.');quiz()}}
+
+/* ---------- Espelho de Ojesed ---------- */
+async function espelho(){const L=(await lista('hgEspelho')).sort((a,b)=>(a.ordem||99)-(b.ordem||99)||a.nome.localeCompare(b.nome));let so=HG.LS.get('admEspSo',false);
+  const desenha=()=>{const V=L.filter(x=>!so||x.compartilhar);C().innerHTML=`<section class="hg-painel sec"><h2>Espelho de Ojesed (${L.length} ${L.length===1?'resposta':'respostas'})</h2>
+    <p class="hg-muted">Só você vê estas respostas. As marcadas como "pode ler" foram autorizadas para o encontro de 19/12. Use a ordem para organizar a leitura.</p>
+    <label><input type="checkbox" id="so" ${so?'checked':''}> Mostrar só as que podem ser lidas no encontro</label>
+    ${V.map(x=>`<div class="resp" data-r="${x._id}"><div class="cab"><span>${esc(x.nome)}</span><span class="${x.compartilhar?'ok':'hg-erro'}">${x.compartilhar?'Pode ler no encontro':'Só a administração'}</span></div>
+      <p><b>Lembrança de 2026:</b> ${esc(x.lembranca)}</p><p><b>Desejo para 2027:</b> ${esc(x.desejo)}</p>
+      <div class="linha"><label>Ordem <input type="number" min="1" max="99" style="width:60px" value="${x.ordem||''}" data-o></label><label><input type="checkbox" data-l ${x.lida?'checked':''}> Já lida</label></div></div>`).join('')||'<p class="hg-muted">Nenhuma resposta.</p>'}
+    <div><button class="hg-btn sec peq" id="cp">Copiar as autorizadas (texto para o encontro)</button></div></section>`;
+    $('so').onchange=e=>{so=e.target.checked;HG.LS.set('admEspSo',so);desenha()};
+    $('cp').onclick=()=>copiar(L.filter(x=>x.compartilhar).map(x=>`${x.nome}\nLembrança de 2026: ${x.lembranca}\nDesejo para 2027: ${x.desejo}`).join('\n\n'));
+    C().querySelectorAll('[data-r]').forEach(el=>{const id=el.dataset.r,x=L.find(y=>y._id===id);
+      el.querySelector('[data-o]').onchange=async e=>{x.ordem=Math.max(1,Math.min(99,+e.target.value||99));try{await col('hgEspelho').doc(id).update({ordem:x.ordem})}catch(er){toast('Não deu.')}};
+      el.querySelector('[data-l]').onchange=async e=>{x.lida=e.target.checked;try{await col('hgEspelho').doc(id).update({lida:x.lida})}catch(er){toast('Não deu.')}}})};desenha()}
+
+/* ---------- Cerimônia de Encerramento: questionário oficial (separado dos jogos) ---------- */
+async function questionario(){const CE=window.HG_CERIMONIA,P=CE.perguntas,ref=col('hgQuestionario').doc('oficial');
+  const [q,cfg,ps,Dt]=await Promise.all([pega('hgQuestionario','oficial'),pega('hgConfig','questionario'),lista('hgPessoas'),pega('hgConfig','datas')]);
+  const D=Object.assign({},DATAS_PADRAO,Dt||{});let gab=[];try{const d=await ref.collection('gabarito').doc('certas').get();gab=d.exists?d.data().c||[]:[]}catch(e){}
+  let rs=[];try{rs=(await ref.collection('respostas').get()).docs.map(d=>Object.assign({_id:d.id},d.data()))}catch(e){console.warn(e)}
+  rs.sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+  const lib=(cfg&&cfg.liberadas)||[],nomeDe=id=>(ps.find(p=>p._id===id)||{}).nome||id;
+  const quando=r=>r.em&&r.em.toDate?fmtDH(r.em.toDate().getTime()):'';
+  const rot=(qq,v)=>qq.tipo==='estrelas'?(v>=0?(v+1)+' ★ — '+qq.o[v]:''):qq.tipo==='texto'?(v||''):(qq.o[v]==null?'':'ABCD'[v]+') '+qq.o[v]);
+  const I1=P.map((x,i)=>i).filter(i=>P[i].sec===0),I2=P.map((x,i)=>i).filter(i=>P[i].sec===1&&P[i].tipo==='op'),IE=P.findIndex(x=>x.tipo==='estrelas'),IT=P.map((x,i)=>i).filter(i=>P[i].tipo==='texto');
+  const acertos=r=>gab.length?I1.filter(i=>r.r[i]===gab[i]).length:null;
+  const media=rs.length?(rs.reduce((s,r)=>s+(r.r[IE]+1),0)/rs.length).toFixed(1):'';
+  C().innerHTML=`<section class="hg-painel sec"><h2>Cerimônia de Encerramento — questionário oficial</h2>
+    <p class="hg-muted">Fica em /online/hogwarts/questionario e no card do Salão. Abre para todas em ${esc(fmtDH(D.questionario))} e fecha em ${esc(fmtDH(D.questionarioFim))} (muda na aba Datas). Separado dos Mistérios, sem ranking. As participantes não veem gabarito nem acertos.</p>
+    ${q?`<p><b>Envios:</b> ${q.aberto?'aceitando':'pausados'} <button class="hg-btn sec peq" id="ab">${q.aberto?'Pausar envios':'Voltar a aceitar envios'}</button></p>`:'<p class="hg-erro">O questionário ainda não foi gravado. Recarregue o painel.</p>'}
+    <h3>Liberar antes para quem já terminou o livro</h3>
+    <div class="linha">${ps.map(p=>`<label><input type="checkbox" data-lib="${p._id}" ${lib.includes(p._id)?'checked':''}> ${esc(p.nome)}</label>`).join('')||'<span class="hg-muted">Cadastre as participantes primeiro.</span>'}</div>
+    <h3>Gabarito da Parte I (só você vê)</h3>
+    ${I1.map(i=>`<label class="hg-campo"><span>${i+1}. ${esc(P[i].p)}</span><select class="hg-in" data-g="${i}"><option value="">Escolha a certa</option>${P[i].o.map((o,j)=>`<option value="${j}" ${gab[i]===j?'selected':''}>${'ABCD'[j]}) ${esc(o)}</option>`).join('')}</select></label>`).join('')}
+    <div><button class="hg-btn peq" id="sg">Salvar gabarito</button></div></section>
+    <section class="hg-painel sec"><h2>Quem respondeu (${rs.length} de ${ps.length})</h2>
+    <div class="rolar"><table class="tab"><tr><th>Nome</th><th>Status</th><th>Enviado em</th><th>Parte I</th><th>Estrelas</th></tr>
+    ${ps.map(p=>{const r=rs.find(x=>x._id===p._id);return `<tr><td>${esc(p.nome)}</td><td>${r?'<span class="ok">Concluído</span>':'Não enviou'}</td><td>${r?esc(quando(r)):''}</td><td>${r?(acertos(r)==null?'marque o gabarito':acertos(r)+' de '+I1.length):''}</td><td>${r?(r.r[IE]+1)+' ★':''}</td></tr>`}).join('')}</table></div>
+    ${rs.map(r=>`<div class="resp" data-r="${r._id}"><details><summary><b>${esc(r.nome)}</b> — todas as respostas</summary>${P.map((qq,i)=>`<p><b>${i+1}. ${esc(qq.p)}</b><br>${esc(rot(qq,r.r[i]))||'<i>(sem resposta)</i>'}${qq.sec===0&&gab[i]!=null?(r.r[i]===gab[i]?' <span class="ok">certa</span>':' <span class="hg-erro">errada</span>'):''}</p>`).join('')}</details>
+      <button class="lnk perigo" data-x>Apagar envio (ela poderá responder de novo)</button></div>`).join('')}</section>
+    <section class="hg-painel sec"><h2>Impressões agrupadas (para o encontro)</h2>
+    ${rs.length?`<p><b>Avaliação média:</b> ${media} ★ (${rs.length} ${rs.length===1?'resposta':'respostas'})</p>
+    ${[...I2,IE].map(i=>`<h3>${i+1}. ${esc(P[i].p)}</h3><ul>${P[i].o.map((o,j)=>{const quem=rs.filter(r=>r.r[i]===j).map(r=>r.nome);return `<li>${P[i].tipo==='estrelas'?(j+1)+' ★ — ':'ABCD'[j]+') '}${esc(o)}: <b>${quem.length}</b>${quem.length?' ('+esc(quem.join(', '))+')':''}</li>`}).join('')}</ul>`).join('')}
+    ${IT.map(i=>{const L=rs.filter(r=>String(r.r[i]||'').trim());return `<h3>${i+1}. ${esc(P[i].p)}</h3>${L.map(r=>`<p><b>${esc(r.nome)}:</b> ${esc(r.r[i])}</p>`).join('')||'<p class="hg-muted">Ninguém respondeu.</p>'}`}).join('')}
+    <div><button class="hg-btn sec peq" id="cp">Copiar impressões (texto)</button></div>`:'<p class="hg-muted">Nenhuma resposta ainda.</p>'}</section>`;
+  if($('ab'))$('ab').onclick=async()=>{try{await ref.update({aberto:!q.aberto});toast(q.aberto?'Envios pausados':'Aceitando envios');questionario()}catch(e){console.warn(e);toast('Não deu. As regras novas já foram coladas no Firebase?')}};
+  C().querySelectorAll('[data-lib]').forEach(cb=>cb.onchange=async()=>{const L=[...C().querySelectorAll('[data-lib]:checked')].map(x=>x.dataset.lib);
+    try{await col('hgConfig').doc('questionario').set({liberadas:L});toast(cb.checked?nomeDe(cb.dataset.lib)+' já pode responder':'Liberação tirada')}catch(e){toast('Não deu para salvar.')}});
+  $('sg').onclick=async()=>{const c=P.map((x,i)=>{const s=C().querySelector(`[data-g="${i}"]`);return s&&s.value!==''?+s.value:-1});
+    if(I1.some(i=>c[i]<0))return toast('Escolha a resposta certa das 6 perguntas.');
+    try{await ref.collection('gabarito').doc('certas').set({c});toast('Gabarito salvo.');questionario()}catch(e){console.warn(e);toast('Não deu. As regras novas já foram coladas no Firebase?')}};
+  if($('cp'))$('cp').onclick=()=>copiar(`Avaliação média: ${media} estrelas\n\n`+[...I2,IE].map(i=>`${P[i].p}\n`+P[i].o.map((o,j)=>{const quem=rs.filter(r=>r.r[i]===j).map(r=>r.nome);return `- ${P[i].tipo==='estrelas'?(j+1)+' estrelas, ':''}${o}: ${quem.length}${quem.length?' ('+quem.join(', ')+')':''}`}).join('\n')).join('\n\n')+'\n\n'+IT.map(i=>`${P[i].p}\n`+rs.filter(r=>String(r.r[i]||'').trim()).map(r=>`- ${r.nome}: ${r.r[i]}`).join('\n')).join('\n\n'));
+  C().querySelectorAll('[data-r]').forEach(el=>el.querySelector('[data-x]').onclick=async()=>{const r=rs.find(y=>y._id===el.dataset.r);
+    if(!confirm('Apagar o envio de '+r.nome+'? Ela vai poder responder de novo.'))return;
+    try{await ref.collection('respostas').doc(r._id).delete();toast('Apagado.');questionario()}catch(e){toast('Não deu para apagar.')}})}
+
+/* ---------- Correio-Coruja ---------- */
+async function correio(){const [cs,cr,cm]=await Promise.all([lista('hgCartas'),lista('hgCoruja'),lista('hgComentarios')]);cm.sort((a,b)=>a.em-b.em);
+  const P1=['Cena que mais quer ver','Personagem mais curiosa para conhecer','O que a adaptação deveria explorar melhor','Detalhe que não pode ficar de fora'],P2=['Correspondeu às expectativas?','Cena favorita','O que mais chamou atenção','Mudaria algo na carta?'];
+  const bloco=(x,P)=>P.map((p,i)=>x['r'+(i+1)]?`<p><b>${p}:</b> ${esc(x['r'+(i+1)])}</p>`:'').join('');
+  C().innerHTML=`<section class="hg-painel sec"><h2>Cartas de expectativas (${cs.length})</h2>${cs.map(x=>`<div class="resp"><div class="cab">${esc(x.nome)}</div>${bloco(x,P1)}</div>`).join('')||'<p class="hg-muted">Nenhuma carta ainda.</p>'}</section>
+    <section class="hg-painel sec"><h2>Impressões depois da estreia (${cr.length})</h2>${cr.map(x=>`<div class="resp"><div class="cab">${esc(x.nome)}</div>${bloco(x,P2)}</div>`).join('')||'<p class="hg-muted">Nenhuma ainda.</p>'}</section>
+    <section class="hg-painel sec"><h2>Comentários (${cm.length})</h2><p class="hg-muted hg-small">Os comentários só aparecem para as participantes depois que você definir o horário de "A Coruja Voltou" na aba Datas.</p>
+    ${cm.map(x=>`<div class="resp"><div class="cab"><span>${esc(x.nome)}${x.resp?' <span class="hg-muted">(resposta)</span>':''}</span><button class="lnk perigo" data-x="${x._id}">Apagar</button></div><p>${esc(x.texto)}</p></div>`).join('')||'<p class="hg-muted">Nenhum comentário.</p>'}</section>`;
+  C().querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(!confirm('Apagar este comentário?'))return;try{await col('hgComentarios').doc(b.dataset.x).delete();correio()}catch(e){toast('Não deu.')}})}
+})();
+</script>
+</body>
+</html>

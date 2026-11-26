@@ -60,6 +60,7 @@ legend{font-family:"EB Garamond",Georgia,serif;text-transform:uppercase;letter-s
 textarea{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.7);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;resize:vertical}
 textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,180,108,.25)}
 .q{display:flex;flex-direction:column;gap:8px}
+[hidden]{display:none!important}
 .ql{font-weight:700;font-size:14px}.ql small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips[aria-invalid="true"] .chip{border-color:#f29ab0}
@@ -116,7 +117,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
       <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="96" height="96">
       <p class="lbl">Vagas para 2027</p>
       <h1>Lista de espera</h1>
-      <ul class="facts"><li>Ingresso em janeiro</li><li>Campo Grande, MS</li><li>Mulheres 18+</li><li>Vagas limitadas</li></ul>
+      <ul class="facts"><li>Ingresso em janeiro</li><li>Presencial ou online</li><li>Mulheres 18+</li><li>Vagas limitadas</li></ul>
     </div>
 
     <div id="formBox">
@@ -124,6 +125,14 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
       <a class="ir" href="#leituras">Conheça nossas leituras ↓</a>
       <form id="f" novalidate>
         <input type="text" id="site" name="site" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <fieldset><legend>Modalidade</legend>
+        <div class="q"><span class="ql">Em qual turma você tem interesse?</span>
+          <div class="chips" data-name="modalidade" data-one>
+            <button type="button" class="chip" data-m="presencial">Presencial (Campo Grande, MS)</button><button type="button" class="chip" data-m="online">Online (Brasil e mundo)</button>
+          </div>
+          <p id="mDica" style="margin:0;color:var(--muted);font-size:13px"></p></div>
+        </fieldset>
+
         <fieldset><legend>Sobre você</legend>
         <label>Nome completo
           <input id="nome" autocomplete="name" required placeholder="Seu nome completo" maxlength="120">
@@ -142,7 +151,10 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
         <label>Instagram <small>Opcional</small>
           <input id="insta" autocomplete="off" placeholder="@seuperfil" maxlength="60">
         </label>
-        <div class="q"><span class="ql">Você mora em Campo Grande?</span>
+        <label id="ondeOn" hidden>Onde você mora? <small>Cidade e estado, ou cidade e país</small>
+          <input id="onde" autocomplete="address-level2" placeholder="Ex.: Recife, PE" maxlength="80">
+        </label>
+        <div class="q" id="ondePres"><span class="ql">Você mora em Campo Grande?</span>
           <div class="chips" data-name="cidade" data-one>
             <button type="button" class="chip">Sim</button><button type="button" class="chip">Não, mas consigo ir aos encontros</button>
           </div></div>
@@ -215,7 +227,14 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
   const pick=n=>[...document.querySelectorAll('.chips[data-name="'+n+'"] .chip[aria-pressed="true"]')].map(c=>c.textContent);
   ['dia','mes'].forEach((id,i)=>$(id).addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'');if(e.target.value.length===2)$(['mes','ano'][i]).focus()}));
   $('ano').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,''));
-  $('zap').addEventListener('input',e=>{let d=e.target.value.replace(/\D/g,'').slice(0,11);
+  /* modalidade: presencial (Campo Grande) ou online (Brasil e mundo) */
+  const DICA={presencial:'Encontros presenciais em Campo Grande, MS.',online:'Encontros online, para quem mora em qualquer lugar do Brasil ou do mundo.'};
+  const modal=()=>{const c=document.querySelector('.chips[data-name="modalidade"] .chip[aria-pressed="true"]');return c?c.dataset.m:''};
+  function aplicaModal(){const m=modal();$('ondeOn').hidden=m!=='online';$('ondePres').hidden=m==='online';$('mDica').textContent=DICA[m]||'';
+    $('zap').placeholder=m==='online'?'DDD e número (fora do Brasil, comece com +)':'(67) 99999-9999'}
+  document.querySelector('.chips[data-name="modalidade"]').addEventListener('click',()=>setTimeout(aplicaModal));
+  {const m=new URLSearchParams(location.search).get('m');const c=document.querySelector('.chips[data-name="modalidade"] .chip[data-m="'+m+'"]');if(c)c.setAttribute('aria-pressed','true');aplicaModal()}
+  $('zap').addEventListener('input',e=>{if(/^\s*\+/.test(e.target.value)){e.target.value='+'+e.target.value.replace(/[^\d ]/g,'').replace(/^\s+/,'').slice(0,19);return}let d=e.target.value.replace(/\D/g,'').slice(0,11);
     e.target.value=d.length>6?'('+d.slice(0,2)+') '+d.slice(2,d.length-4)+'-'+d.slice(-4):d.length>2?'('+d.slice(0,2)+') '+d.slice(2):d});
   function bad(el,msg){el.setAttribute('aria-invalid','true');el.scrollIntoView({block:'center',behavior:'smooth'});if(el.focus)el.focus({preventScroll:true});err.textContent=msg;return false}
   const chipsEl=n=>document.querySelector('.chips[data-name="'+n+'"]');
@@ -226,12 +245,14 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
     const now=new Date();let age=now.getFullYear()-y;if(now<new Date(now.getFullYear(),m-1,d))age--;
     if(age<18)return bad($('ano'),'O clube é para mulheres a partir de 18 anos.');
     const zap=$('zap').value;if(zap.replace(/\D/g,'').length<10)return bad($('zap'),'Confira o número do WhatsApp com DDD.');
-    for(const [n,msg] of [['cidade','Conte se você mora em Campo Grande.'],['ritmo','Escolha quantos livros você lê por mês.'],['generos','Marque pelo menos um gênero.'],['clube','Conte se já participou de um clube.'],['origem','Conte como conheceu o clube.']])
+    const md=modal();if(!md)return bad(chipsEl('modalidade'),'Escolha a turma: presencial ou online.');
+    const onde=$('onde').value.trim().replace(/\s+/g,' ');if(md==='online'&&onde.length<2)return bad($('onde'),'Conte onde você mora.');
+    for(const [n,msg] of [...(md==='online'?[]:[['cidade','Conte se você mora em Campo Grande.']]),['ritmo','Escolha quantos livros você lê por mês.'],['generos','Marque pelo menos um gênero.'],['clube','Conte se já participou de um clube.'],['origem','Conte como conheceu o clube.']])
       if(!pick(n).length)return bad(chipsEl(n),msg);
     if(!$('ok').checked)return bad($('ok'),'Marque a autorização de contato pelo WhatsApp.');
     const pad=n=>String(n).padStart(2,'0');
     let ig=$('insta').value.trim();if(ig&&ig[0]!=='@')ig='@'+ig;
-    return {nome,nascimento:y+'-'+pad(m)+'-'+pad(d),whatsapp:zap,instagram:ig,cidade:pick('cidade')[0],ritmo:pick('ritmo')[0],generos:pick('generos'),
+    return {nome,nascimento:y+'-'+pad(m)+'-'+pad(d),whatsapp:zap,instagram:ig,modalidade:md,cidade:md==='online'?onde:pick('cidade')[0],ritmo:pick('ritmo')[0],generos:pick('generos'),
       favoritos:$('fav').value.trim(),clube:pick('clube')[0],expectativas:$('esp').value.trim(),origem:pick('origem')[0],consentimento:true}}
   function celebrate(){const b=document.createElement('div');b.className='burst';
     for(let i=0;i<40;i++){const s=document.createElement('i'),a=i/40*6.283,r=120+Math.random()*160;s.style.setProperty('--x',Math.cos(a)*r+'px');s.style.setProperty('--y',Math.sin(a)*r+'px');b.appendChild(s)}

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Online · Administração · Artes do clube</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="/online/livros/livros.css">
+<link rel="stylesheet" href="../artes.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <div class="row" style="justify-content:space-between"><a class="back" href="../">← Artes do clube</a><a class="back" href="/online/admin/">Painel da administração</a></div>
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+      <p class="lbl">Artes do clube</p>
+      <h1>Administração</h1>
+    </div>
+    <div id="state" style="margin-top:14px;text-align:center"><p class="muted">Carregando…</p></div>
+  </section>
+
+  <div id="area" hidden style="display:flex;flex-direction:column;gap:16px">
+    <section class="panel">
+      <p class="lbl">Nova arte</p>
+      <h2>Adicionar arte</h2>
+      <form class="form" id="f">
+        <label class="arq" id="arqL"><input type="file" id="fArq" accept="image/*,application/pdf" required><span class="pv" id="fPv">+</span><span id="fArqT">Escolher arquivo<br><small>Imagem (PNG, JPG) ou PDF, até 20 MB</small></span></label>
+        <label>Nome da arte<input type="text" id="fNome" maxlength="100" required autocomplete="off" placeholder="Ex.: Template de avaliação"></label>
+        <label>Categoria<input type="text" id="fCat" maxlength="60" required autocomplete="off" list="catList" placeholder="Escolha abaixo ou escreva uma nova">
+          <span class="cats" id="fCats"></span></label>
+        <datalist id="catList"></datalist>
+        <div class="prog" id="fProg" hidden><i id="fBar"></i></div>
+        <button class="btn wide" type="submit" id="fBtn">Adicionar à galeria</button>
+        <p class="uso-livre">A arte aparece na hora para as integrantes. O arquivo é guardado do jeito que foi enviado, sem perder qualidade.</p>
+      </form>
+    </section>
+    <section class="panel">
+      <p class="lbl">Na galeria</p>
+      <h2 id="totT">Artes publicadas</h2>
+      <div id="lista"><p class="muted small">Carregando…</p></div>
+      <p class="muted small" id="espaco" style="margin:14px 0 0"></p>
+    </section>
+    <div class="row" style="justify-content:center"><button class="btn ghost" type="button" id="sair">Sair da conta</button></div>
+  </div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="/online/livros/comum.js"></script>
+<script src="../comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id),st=$('state');
+  const L=window.LIVROS,{esc,slug}=L,A=window.ARTES;
+  const CFG=window.ARCADIA_CONFIG||{};
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  const V='10.12.2';
+  try{await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`)}
+  catch(e){st.innerHTML='<p class="muted">Sem conexão agora. Recarregue a página.</p>';return}
+  // app separado: o login de administração não mexe no acesso de integrante deste aparelho
+  const app=firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase,'admin');const auth=app.auth(),db=app.firestore();
+  const FV=firebase.firestore.FieldValue;
+  try{await auth.getRedirectResult()}catch(e){console.warn(e)}
+
+  function login(){$('area').hidden=true;
+    st.innerHTML='<p>Esta parte é só para a administração do clube.</p><button class="btn" id="g">Entrar com Google</button>';
+    $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}
+      catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);
+        else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request')st.insertAdjacentHTML('beforeend','<p class="muted small">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
+  $('sair').onclick=()=>auth.signOut();
+
+  let iniciou=false;
+  auth.onAuthStateChanged(async u=>{
+    if(!u||u.isAnonymous)return login();
+    let admin=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+    // conselho: e-mail Google na lista do conselho (a Bia mantém em /online/admin)
+    if(!admin&&u.email){try{admin=(await db.collection('conselho').doc(u.email.toLowerCase()).get()).exists}catch(e){}}
+    if(!admin){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted small">Se você faz parte do conselho, peça para a Bia incluir este e-mail na lista do conselho.</p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
+    st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+'</p>';$('area').hidden=false;
+    if(!iniciou){iniciou=true;iniciar()}
+  });
+
+  /* miniatura leve (até 560 px) para a galeria; o arquivo original fica intacto */
+  async function miniatura(file){
+    if(!A.ehImagem(file.type))return {};
+    const u=URL.createObjectURL(file);
+    try{
+      const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=u});
+      const w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,560/Math.max(w,h));
+      const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*k));c.height=Math.max(1,Math.round(h*k));
+      const g=c.getContext('2d');g.fillStyle='#170f33';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+      let q=.82,d=c.toDataURL('image/jpeg',q);while(d.length>150000&&q>.4){q-=.12;d=c.toDataURL('image/jpeg',q)}
+      return {miniatura:d,largura:w,altura:h}
+    }catch(e){console.warn(e);return {}}finally{URL.revokeObjectURL(u)}}
+
+  function iniciar(){
+    const col=db.collection('artes');let artes=[],editando=null,enviando=false;
+
+    /* categorias: as sugeridas + as que já existem */
+    function cats(){const s=new Set(A.CATS);artes.forEach(x=>s.add(x.categoria));return [...s].sort(A.ordCat)}
+    function desenharCats(){const cs=cats(),v=$('fCat').value.trim();
+      $('catList').innerHTML=cs.map(c=>'<option value="'+esc(c)+'">').join('');
+      $('fCats').innerHTML=cs.map(c=>'<button class="chip" type="button" data-cat="'+esc(c)+'" aria-pressed="'+(c===v)+'">'+esc(c)+'</button>').join('')}
+    $('fCats').onclick=e=>{const b=e.target.closest('[data-cat]');if(!b)return;e.preventDefault();$('fCat').value=b.dataset.cat;desenharCats()};
+    $('fCat').oninput=desenharCats;
+
+    /* arquivo escolhido */
+    let pvUrl='';
+    $('fArq').onchange=()=>{const f=$('fArq').files[0];if(pvUrl)URL.revokeObjectURL(pvUrl);pvUrl='';
+      if(!f){$('fPv').innerHTML='+';$('fArqT').innerHTML='Escolher arquivo';return}
+      if(A.ehImagem(f.type)){pvUrl=URL.createObjectURL(f);$('fPv').innerHTML='<img src="'+pvUrl+'" alt="">'}else $('fPv').textContent=A.rotulo(f.type);
+      $('fArqT').innerHTML=esc(f.name)+'<br><small>'+A.tam(f.size)+' · toque para trocar</small>';
+      if(!$('fNome').value.trim())$('fNome').value=f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').trim().slice(0,100)};
+
+    $('f').onsubmit=async ev=>{ev.preventDefault();if(enviando)return;
+      const f=$('fArq').files[0],nome=$('fNome').value.trim(),categoria=$('fCat').value.trim().replace(/\s+/g,' ');
+      if(!f){toast('Escolha o arquivo da arte');return}
+      if(!A.ehImagem(f.type)&&f.type!=='application/pdf'){toast('Envie uma imagem ou um PDF');return}
+      if(f.size>A.MAX){toast('Arquivo grande demais (máximo 20 MB)');return}
+      if(!nome){toast('Escreva o nome da arte');$('fNome').focus();return}
+      if(!categoria){toast('Escolha a categoria');$('fCat').focus();return}
+      enviando=true;const b=$('fBtn');b.disabled=true;b.textContent='Enviando…';$('fProg').hidden=false;$('fBar').style.width='3%';
+      const ref=col.doc(),bytes=new Uint8Array(await f.arrayBuffer()),n=Math.max(1,Math.ceil(bytes.length/A.PARTE));
+      const ext=(f.name.match(/\.[a-z0-9]{2,5}$/i)||[''])[0].toLowerCase();
+      const arquivo=(slug(nome)||'arte').slice(0,80)+'-sociedade-arcadia'+ext;
+      try{
+        const mini=await miniatura(f);
+        for(let i=0;i<n;i++){
+          await ref.collection('partes').doc(String(i)).set({d:firebase.firestore.Blob.fromUint8Array(bytes.subarray(i*A.PARTE,(i+1)*A.PARTE))});
+          $('fBar').style.width=Math.round(5+90*(i+1)/n)+'%'}
+        await ref.set(Object.assign({nome,categoria,tipo:f.type,arquivo,tamanho:f.size,partes:n,criadoEm:firebase.firestore.FieldValue.serverTimestamp()},mini));
+        $('fBar').style.width='100%';toast('“'+nome+'” está na galeria ✨');
+        $('f').reset();$('fArq').onchange();desenharCats();
+      }catch(e){console.warn(e);toast('Não foi possível enviar: '+(e.code||e.message));
+        for(let i=0;i<n;i++)ref.collection('partes').doc(String(i)).delete().catch(()=>{})}
+      enviando=false;b.disabled=false;b.textContent='Adicionar à galeria';setTimeout(()=>{$('fProg').hidden=true;$('fBar').style.width='0'},900)};
+
+    col.onSnapshot(s=>{artes=s.docs.map(d=>Object.assign({_id:d.id},d.data()));desenhar();desenharCats()},
+      e=>{console.warn(e);toast('Erro ao ler as artes: '+e.code)});
+
+    function desenhar(){
+      const gs=A.grupos(artes),total=artes.reduce((s,x)=>s+(x.tamanho||0),0);
+      $('totT').textContent=artes.length===1?'1 arte publicada':artes.length+' artes publicadas';
+      $('espaco').textContent=artes.length?'Espaço usado: '+A.tam(total)+' de 1 GB do plano gratuito do Firebase.':'';
+      $('lista').innerHTML=gs.length?gs.map(g=>'<div class="grupo"><h3 class="cat">'+esc(g[0])+'<small>'+g[1].length+'</small></h3><ul class="galeria">'+
+        g[1].map(x=>'<li class="arte" data-id="'+esc(x._id)+'">'+
+          '<div class="mini">'+(x.miniatura?'<img src="'+esc(x.miniatura)+'" alt="" loading="lazy">':'<span class="fmt">'+esc(A.rotulo(x.tipo))+'</span>')+'</div>'+
+          (editando===x._id
+            ?'<div class="edit-f"><input type="text" data-e="nome" maxlength="100" value="'+esc(x.nome)+'" aria-label="Nome">'+
+              '<input type="text" data-e="categoria" maxlength="60" list="catList" value="'+esc(x.categoria)+'" aria-label="Categoria">'+
+              '<button class="btn" type="button" data-acao="salvar">Salvar</button><button class="lnk" type="button" data-acao="cancelar">Cancelar</button></div>'
+            :'<h3>'+esc(x.nome)+'</h3><p class="info">'+esc(A.rotulo(x.tipo))+' · '+A.tam(x.tamanho)+'</p>'+
+              '<div class="ed"><button class="lnk" type="button" data-acao="editar">Editar</button><button class="del" type="button" data-acao="apagar">Remover</button></div>')+
+          '</li>').join('')+'</ul></div>').join('')
+        :'<p class="muted small" style="margin:0">Nenhuma arte ainda. Adicione a primeira acima.</p>'}
+
+    $('lista').addEventListener('click',async e=>{const b=e.target.closest('[data-acao]');if(!b)return;
+      const li=b.closest('[data-id]'),id=li.dataset.id,x=artes.find(y=>y._id===id);if(!x)return;const a=b.dataset.acao;
+      if(a==='editar'){editando=id;desenhar();return}
+      if(a==='cancelar'){editando=null;desenhar();return}
+      b.disabled=true;
+      try{
+        if(a==='salvar'){const nome=li.querySelector('[data-e=nome]').value.trim(),categoria=li.querySelector('[data-e=categoria]').value.trim().replace(/\s+/g,' ');
+          if(!nome||!categoria){toast('Preencha nome e categoria');b.disabled=false;return}
+          await col.doc(id).update({nome,categoria});editando=null;desenhar();toast('Salvo')}
+        else if(a==='apagar'){if(!confirm('Remover “'+x.nome+'” da galeria? As integrantes deixam de ver.')){b.disabled=false;return}
+          const ps=await col.doc(id).collection('partes').get();
+          for(const d of ps.docs)await d.ref.delete();
+          await col.doc(id).delete();toast('Removida')}
+      }catch(er){console.warn(er);toast('Não foi possível agora: '+er.code);b.disabled=false}});
+  }
+})();
+</script>
+</body>
+</html>

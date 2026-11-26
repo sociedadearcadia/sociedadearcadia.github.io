@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Primeiros Mistérios de Hogwarts · Salão Principal</title>
+<meta name="theme-color" content="#0b1730">
+<link rel="icon" type="image/png" href="/online/hogwarts/img/icone-64.png">
+<link rel="apple-touch-icon" href="/online/hogwarts/img/icone-180.png">
+<link rel="manifest" href="/online/hogwarts/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Hogwarts">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="/online/hogwarts/hg.css">
+<style>
+.ops{display:flex;flex-direction:column;gap:8px}
+.op{display:flex;gap:10px;align-items:flex-start;text-align:left;padding:12px 14px;border-radius:12px;border:1px solid #c9a865;background:rgba(255,250,236,.75);color:var(--tinta);cursor:pointer;font:500 17px var(--corpo)}
+.op b{font:800 14px var(--ui);color:#7a4a12;min-width:18px}
+.op[aria-pressed="true"]{background:#fff3cf;box-shadow:0 0 0 2px #a87d36 inset}
+.op.certa{background:#e3f6e6;box-shadow:0 0 0 2px #3f8a55 inset}
+.op.errada{background:#fbe4df;box-shadow:0 0 0 2px #b4483a inset}
+.op:disabled{cursor:default}
+.barra{height:8px;border-radius:99px;background:rgba(120,80,30,.18);overflow:hidden}
+.barra i{display:block;height:100%;background:linear-gradient(90deg,#c99a45,#f1cf86);transition:width .4s}
+.res{border-radius:12px;padding:12px 14px}
+.res.ok{background:#e3f6e6;color:#1f4f2e}
+.res.no{background:#fbe4df;color:#7a2318}
+.passos{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.passos span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:800 13px var(--ui);border:1px solid #c9a865;color:#7a4a12;background:rgba(255,250,236,.6)}
+.passos span.feito{background:#c99a45;color:#fff}
+.passos span.agora{box-shadow:0 0 0 2px #7a4a12}
+.festa{display:flex;justify-content:center;padding:6px}
+.festa .hg-ic{width:110px;height:110px;color:#b0281a;animation:brilha 1.6s ease-in-out infinite}
+@keyframes brilha{50%{transform:scale(1.08);filter:drop-shadow(0 0 12px rgba(220,60,40,.6))}}
+.pulo{animation:pulo .6s ease}
+@keyframes pulo{40%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.festa .hg-ic,.pulo{animation:none}}
+</style>
+</head>
+<body>
+<div class="hg-fundo" aria-hidden="true"></div>
+<main class="hg-wrap">
+  <a class="hg-voltar" href="/online/hogwarts/" id="voltar">← Salão Principal</a>
+  <div id="app" class="hg-form"><section class="hg-perg"><p class="hg-centro hg-muted" id="estado">Carregando…</p></section></div>
+</main>
+<script src="/online/config.js"></script>
+<script src="/online/hogwarts/hg.js"></script>
+<script>
+(async()=>{
+  const {$,esc,icone,janela,fmtD,fmtDH}=HG;HG.neve();HG.magia({varinha:true,chaves:true});
+  let ctx;try{ctx=await HG.entrar()}catch(e){$('estado').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+  const db=ctx.db,D=ctx.datas,R=['r1','r2','r3','r4'],app=$('app');
+  const INFO={r1:{caps:'Capítulos 1 a 4',n:4,t:'Rodada 1 — As Cartas Chegaram'},r2:{caps:'Capítulos 5 a 7',n:3,t:'Rodada 2 — Bem-vindas a Hogwarts'},
+    r3:{caps:'Capítulos 8 a 12',n:5,t:'Rodada 3 — Os Segredos do Castelo'},r4:{caps:'Capítulos 13 a 17',n:5,t:'Rodada 4 — O Mistério da Pedra'},protecoes:{caps:'Aventura final',n:7,t:'As Sete Proteções da Pedra Filosofal'}};
+  const prog={};
+  const minhas={r1:{},r2:{},r3:{},r4:{}};
+  async function carregaMinhas(){try{(await db.collection('hgRespostas').where('pid','==',ctx.pid).get()).docs.forEach(d=>{const x=d.data();if(minhas[x.rodada])minhas[x.rodada][x.i]=x})}catch(e){console.warn(e)}}
+  const feitasR=r=>Object.keys(minhas[r]||{}).length,acertosR=r=>Object.values(minhas[r]||{}).filter(x=>x.certa).length;
+  async function carregaProg(){await carregaMinhas();await Promise.all([...R,'protecoes'].map(async r=>{try{const d=await db.collection('hgProgresso').doc(ctx.pid+'_'+r).get();prog[r]=d.exists?d.data():null}catch(e){prog[r]=null}}))}
+  async function salva(r,atual,feito){const p=prog[r]||{vezes:0};const n={pid:ctx.pid,rodada:r,atual,feito:!!(feito||p.feito),vezes:(p.vezes||0)+(feito?1:0),em:Date.now()};
+    try{await db.collection('hgProgresso').doc(ctx.pid+'_'+r).set(n);prog[r]=n}catch(e){console.warn(e);HG.toast('Não deu para salvar o progresso agora. Confira a internet.')}}
+  let cap=0;try{const d=await db.collection('hgLido').doc(ctx.pid).get();cap=d.exists?(+d.data().cap||0):0}catch(e){}
+  const fimJ=r=>r==='protecoes'?janela(D,'protecoes','protecoesFim'):HG.rodadaAberta(D,r,cap);
+  const CF=HG.CAP_FIM;
+  /* "Até qual capítulo você já leu?": abre as rodadas cujo último capítulo ela já terminou */
+  function caixaCap(){const fimTudo=janela(D,'r1','misteriosFim').fim;if(fimTudo)return '';
+    return `<section class="hg-perg hg-form" id="capBox"><div class="hg-topo"><span style="color:#7a4a12">${icone('livro','hg-ic-grande')}</span><h2>Até qual capítulo você já leu?</h2></div>
+      <p class="hg-centro hg-small">Marque o último capítulo que você terminou. As rodadas desse trecho abrem na hora, sem esperar a data do cronograma.</p>
+      <label class="hg-campo"><span>Terminei até o capítulo</span><select class="hg-in" id="capSel"><option value="0">Ainda não terminei o capítulo 1</option>${Array.from({length:17},(_,k)=>`<option value="${k+1}" ${cap===k+1?'selected':''}>Capítulo ${k+1}${Object.values(CF).includes(k+1)?' (abre a Rodada '+(Object.values(CF).indexOf(k+1)+1)+')':''}</option>`).join('')}</select></label>
+      <div class="hg-btns"><button class="hg-btn" id="capOk" type="button">Salvar</button></div>
+      <p class="hg-muted hg-small hg-centro">Rodada 1 abre no capítulo 4, Rodada 2 no 7, Rodada 3 no 12 e Rodada 4 no 17. Quem não marcar recebe cada rodada na data do cronograma.</p></section>`}
+  async function salvaCap(){const v=+$('capSel').value||0,bt=$('capOk');if(v===cap)return HG.toast('Já está salvo.');bt.disabled=true;
+    try{await db.collection('hgLido').doc(ctx.pid).set({cap:v,em:Date.now()});const antes=R.filter(r=>fimJ(r).aberta).length;cap=v;const depois=R.filter(r=>fimJ(r).aberta).length;
+      HG.toast(depois>antes?'Salvo! Nova rodada liberada para você.':'Salvo!');menu()}
+    catch(e){console.warn(e);bt.disabled=false;HG.toast('Não deu para salvar agora. Confira a internet e tente de novo.')}}
+  function menu(){location.hash='';$('voltar').href='/online/hogwarts/';$('voltar').textContent='← Salão Principal';
+    const card=(r)=>{const i=INFO[r],j=fimJ(r),p=prog[r];
+      const pr=r!=='protecoes',fr=pr?feitasR(r):0;
+      const st=pr?(fr>=i.n?`<span class="hg-tag ok">Concluída · ${acertosR(r)} de ${i.n}</span>`:fr?`<span class="hg-tag">Pergunta ${fr+1} de ${i.n}</span>`:''):p&&p.feito?'<span class="hg-tag ok">Concluída</span>':p&&p.atual>0?`<span class="hg-tag">Pergunta ${p.atual+1} de ${i.n}</span>`:'';
+      const tag=j.antes?`<span class="hg-tag">${r==='protecoes'?'Disponível em '+esc(fmtDH(D.protecoes)):'Abre ao terminar o capítulo '+CF[r]+' ou em '+esc(fmtD(D[r]))}</span>`:j.fim?'<span class="hg-tag fim">Encerrada</span>':st;
+      const bt=j.aberta?`<button class="hg-btn peq" data-r="${r}">${r==='protecoes'?(p&&p.feito?'Refazer a aventura':p&&p.atual>0?'Continuar a aventura':'Começar a aventura'):(fr>=i.n?'Ver resultado':fr?'Continuar rodada':'Iniciar rodada')}</button>`
+        :j.antes?`<span class="hg-btn peq" aria-disabled="true" style="opacity:.55">${icone('cadeado')} Em breve</span>`:'';
+      return `<article class="hg-card${j.aberta?'':' bloq'}"><div class="cab"><span class="selo">${icone(r==='protecoes'?'pedra':'chave')}</span><div><h3>${esc(i.t)}</h3><p class="hg-small">${esc(i.caps)} · ${i.n} ${r==='protecoes'?'etapas':i.n===1?'pergunta':'perguntas'}</p></div></div><div class="pe">${tag||'<span></span>'}${bt}</div></article>`};
+    app.innerHTML=`<section class="hg-perg hg-form"><div class="hg-topo"><span style="color:#7a4a12">${icone('chave','hg-ic-grande')}</span><h1 style="color:#4a2f0f">Primeiros Mistérios de Hogwarts</h1></div>
+      <p class="hg-centro">Os segredos de Hogwarts estão sendo revelados aos poucos!</p><p class="hg-centro">Escolha uma etapa da nossa leitura e descubra quantos detalhes você conseguiu guardar.</p>
+      <p class="hg-instr">Cada rodada corresponde a um grupo de capítulos. Leu mais rápido? Marque abaixo até onde já terminou e a rodada abre na hora, enquanto a leitura está fresca.</p>
+      <p class="hg-muted hg-small hg-centro">Uma pergunta por vez, com quatro alternativas. Pense bem antes de confirmar: a primeira resposta é a que vale e não dá para trocar. Depois de cada resposta você vê a explicação e quantas participantes acertaram, sem nomes. Sua pontuação só você vê. Pode parar e continuar depois. As rodadas ficam abertas até ${esc(fmtDH(D.misteriosFim))}.</p></section>
+      ${caixaCap()}
+      <div class="hg-cards">${R.map(card).join('')}</div>
+      <section class="hg-painel hg-form"><div class="hg-topo"><span class="hg-ouro">${icone('pedra','hg-ic-grande')}</span><p class="hg-lbl">Aventura bônus</p><h2>As Sete Proteções da Pedra Filosofal</h2></div>
+      <p class="hg-centro hg-muted">Uma aventura separada, com sete obstáculos até a última câmara. Não precisa ter feito as rodadas antes.</p>${card('protecoes')}</section>`;
+    app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>abrir(b.dataset.r));if($('capOk'))$('capOk').onclick=salvaCap;scrollTo(0,0)}
+  const cache={};
+  async function abrir(r){const j=fimJ(r);if(!j.aberta)return HG.toast(j.txt||'Ainda não está aberta');
+    app.innerHTML='<section class="hg-perg"><p class="hg-centro hg-muted">Abrindo…</p></section>';
+    if(!cache[r]){try{const d=await db.collection('hgQuiz').doc(r).get();cache[r]=d.exists?d.data():null}catch(e){cache[r]=null}}
+    const q=cache[r];if(!q||!q.perguntas||!q.perguntas.length){app.innerHTML='<section class="hg-perg hg-form"><p class="hg-centro">As perguntas desta rodada ainda não foram cadastradas. Avise a administração.</p><div class="hg-btns"><button class="hg-btn sec" id="vt">Voltar aos mistérios</button></div></section>';$('vt').onclick=menu;return}
+    $('voltar').href='#';$('voltar').textContent='← Voltar aos mistérios';$('voltar').onclick=e=>{e.preventDefault();$('voltar').onclick=null;menu()};
+    if(r!=='protecoes'){const n=q.perguntas.length;let k=0;while(k<n&&minhas[r][k])k++;if(k>=n)return fim(r,q);return pergunta(r,q,k)}
+    let i=prog[r]&&!prog[r].feito?Math.min(prog[r].atual||0,q.perguntas.length-1):0;
+    if(r==='protecoes'&&(!prog[r]||prog[r].feito)&&i===0)return abertura(r,q,()=>pergunta(r,q,0));
+    pergunta(r,q,i)}
+  function abertura(r,q,seg){app.innerHTML=`<section class="hg-perg hg-form hg-centro"><div class="hg-topo"><span style="color:#7a4a12">${icone('pedra','hg-ic-grande')}</span><h1 style="color:#4a2f0f">${esc(q.titulo)}</h1></div>
+    <p>Você chegou ao fim da leitura, mas ainda falta atravessar as proteções da Pedra Filosofal!</p><p>Sete obstáculos separam você da última câmara. Será que consegue passar por todos eles?</p>
+    <p class="hg-instr" style="text-align:left">Uma pergunta por etapa. Se errar, aparece uma dica e você tenta de novo. Só avança depois de resolver a etapa. O progresso fica salvo.</p>
+    <div class="hg-btns"><button class="hg-btn" id="ir">Começar a aventura</button></div></section>`;$('ir').onclick=seg}
+  function pergunta(r,q,i){const P=q.perguntas[i],n=q.perguntas.length,pro=r==='protecoes';let sel=-1,tent=0;
+    app.innerHTML=`<section class="hg-perg hg-form" id="qq">
+      <div class="hg-topo"><p class="hg-lbl" style="color:#7a4a12">${esc(q.titulo)}</p></div>
+      ${pro?`<div class="passos">${q.perguntas.map((_,k)=>`<span class="${k<i?'feito':k===i?'agora':''}">${k+1}</span>`).join('')}</div>`:`<div class="barra" aria-hidden="true"><i style="width:${Math.round(100*i/n)}%"></i></div><p class="hg-centro hg-small hg-muted">Pergunta ${i+1} de ${n}</p>`}
+      <h2 style="font-size:17px">${esc(P.cap||'')}</h2>
+      <p style="font-size:19px">${esc(P.p)}</p>
+      <div class="ops" role="radiogroup">${P.o.map((o,k)=>`<button type="button" class="op" role="radio" aria-checked="false" aria-pressed="false" data-k="${k}"><b>${'ABCD'[k]})</b><span>${esc(o)}</span></button>`).join('')}</div>
+      <div id="res"></div>
+      <div class="hg-btns" id="acoes"><button class="hg-btn" id="conf" disabled>Confirmar resposta</button></div></section>`;
+    const ops=[...app.querySelectorAll('.op')];
+    ops.forEach(b=>b.onclick=()=>{if(b.disabled)return;sel=+b.dataset.k;ops.forEach(o=>{const on=o===b;o.setAttribute('aria-pressed',on);o.setAttribute('aria-checked',on);o.classList.remove('errada')});$('conf').disabled=false});
+    $('conf').onclick=async()=>{if(sel<0)return;tent++;
+      if(!pro){$('conf').disabled=true;ops.forEach(o=>o.disabled=true);const k=sel,certa=k===+P.c,id=r+'_'+i;let est=null;
+        try{est=await db.runTransaction(async t=>{const eRef=db.collection('hgEstat').doc(id),e=await t.get(eRef),o=e.exists?e.data():{n:0,certas:0};
+          t.set(db.collection('hgRespostas').doc(ctx.pid+'_'+id),{pid:ctx.pid,nome:ctx.nome,rodada:r,i,k,certa,em:Date.now()});const nn={n:(o.n||0)+1,certas:(o.certas||0)+(certa?1:0)};t.set(eRef,nn);return nn})}
+        catch(e){console.warn(e);await carregaMinhas();if(minhas[r][i]){HG.toast('Esta pergunta já foi respondida.');return abrir(r)}ops.forEach(o=>o.disabled=false);$('conf').disabled=false;return HG.toast('Não deu para enviar agora. Confira a internet e tente de novo.')}
+        minhas[r][i]={pid:ctx.pid,rodada:r,i,k,certa};ops[+P.c].classList.add('certa');if(!certa)ops[k].classList.add('errada');
+        const pct=est&&est.n?Math.round(100*est.certas/est.n):null;
+        $('res').innerHTML=`<div class="res ${certa?'ok':'no'} pulo"><p><b>${certa?'Resposta certa!':'Não foi dessa vez.'}</b>${certa?'':` A resposta certa era a ${'ABCD'[+P.c]}.`}</p>${P.e?`<p style="margin-top:6px">${esc(P.e)}</p>`:''}${pct!=null?`<p class="hg-small" style="margin-top:8px">${pct}% das participantes acertaram esta pergunta até agora.</p>`:''}</div>`;
+        const ult=i===n-1;await salva(r,ult?0:i+1,ult);
+        $('acoes').innerHTML=`<button class="hg-btn" id="seg">${ult?'Ver meu resultado':'Próxima pergunta'}</button>`;$('seg').onclick=()=>ult?fim(r,q):pergunta(r,q,i+1);$('seg').focus();return}
+      if(sel===+P.c){ops.forEach(o=>o.disabled=true);ops[sel].classList.add('certa');
+        $('res').innerHTML=`<div class="res ok pulo">${pro&&P.ok?`<p><b>${esc(P.ok)}</b></p>`:'<p><b>Resposta certa!</b></p>'}${P.e?`<p style="margin-top:6px">${esc(P.e)}</p>`:''}</div>`;
+        const ult=i===n-1;await salva(r,ult?0:i+1,ult);
+        $('acoes').innerHTML=`<button class="hg-btn" id="seg">${ult?(pro?'Entrar na última câmara':'Concluir rodada'):pro?'Seguir para a próxima proteção':'Próxima pergunta'}</button>`;
+        $('seg').onclick=()=>ult?fim(r,q):pergunta(r,q,i+1);$('seg').focus()}
+      else{ops[sel].classList.add('errada');ops[sel].setAttribute('aria-pressed',false);sel=-1;$('conf').disabled=true;
+        $('res').innerHTML=`<div class="res no"><p><b>Ainda não.</b> Tente de novo!</p>${pro&&P.d?`<p style="margin-top:6px"><b>Dica:</b> ${esc(P.d)}</p>`:''}</div>`}};
+    scrollTo({top:0,behavior:'smooth'})}
+  async function fim(r,q){const pro=r==='protecoes';let extra='';
+    if(!pro){const n=q.perguntas.length,ac=acertosR(r);let E=[];try{E=await Promise.all(q.perguntas.map((_,i)=>db.collection('hgEstat').doc(r+'_'+i).get().then(d=>d.exists?d.data():null)))}catch(e){}
+      extra=`<p class="hg-instr" style="text-align:center;font-size:20px">Você acertou <b>${ac} de ${n}</b></p><div style="text-align:left">${q.perguntas.map((P,i)=>{const m=minhas[r][i],e=E[i];return `<p class="hg-small"><b>${i+1}. ${esc(P.p)}</b><br>${m?(m.certa?'Você acertou.':'Você errou. Certa: '+'ABCD'[+P.c]+') '+esc(P.o[+P.c])):''}${e&&e.n?` · ${Math.round(100*e.certas/e.n)}% acertaram`:''}</p>`}).join('')}</div><p class="hg-muted hg-small">Só você vê a sua pontuação.</p>`}
+    app.innerHTML=`<section class="hg-perg hg-form hg-centro">${pro?`<div class="festa">${icone('pedra')}</div>`:`<div class="hg-topo"><span style="color:#7a4a12">${icone('chave','hg-ic-grande')}</span></div>`}
+      <h1 style="color:#4a2f0f">${esc(q.fimT||'Rodada concluída!')}</h1><p>${esc(q.fimP||'')}</p>${extra}
+      <div class="hg-btns">${pro?'<a class="hg-btn" href="/online/hogwarts/">Voltar ao Salão Principal</a><button class="hg-btn sec" id="vt">Voltar aos mistérios</button>':'<button class="hg-btn" id="vt">Voltar aos mistérios</button>'}</div></section>`;
+    $('vt').onclick=menu;scrollTo(0,0)}
+  await carregaProg();menu();
+})();
+</script>
+</body>
+</html>

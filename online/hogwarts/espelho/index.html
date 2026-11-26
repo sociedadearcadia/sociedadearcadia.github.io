@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Espelho de Ojesed · Salão Principal de Hogwarts</title>
+<meta name="theme-color" content="#0b1730">
+<link rel="icon" type="image/png" href="/online/hogwarts/img/icone-64.png">
+<link rel="apple-touch-icon" href="/online/hogwarts/img/icone-180.png">
+<link rel="manifest" href="/online/hogwarts/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Hogwarts">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="/online/hogwarts/hg.css">
+<style>
+.opcoes{display:flex;flex-direction:column;gap:8px}
+.opcoes label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;border:1px solid #c9a865;background:rgba(255,250,236,.7);cursor:pointer}
+.opcoes input{margin-top:5px;accent-color:#7a4a12}
+</style>
+</head>
+<body>
+<div class="hg-fundo" aria-hidden="true"></div>
+<main class="hg-wrap">
+  <a class="hg-voltar" href="/online/hogwarts/">← Salão Principal</a>
+  <section class="hg-perg hg-form" id="app"><p class="hg-centro hg-muted" id="estado">Carregando…</p></section>
+</main>
+<script src="/online/config.js"></script>
+<script src="/online/hogwarts/hg.js"></script>
+<script>
+(async()=>{
+  const {$,esc,icone,janela,fmtDH}=HG;HG.neve();HG.magia({varinha:true});
+  let ctx;try{ctx=await HG.entrar()}catch(e){$('estado').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+  const db=ctx.db,D=ctx.datas,app=$('app'),j=janela(D,'espelho','espelhoFim');
+  const topo=`<div class="hg-topo"><span style="color:#7a4a12">${icone('espelho','hg-ic-grande')}</span><p class="hg-lbl" style="color:#7a4a12">Memórias da Arcádia</p><h1 style="color:#4a2f0f">Espelho de Ojesed</h1></div>
+    <p class="hg-centro">Algumas lembranças merecem ser guardadas, e todo novo capítulo começa com algo que desejamos para o futuro.</p>
+    <p class="hg-instr">O Espelho de Ojesed revela os desejos mais profundos de quem olha para ele. Nesta última LC especial do ano, vamos guardar uma lembrança de 2026 e pensar no que desejamos para o próximo capítulo da Sociedade Arcádia.<br><br>Esta atividade faz referência ao capítulo 12. Se ainda não chegou até ele, pode voltar depois.</p>`;
+  let meu=null;try{const d=await db.collection('hgEspelho').doc(ctx.pid).get();meu=d.exists?d.data():null}catch(e){}
+  if(j.antes){app.innerHTML=topo+`<p class="hg-centro"><span class="hg-tag">${esc(j.txt)}</span></p>`;return}
+  if(j.fim){app.innerHTML=topo+(meu?`<p class="hg-lbl" style="color:#7a4a12">Suas lembranças</p><p><b>Lembrança de 2026:</b> ${esc(meu.lembranca)}</p><p><b>Desejo para 2027:</b> ${esc(meu.desejo)}</p>`:'')+'<p class="hg-centro"><span class="hg-tag fim">Encerrado</span></p>';return}
+  app.innerHTML=topo+`<form class="hg-form" id="f">
+    <label class="hg-campo"><span>Se pudesse guardar uma única lembrança da Sociedade Arcádia em 2026, qual seria?</span><textarea class="hg-in" name="a" maxlength="3000" required></textarea></label>
+    <label class="hg-campo"><span>O que você mais deseja para a nossa nova fase em 2027?</span><textarea class="hg-in" name="b" maxlength="3000" required></textarea></label>
+    <fieldset class="hg-campo" style="border:0;padding:0;margin:0"><span>Podemos compartilhar suas respostas no encontro de encerramento?</span>
+      <div class="opcoes"><label><input type="radio" name="c" value="sim" required> Sim, podem ler minhas respostas.</label><label><input type="radio" name="c" value="nao"> Prefiro que fiquem somente com a administração.</label></div></fieldset>
+    <p class="hg-muted hg-small">Você pode editar até ${esc(fmtDH(D.espelhoFim))}. Nada é publicado automaticamente.</p>
+    <p class="hg-erro" id="erro" hidden></p>
+    <div class="hg-btns"><button class="hg-btn" id="bt">Guardar minhas memórias</button></div></form>`;
+  const f=$('f');if(meu){f.a.value=meu.lembranca||'';f.b.value=meu.desejo||'';f.c.value=meu.compartilhar?'sim':'nao'}
+  f.onsubmit=async ev=>{ev.preventDefault();const bt=$('bt');bt.disabled=true;$('erro').hidden=true;
+    try{await db.collection('hgEspelho').doc(ctx.pid).set({nome:ctx.nome,lembranca:f.a.value.trim(),desejo:f.b.value.trim(),compartilhar:f.c.value==='sim',em:Date.now()});
+      app.innerHTML=topo.split('<p class="hg-instr">')[0]+`<div class="hg-instr" style="font-size:18px">Suas lembranças foram guardadas. Algumas histórias merecem ser levadas para o próximo capítulo.</div>
+        <div class="hg-btns"><a class="hg-btn" href="/online/hogwarts/">Voltar ao Salão Principal</a><button class="hg-btn sec" onclick="location.reload()">Ver ou editar</button></div>`}
+    catch(e){console.warn(e);$('erro').textContent='Não deu para guardar agora. Confira a internet e tente de novo.';$('erro').hidden=false;bt.disabled=false}};
+})();
+</script>
+</body>
+</html>
