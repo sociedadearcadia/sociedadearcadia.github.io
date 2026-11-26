@@ -157,14 +157,27 @@ function cadente(x,t){for(const c of CADENTES){const k=(t-c.t0)/1.1;if(k<0||k>1)
 const VOOS=[{ini:.2,dur:5.4,dir:1,y:450,q:'d'},{ini:5.2,dur:5,dir:-1,y:1545,q:'f'},{ini:9.9,dur:5,dir:-1,y:440,q:'d'}];
 function posVoo(v,t){const k=(t-v.ini)/v.dur;if(k<0||k>1)return null;const X=v.dir>0?-240+k*(W+480):W+240-k*(W+480);
   return{x:X,y:v.y+Math.sin(k*6.28*(v.q==='f'?2:1.3))*(v.q==='f'?55:40),dir:v.dir}}
+/* dragão e fadinha pintados no estilo da arte do fundo (4 posições de asa cada); se as imagens não carregarem, usa os desenhos acima */
+const SPR={d:[],f:[]};let sprOk=false,sprP=null;
+function carregaSpr(){if(sprP)return sprP;const base=(document.currentScript&&document.currentScript.src)||'';
+  const dir=base?base.replace(/video\.js.*$/,'voo/'):'/artes/montar/voo/';
+  const um=(q,n,i)=>new Promise(ok=>{const im=new Image();im.onload=()=>{SPR[q][i]=im;ok(1)};im.onerror=()=>ok(0);im.src=dir+n+'-'+(i+1)+'.webp'});
+  sprP=Promise.all([0,1,2,3].flatMap(i=>[um('d','dragao',i),um('f','fada',i)])).then(r=>{sprOk=r.every(Boolean);return sprOk});return sprP}
+const CICLO={d:[0,3,1,2,1,3],f:[0,1,2,3,2,1]};
+function sprite(x,q,t,larg){const fps=q==='d'?11:20,seq=CICLO[q],im=SPR[q][seq[Math.floor(t*fps)%seq.length]];if(!im)return;
+  const w=larg,h=w*im.height/im.width,bob=Math.sin(t*(q==='d'?4.2:3.2))*8;x.save();x.translate(0,bob);x.rotate(Math.sin(t*1.6)*.04);
+  const g=x.createRadialGradient(0,0,10,0,0,w*.62);g.addColorStop(0,q==='d'?'rgba(255,214,150,.22)':'rgba(255,236,250,.34)');g.addColorStop(1,'rgba(255,220,200,0)');x.fillStyle=g;x.beginPath();x.arc(0,0,w*.62,0,6.28);x.fill();
+  x.drawImage(im,-w/2,-h/2,w,h);x.restore()}
 function quadroArc(x,t,pontos){quadro(x,t,pontos);cadente(x,t);const tc=t%15;
   for(const v of VOOS){const p=posVoo(v,tc);if(!p)continue;
     if(v.q==='d')rastro(x,tt=>posVoo(v,tt),tc,['#fff4c4','#ffd1ec','#e6c8ff'],16,0);else rastro(x,tt=>posVoo(v,tt),tc,['#fff7cf','#ffe08a','#ffd1ec','#ffffff'],26,1);
-    x.save();x.translate(p.x,p.y);x.scale(p.dir,1);if(v.q==='d')dragao(x,t,1.25);else fada(x,t,1.7);x.restore()}
+    x.save();x.translate(p.x,p.y);x.scale(p.dir,1);
+    if(sprOk)sprite(x,v.q,t,v.q==='d'?340:330);else if(v.q==='d')dragao(x,t,1.25);else fada(x,t,1.7);x.restore()}
   x.globalAlpha=1}
+carregaSpr();
 const tipo=(()=>{if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)return '';
   for(const t of['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm'])try{if(MediaRecorder.isTypeSupported(t))return t}catch(e){}return ''})();
-async function gravar(base,pontos,seg,tema){seg=seg||6;const desenha=tema==='hogwarts'?quadroHG:tema==='arcadia'?quadroArc:quadro;
+async function gravar(base,pontos,seg,tema){seg=seg||6;if(tema==='arcadia')await Promise.race([carregaSpr(),new Promise(ok=>setTimeout(ok,4000))]);const desenha=tema==='hogwarts'?quadroHG:tema==='arcadia'?quadroArc:quadro;
   const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='position:fixed;left:-9999px;top:0;width:10px;height:10px';document.body.appendChild(c);
   const x=c.getContext('2d');x.drawImage(base,0,0,W,H);
   const st=c.captureStream(30),rec=new MediaRecorder(st,{mimeType:tipo,videoBitsPerSecond:16e6}),partes=[];
