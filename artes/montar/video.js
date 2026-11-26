@@ -1,4 +1,4 @@
-/* Vídeo de stories com brilho e pétalas (ou tema Hogwarts): grava 6 s (ou o tempo pedido) a partir de uma imagem pronta (1080x1920) */
+/* Vídeo de stories com brilho e pétalas (ou tema Hogwarts): grava o tempo pedido (sprints: 15 s; padrão 6 s) a partir de uma imagem pronta (1080x1920) */
 (function(){
 const W=1080,H=1920;
 function rnd(seed){return()=>(seed=(seed*9301+49297)%233280)/233280}
@@ -177,7 +177,33 @@ function quadroArc(x,t,pontos){quadro(x,t,pontos);cadente(x,t);const tc=t%15;
 carregaSpr();
 const tipo=(()=>{if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)return '';
   for(const t of['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm'])try{if(MediaRecorder.isTypeSupported(t))return t}catch(e){}return ''})();
+/* Caminho principal: monta quadro a quadro (30 por segundo) e codifica com tempo exato, então o vídeo
+   sempre sai com a duração pedida, mesmo se o celular desenhar devagar (antes, no iPhone, 15 s viravam 4 ou 5 s). */
+const FPS=30;let muxP=null;
+function carregaMux(){if(window.Mp4Muxer)return Promise.resolve();
+  if(!muxP)muxP=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='/artes/montar/mp4-muxer.js';sc.onload=ok;sc.onerror=()=>{muxP=null;no(new Error('mux'))};document.head.appendChild(sc)});return muxP}
+let cfgP=null;
+function configWC(){if(!window.VideoEncoder||!window.VideoFrame)return Promise.resolve(null);
+  if(!cfgP)cfgP=(async()=>{for(const codec of['avc1.640032','avc1.4d0032','avc1.42e032','avc1.640028','avc1.42e028']){const cfg={codec,width:W,height:H,bitrate:12e6,framerate:FPS};
+    try{const r=await VideoEncoder.isConfigSupported(cfg);if(r&&r.supported)return cfg}catch(e){}}return null})();return cfgP}
+configWC();
+async function gravarWC(base,pontos,seg,desenha,cfg){await carregaMux();
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const muxer=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),video:{codec:'avc',width:W,height:H,frameRate:FPS},fastStart:'in-memory'});
+  let erro=null;const enc=new VideoEncoder({output:(ch,meta)=>muxer.addVideoChunk(ch,meta),error:e=>{erro=e}});
+  enc.configure(cfg);const n=Math.round(seg*FPS),dur=1e6/FPS;
+  try{for(let i=0;i<n;i++){if(erro)throw erro;x.drawImage(base,0,0,W,H);desenha(x,i/FPS,pontos);
+      const fr=new VideoFrame(c,{timestamp:Math.round(i*dur),duration:Math.round(dur)});enc.encode(fr,{keyFrame:i%(FPS*2)===0});fr.close();
+      while(enc.encodeQueueSize>4&&!erro)await new Promise(ok=>setTimeout(ok,4));
+      if(i%8===7)await new Promise(ok=>setTimeout(ok,0))}
+    await enc.flush();if(erro)throw erro}finally{try{enc.close()}catch(e){}}
+  muxer.finalize();const blob=new Blob([muxer.target.buffer],{type:'video/mp4'});if(!blob.size)throw new Error('vazio');
+  return {blob,type:'video/mp4',ext:'mp4'}}
 async function gravar(base,pontos,seg,tema){seg=seg||6;if(tema==='arcadia')await Promise.race([carregaSpr(),new Promise(ok=>setTimeout(ok,4000))]);const desenha=tema==='hogwarts'?quadroHG:tema==='arcadia'?quadroArc:quadro;
+  const cfg=await configWC();
+  if(cfg){try{return await gravarWC(base,pontos,seg,desenha,cfg)}catch(e){console.warn('vídeo quadro a quadro falhou, gravando ao vivo',e)}}
+  return gravarAoVivo(base,pontos,seg,desenha)}
+async function gravarAoVivo(base,pontos,seg,desenha){
   const c=document.createElement('canvas');c.width=W;c.height=H;c.style.cssText='position:fixed;left:-9999px;top:0;width:10px;height:10px';document.body.appendChild(c);
   const x=c.getContext('2d');x.drawImage(base,0,0,W,H);
   const st=c.captureStream(30),rec=new MediaRecorder(st,{mimeType:tipo,videoBitsPerSecond:16e6}),partes=[];
@@ -187,5 +213,5 @@ async function gravar(base,pontos,seg,tema){seg=seg||6;if(tema==='arcadia')await
   rec.start(500);await new Promise(ok=>setTimeout(ok,seg*1000));rec.stop();await fim;on=false;st.getTracks().forEach(t=>t.stop());c.remove();
   const ty=tipo.split(';')[0],blob=new Blob(partes,{type:ty});if(!blob.size)throw new Error('vazio');
   return {blob,type:ty,ext:ty==='video/mp4'?'mp4':'webm'}}
-window.ArcVideo={suportado:!!tipo,gravar,quadro,quadroHG,quadroArc};
+window.ArcVideo={suportado:!!tipo||!!(window.VideoEncoder&&window.VideoFrame),gravar,quadro,quadroHG,quadroArc};
 })();
