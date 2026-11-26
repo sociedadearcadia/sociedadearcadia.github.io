@@ -1129,6 +1129,8 @@ function spMostra(){const meu=LS.get('spotify',''),url=meu||spClube,src=spEmbed(
   $('spWrap').hidden=!src;if(src&&fr.getAttribute('src')!==src)fr.setAttribute('src',src);if(!src&&fr.getAttribute('src'))fr.removeAttribute('src');
   $('playlistLink').href=url&&src?url:'https://open.spotify.com/';$('spIn').value=meu}
 function setPlaylist(url){if(spEmbed(url))spClube=url;spMostra()}
+/* playlist oficial do clube (a mesma do sprint geral) */
+setPlaylist('https://open.spotify.com/playlist/37i9dQZF1EIUV9hXJzgRu9');
 $('spForm').addEventListener('submit',ev=>{ev.preventDefault();const v=$('spIn').value.trim();
   if(v&&!spEmbed(v))return toast('Esse link não é do Spotify. Copie em Compartilhar > Copiar link.');
   LS.set('spotify',v);spMostra();toast(v?'Pronto! Aperte o play no player.':(spClube?'Voltou para a playlist do clube.':'Player removido.'))});
