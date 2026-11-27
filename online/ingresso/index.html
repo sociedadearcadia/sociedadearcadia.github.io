@@ -121,17 +121,18 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
         </fieldset>
 
         <fieldset><legend>Endereço</legend>
-        <p class="aviso">Para eu enviar sorteios, brindes e presentes do clube. <b>Só a administração vê</b> e nada é repassado ou divulgado sem a sua autorização. Prêmios físicos são entregues em endereços no Brasil<span class="so-online">; o envio para outros países não está garantido</span>.</p>
+        <p class="aviso">Para eu enviar sorteios, brindes e presentes do clube. <b>Só a administração vê</b> e nada é repassado ou divulgado sem a sua autorização. Prêmios físicos têm entrega garantida em endereços no Brasil.<span class="so-online"> Para quem mora fora, a entrega é combinada caso a caso e não é garantida.</span></p>
+        <label class="check so-online"><input type="checkbox" id="fora"> Moro fora do Brasil</label>
         <div class="duas cep">
-          <label>CEP<input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
-          <label>Cidade / UF<input id="cidade" autocomplete="address-level2" maxlength="80" placeholder="Cidade / UF"></label>
+          <label><span id="lCep">CEP</span><input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
+          <label><span id="lCid">Cidade / UF</span><input id="cidade" autocomplete="address-level2" maxlength="80" placeholder="Cidade / UF"></label>
         </div>
-        <label>Rua<input id="rua" autocomplete="address-line1" maxlength="140"></label>
+        <label><span id="lRua">Rua</span><input id="rua" autocomplete="address-line1" maxlength="140"></label>
         <div class="duas">
           <label>Número<input id="numero" inputmode="numeric" maxlength="12"></label>
           <label>Complemento <small>Opcional</small><input id="compl" autocomplete="address-line2" maxlength="80" placeholder="Apto, bloco, casa"></label>
         </div>
-        <label>Bairro<input id="bairro" maxlength="80"></label>
+        <label><span id="lBai">Bairro</span><input id="bairro" maxlength="80"></label>
         <label>Ponto de referência <small>Opcional</small><input id="ref" maxlength="140"></label>
         </fieldset>
 
@@ -222,7 +223,14 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
   $('zap').addEventListener('input',e=>{if(/^\s*\+/.test(e.target.value)){e.target.value='+'+e.target.value.replace(/[^\d ]/g,'').replace(/^\s+/,'').slice(0,19);return}let d=e.target.value.replace(/\D/g,'').slice(0,11);
     e.target.value=d.length>6?'('+d.slice(0,2)+') '+d.slice(2,d.length-4)+'-'+d.slice(-4):d.length>2?'('+d.slice(0,2)+') '+d.slice(2):d});
   /* CEP: completa rua, bairro e cidade pelo ViaCEP (se não der, ela digita) */
-  $('cep').addEventListener('input',async e=>{let d=e.target.value.replace(/\D/g,'').slice(0,8);e.target.value=d.length>5?d.slice(0,5)+'-'+d.slice(5):d;
+  /* moradora de fora do Brasil (só no online): código postal, bairro opcionais; cidade com país */
+  const fora=()=>{const c=$('fora');return !!(c&&c.checked&&visivel(c))};
+  const cepBR={ph:$('cep').placeholder,ml:$('cep').maxLength,cid:$('cidade').placeholder};
+  $('fora').addEventListener('change',()=>{const f=fora();
+    $('lCep').innerHTML=f?'Código postal <small>Opcional</small>':'CEP';$('cep').value='';$('cep').placeholder=f?'':cepBR.ph;$('cep').maxLength=f?12:cepBR.ml;$('cep').inputMode=f?'text':'numeric';
+    $('lCid').textContent=f?'Cidade e país':'Cidade / UF';$('cidade').placeholder=f?'Lisboa, Portugal':cepBR.cid;
+    $('lRua').textContent=f?'Endereço (rua)':'Rua';$('lBai').innerHTML=f?'Bairro ou região <small>Opcional</small>':'Bairro'});
+  $('cep').addEventListener('input',async e=>{if(fora())return;let d=e.target.value.replace(/\D/g,'').slice(0,8);e.target.value=d.length>5?d.slice(0,5)+'-'+d.slice(5):d;
     if(d.length!==8)return;
     try{const r=await fetch('https://viacep.com.br/ws/'+d+'/json/');const j=await r.json();if(j.erro)return;
       if(!$('rua').value)$('rua').value=j.logradouro||'';if(!$('bairro').value)$('bairro').value=j.bairro||'';
@@ -237,7 +245,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
     const zap=$('zap').value;if(zap.replace(/\D/g,'').length<10)return bad($('zap'),'Confira o número do WhatsApp com DDD.');
     if(!v('insta'))return bad($('insta'),'Escreva o seu Instagram.');
     const email=v('email');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return bad($('email'),'Confira o e-mail.');
-    for(const [id,msg] of [['cep','Escreva o CEP.'],['cidade','Escreva a cidade.'],['rua','Escreva a rua.'],['numero','Escreva o número (ou "s/n").'],['bairro','Escreva o bairro.']])
+    for(const [id,msg] of (fora()?[['cidade','Escreva a cidade e o país.'],['rua','Escreva o endereço.'],['numero','Escreva o número (ou "s/n").']]:[['cep','Escreva o CEP.'],['cidade','Escreva a cidade.'],['rua','Escreva a rua.'],['numero','Escreva o número (ou "s/n").'],['bairro','Escreva o bairro.']]))
       if(!v(id))return bad($(id),msg);
     if(!pick('generos').length&&!v('outroG'))return bad(chipsEl('generos'),'Marque pelo menos um gênero.');
     if(!v('fav'))return bad($('fav'),'Conte seus livros favoritos.');
@@ -254,7 +262,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
     let ig=v('insta');if(ig[0]!=='@')ig='@'+ig;
     const generos=pick('generos');if(v('outroG'))generos.push(v('outroG').slice(0,120));
     return {nome,apelido:v('apelido'),nascimento:y+'-'+pad(m)+'-'+pad(d),whatsapp:zap,instagram:ig,email,
-      endereco:{cep:v('cep'),rua:v('rua'),numero:v('numero'),complemento:v('compl'),bairro:v('bairro'),cidade:v('cidade'),referencia:v('ref')},
+      endereco:{cep:fora()?(v('cep')||'Exterior').slice(0,12):v('cep'),rua:v('rua'),numero:v('numero'),complemento:v('compl'),bairro:fora()?(v('bairro')||'Exterior'):v('bairro'),cidade:v('cidade'),referencia:v('ref')},
       generos,favoritos:v('fav'),cinco:v('cinco'),ritmo:pick('ritmo')[0],abandona:pick('abandona')[0],formato:pick('formato'),picante:pick('picante')[0],evita:v('evita'),
       motivo:$('motivo').value.trim(),valer:$('valer').value.trim(),origem:pick('origem')[0],encontros:pick('encontros')[0],horarios:pick('horarios'),
       alergia:visivel($('alergia'))?v('alergia'):'',imagem:pick('imagem')[0]==='Sim, autorizo',confirmacoes:conf.map(c=>c.dataset.k),extra:$('extra').value.trim()}}
