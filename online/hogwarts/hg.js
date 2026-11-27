@@ -161,16 +161,13 @@ function entrar(){if(!ctxP)ctxP=(async()=>{
   /* 1) senha do clube */
   let membro=false;try{membro=JSON.parse(localStorage.getItem('arcadiaOnline:membroOk')||'""')===uid}catch(e){}
   if(!membro){try{membro=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!membro){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});membro=true}}catch(e){}}if(!membro)await telaClube(db,uid);try{localStorage.setItem('arcadiaOnline:membroOk',JSON.stringify(uid))}catch(e){}}
-  /* 2) senha do Salão + código pessoal (vale para este aparelho até a senha ou o código mudarem) */
-  let pessoa=null,ses=null;
-  for(let i=0;i<5&&!pessoa;i++){
-    try{const d=await db.collection('hgSessoes').doc(uid).get();ses=d.exists?d.data():null}catch(e){ses=null}
-    /* este aparelho ganhou um login novo (o iPhone às vezes perde): entra de novo sozinho com a senha e o código já usados aqui */
-    if(!ses&&i===0){const g=LS.get('ses',null);if(g&&g.senha&&g.cod&&g.pid){try{await db.collection('hgSessoes').doc(uid).set({senha:g.senha,cod:g.cod,pid:g.pid,em:Date.now()});ses=g}catch(e){LS.set('ses',null)}}}
-    if(ses){try{const p=await db.collection('hgPessoas').doc(ses.pid).get();if(p.exists)pessoa=p.data()}catch(e){}}
-    if(!pessoa)await telaSalao(db,uid)}
-  if(!pessoa)throw new Error('sem-acesso');
-  const pid=ses.pid;LS.set('pid',pid);
+  /* 2) turma online: a conta aprovada entra direto no Salão */
+  let pessoa=null;const md=await db.collection('membros').doc(uid).get().then(d=>d.exists?d.data():null).catch(()=>null);
+  if(!md||!md.email)throw new Error('sem-acesso');
+  const nomeM=String(md.nome||'');
+  try{const p=await db.collection('hgPessoas').doc(uid).get();if(p.exists)pessoa=p.data()}catch(e){}
+  if(!pessoa||pessoa.nome!==nomeM){await db.collection('hgPessoas').doc(uid).set({nome:nomeM,em:Date.now()});pessoa={nome:nomeM}}
+  const pid=uid;LS.set('pid',pid);
   const [perf,dt,ge]=await Promise.all([db.collection('hgPerfis').doc(pid).get().catch(()=>null),db.collection('hgConfig').doc('datas').get().catch(()=>null),db.collection('hgConfig').doc('geral').get().catch(()=>null)]);
   const datas=Object.assign({},DATAS_PADRAO,(dt&&dt.exists)?dt.data():{}),geral=Object.assign({},GERAL_PADRAO,(ge&&ge.exists)?ge.data():{});
   let casa=perf&&perf.exists?perf.data().casa:null;
