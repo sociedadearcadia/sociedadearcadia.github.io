@@ -150,11 +150,13 @@ def ajustes(rel, t):
         pid = projeto_online()
         if pid:
             t = t.replace('console.firebase.google.com/project/sprint-arcadia/', 'console.firebase.google.com/project/%s/' % pid)
-        t = re.sub(r'(<h1[^>]*>)(.*?)(</h1>)', r'\1\2 · online\3', t, count=1)
+        t = t.replace('<h1>Administração presencial</h1>', '<h1>Administração online</h1>')
     if rel == 'integrantes/index.html':
         t = t.replace('<h1>Área das integrantes</h1>', '<h1>Área das integrantes</h1><p class="lbl" style="margin-top:6px">Online</p>')
         t = t.replace('<h2 style="margin-top:6px">Senha do clube</h2>', '<h2 style="margin-top:6px">Senha do clube online</h2>')
         t = t.replace('É a mesma senha do sprint.', 'É a senha das integrantes online, a mesma do sprint online.')
+    # etiqueta das páginas de administração: no online diz "Administração online"
+    t = t.replace('">Administração presencial</p>', '">Administração online</p>')
     if rel.endswith('.html'):
         t = t.replace('href="/lista-de-espera/"', 'href="/lista-de-espera/?m=online"')
         t = t.replace('<title>', '<title>Online · ', 1)
