@@ -28,6 +28,7 @@
 #chatSomBtn{display:block;margin:6px auto 2px;font-size:12px;background:none;border:0;color:inherit;opacity:.75;text-decoration:underline;cursor:pointer}
 </style>
 <script src="/online/sprint/config.js"></script>
+<script src="/online/acesso.js"></script>
 <title>Online · Sprint da Arcádia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Nunito+Sans:wght@400;600;700&display=swap">
@@ -1098,8 +1099,8 @@ spMostra();
     await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
     await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
     await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
-    firebase.initializeApp(fb);
-    const cred=await firebase.auth().signInAnonymously();
+    if(!firebase.apps.length)firebase.initializeApp(fb);
+    const cred={user:firebase.auth().currentUser||(await firebase.auth().signInAnonymously()).user};
     uid=cred.user.uid;db=firebase.firestore();
   }catch(e){console.warn('firebase',e);db=null}
   const mOk=LS.get('membroOk','');

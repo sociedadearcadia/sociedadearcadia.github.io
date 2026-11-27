@@ -23,7 +23,7 @@ PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'ide
           'codigo', 'bingo', 'arcadiana', 'redes', 'artes', 'mensagem', 'guia', 'limpeza', 'hogwarts']
 # pastas novas que outras páginas criarem entram sozinhas se estiverem listadas em integrantes/index.html
 # arquivos de online/ feitos à mão (não são apagados nem gerados)
-PROPRIOS = {'config.js', 'sprint/config.js', 'LEIA-ME.md'}
+PROPRIOS = {'config.js', 'sprint/config.js', 'LEIA-ME.md', 'acesso.js', 'admin/acesso/index.html'}
 TEXTO = ('.html', '.js', '.css', '.json', '.webmanifest', '.txt', '.md')
 
 
@@ -56,8 +56,20 @@ def projeto_online():
         return ''
 
 
+def com_acesso(t):
+    """Entrada com Google + aprovação (online/acesso.js) logo depois do config."""
+    if '/online/acesso.js' in t:
+        return t
+    for cfg in ('<script src="/online/config.js"></script>', '<script src="/online/sprint/config.js"></script>'):
+        if cfg in t:
+            return t.replace(cfg, cfg + '\n<script src="/online/acesso.js"></script>', 1)
+    return t
+
+
 def ajustes(rel, t):
     """Ajustes que só valem para o online."""
+    if rel.endswith('.html') and '/admin/' not in '/' + rel:
+        t = com_acesso(t)
     if rel == 'hogwarts/hg.js':
         # sem datas do presencial: tudo começa fechado ("Em breve") até a administração salvar as datas
         t = re.sub(r'const DATAS_PADRAO=\{.*?\};', lambda m: re.sub(r'T\([^)]*\)', '0', m.group(0)), t, count=1, flags=re.S)
@@ -85,6 +97,7 @@ def ajustes(rel, t):
     if rel == 'admin/index.html':
         t = t.replace("{ic:'bussola',n:'Painel da turma online',d:'Administração da área online (dados separados do presencial)',u:'/online/admin/'}",
                       "{ic:'bussola',n:'Painel da turma presencial',d:'Administração da área presencial (dados separados do online)',u:'/admin/'}")
+        t = t.replace("  const GRUPOS=[\n", "  const GRUPOS=[\n    {t:'Turma online',itens:[\n      {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada (conta Google) e remover acessos',u:'/online/admin/acesso/'}]},\n", 1)
         pid = projeto_online()
         if pid:
             t = t.replace('console.firebase.google.com/project/sprint-arcadia/', 'console.firebase.google.com/project/%s/' % pid)
@@ -122,6 +135,10 @@ def gerar_sprint(todas):
     t = re.sub(r'src="config\.js[^"]*"', 'src="/online/sprint/config.js"', t)
     t = reescrever(t, todas)
     t = t.replace('<title>', '<title>Online · ', 1)
+    t = com_acesso(t)
+    # no online a conta é Google (aprovada pela administração): não troca por uma anônima
+    t = t.replace("    firebase.initializeApp(fb);\n    const cred=await firebase.auth().signInAnonymously();",
+                  "    if(!firebase.apps.length)firebase.initializeApp(fb);\n    const cred={user:firebase.auth().currentUser||(await firebase.auth().signInAnonymously()).user};")
     t = t.replace('<h3>Sprint das integrantes</h3>', '<h3>Sprint das integrantes online</h3>')
     t = t.replace('Senha do clube<input id="gateInput"', 'Senha do clube online<input id="gateInput"')
     os.makedirs(os.path.join(DEST, 'sprint'), exist_ok=True)
