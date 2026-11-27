@@ -95,6 +95,8 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
   const GRUPOS=[
     {t:'Turma online',itens:[
       {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'}]},
+    {t:'Outra turma',itens:[
+      {ic:'bussola',n:'Administração presencial',d:'Painel da turma presencial (dados separados do online)',u:'/admin/'}]},
     {t:'Leitura do mês',itens:[
       {ic:'livro',n:'Livro do mês e questionário',d:'Definir o livro, sortear, acompanhar a leitura e o questionário',u:'/online/leitura/admin/'},
       {ic:'carta',n:'Votação do livro do mês',d:'Criar votação, ver contagem e quem votou',u:'/online/votacao/admin/'},
@@ -116,8 +118,6 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
     {t:'Integrantes',itens:[
       {ic:'balao',n:'Mensagens para a administração',d:'Elogios, reclamações e problemas (só você vê)',u:'/online/mensagem/admin/'},
       {ic:'pergaminho',n:'Código da Sociedade Arcádia',d:'Colar ou atualizar o texto do Código',u:'/online/codigo/admin/'}]},
-    {t:'Outra turma',itens:[
-      {ic:'bussola',n:'Painel da turma presencial',d:'Administração da área presencial (dados separados do online)',u:'/admin/'}]},
     {t:'Fora do site',itens:[
       {ic:'chama',n:'Firebase',d:'Dados, regras e quem é administradora',u:'https://console.firebase.google.com/project/arcadia-online-61481/firestore',ext:1},
       {ic:'codigo',n:'GitHub do clube',d:'Pedidos de alteração do site (PRs)',u:'https://github.com/sociedadearcadia',ext:1}]}
