@@ -17,12 +17,12 @@ window.ARCADIA_CONFIG = {
 
   // Firebase do online (o mesmo de /online/config.js)
   firebase: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyBn_vw3aKPMwpBep-LCVXw3EiCG7QNbxpQ",
+    authDomain: "arcadia-online-61481.firebaseapp.com",
+    projectId: "arcadia-online-61481",
+    storageBucket: "arcadia-online-61481.firebasestorage.app",
+    messagingSenderId: "377443526570",
+    appId: "1:377443526570:web:edb7921526013ad6106dd3"
   }
 };
 window.ARCADIA_MODALIDADE = 'online';
