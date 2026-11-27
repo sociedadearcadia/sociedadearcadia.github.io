@@ -111,6 +111,17 @@ def ajustes(rel, t):
     if rel.endswith('.html') and '/admin/' not in '/' + rel and not rel.startswith('ingresso/respostas/'):
         t = com_acesso(t)
     if rel == 'hogwarts/hg.js':
+        # turma online: o Salão faz parte do clube (sem senha nem código pessoal). A conta aprovada já identifica a integrante;
+        # o id dela no Salão é o uid, e o nome vem do pedido de acesso aprovado (membros/{uid}).
+        t, n = re.subn(r"  /\* 2\) senha do Salão.*?  const pid=ses\.pid;LS\.set\('pid',pid\);",
+            "  /* 2) turma online: a conta aprovada entra direto no Salão */\n"
+            "  let pessoa=null;const md=await db.collection('membros').doc(uid).get().then(d=>d.exists?d.data():null).catch(()=>null);\n"
+            "  if(!md||!md.email)throw new Error('sem-acesso');\n"
+            "  const nomeM=String(md.nome||'');\n"
+            "  try{const p=await db.collection('hgPessoas').doc(uid).get();if(p.exists)pessoa=p.data()}catch(e){}\n"
+            "  if(!pessoa||pessoa.nome!==nomeM){await db.collection('hgPessoas').doc(uid).set({nome:nomeM,em:Date.now()});pessoa={nome:nomeM}}\n"
+            "  const pid=uid;LS.set('pid',pid);", t, count=1, flags=re.S)
+        assert n == 1, 'hg.js mudou: ajuste a entrada do Salão online'
         # sem datas do presencial: tudo começa fechado ("Em breve") até a administração salvar as datas
         t = re.sub(r'const DATAS_PADRAO=\{.*?\};', lambda m: re.sub(r'T\([^)]*\)', '0', m.group(0)), t, count=1, flags=re.S)
         t = t.replace("if(!a&&ini==='coruja')return{antes:true,txt:'Em breve',aberta:false};",
@@ -125,6 +136,8 @@ def ajustes(rel, t):
         a = "return{db,uid,pid,nome:pessoa.nome,casa:perf&&perf.exists?perf.data().casa:null,datas,geral}"
         assert a in t, 'hg.js mudou: ajuste a casa do online'
         t = t.replace(a, "let casa=perf&&perf.exists?perf.data().casa:null;\n  if(!casa){try{const m=await db.collection('membros').doc(uid).get(),c=m.exists?m.data().casa:'';if(c&&CASAS[c]){await db.collection('hgPerfis').doc(pid).set({nome:pessoa.nome,casa:c,em:Date.now()});casa=c}}catch(e){console.warn('casa',e)}}\n  return{db,uid,pid,nome:pessoa.nome,casa,datas,geral}")
+    if rel == 'hogwarts/chapeu/index.html':
+        t = t.replace('saia e entre com o seu código</a>', 'saia e entre com a sua conta</a>')
     if rel == 'livros/lista-inicial.js':
         t = '/* Turma online: a lista começa vazia e cresce com as indicações das integrantes. */\nwindow.LISTA_INICIAL = [];\n'
     if rel == 'agenda/admin/index.html':
