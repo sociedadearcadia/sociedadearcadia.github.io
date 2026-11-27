@@ -80,6 +80,7 @@ def textos_online(t):
     t = t.replace('<a href="/online/ideias/">encontros</a>', '<a href="/online/ideias/">atividades</a>')
     t = t.replace('Encontros extras, oficinas e LCs não contam', 'Encontros extras e LCs não contam')
     t = t.replace('<option>Reunião on-line</option>', '<option>Reunião online</option>')
+    t = t.replace('<a href="/lista-de-espera/?m=presencial">Entre na lista de espera</a>', '<a href="/lista-de-espera/?m=online">Quero fazer parte</a>')
     return t
 
 
