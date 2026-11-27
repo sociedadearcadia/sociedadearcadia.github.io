@@ -45,10 +45,33 @@
   function sair(){ls('membroOk',null);auth.signOut()}
 
   function pedirLogin(){
-    tela('<h2>Área das integrantes</h2><p>Entre com a sua conta Google. No primeiro acesso, a administração do clube aprova a sua entrada.</p>'+
-      '<button type="button" id="aaG">Entrar com Google</button><p class="er" style="margin:12px 0 0"></p>'+
+    tela('<h2>Área das integrantes</h2><p>Entre com a sua conta Google ou com e-mail e senha. No primeiro acesso, a administração do clube aprova a sua entrada.</p>'+
+      '<button type="button" id="aaG">Entrar com Google</button><button type="button" class="sec" id="aaE">Entrar com e-mail e senha</button><p class="er" style="margin:12px 0 0"></p>'+
       '<p style="margin:16px 0 0;font-size:14px">Ainda não faz parte? <a href="/lista-de-espera/?m=online">Entre na lista de espera</a></p>');
-    box.querySelector('#aaG').onclick=entrarGoogle}
+    box.querySelector('#aaG').onclick=entrarGoogle;box.querySelector('#aaE').onclick=function(){formEmail(false)}}
+
+  var MSG={'auth/invalid-credential':'E-mail ou senha incorretos.','auth/wrong-password':'E-mail ou senha incorretos.','auth/user-not-found':'Não existe conta com este e-mail. Toque em "Criar conta".',
+    'auth/email-already-in-use':'Já existe conta com este e-mail. Toque em "Já tenho conta".','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.',
+    'auth/invalid-email':'Confira o e-mail.','auth/too-many-requests':'Muitas tentativas. Espere alguns minutos e tente de novo.','auth/operation-not-allowed':'Entrada com e-mail ainda não está ativada. Avise a administração.'};
+  function formEmail(criar){
+    tela('<h2>'+(criar?'Criar conta':'Entrar com e-mail')+'</h2><p>'+(criar?'Use o e-mail que você quiser e crie uma senha (pelo menos 6 caracteres).':'Digite o e-mail e a senha da sua conta.')+'</p>'+
+      (criar?'<input id="aaNo" maxlength="120" autocomplete="name" placeholder="Seu nome">':'')+
+      '<input id="aaM" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="Seu e-mail">'+
+      '<input id="aaS1" type="password" autocomplete="'+(criar?'new-password':'current-password')+'" placeholder="Senha">'+
+      '<button type="button" id="aaOk">'+(criar?'Criar conta':'Entrar')+'</button><p class="er" style="margin:12px 0 0"></p>'+
+      '<button type="button" class="sec" id="aaT">'+(criar?'Já tenho conta':'Criar conta')+'</button>'+
+      (criar?'':'<button type="button" class="sec" id="aaEs">Esqueci minha senha</button>')+
+      '<button type="button" class="sec" id="aaV">Voltar</button>');
+    box.querySelector('#aaV').onclick=pedirLogin;box.querySelector('#aaT').onclick=function(){formEmail(!criar)};
+    var es=box.querySelector('#aaEs');if(es)es.onclick=function(){var m=box.querySelector('#aaM').value.trim();if(!m)return erro('Digite seu e-mail primeiro.');
+      auth.sendPasswordResetEmail(m).then(function(){erro('');box.querySelector('.er').style.color='#bff0d2';box.querySelector('.er').textContent='Enviamos um link para '+m+' criar uma senha nova. Confira também o spam.'})
+        .catch(function(e){erro(MSG[e.code]||'Não deu para enviar ('+e.code+').')})};
+    box.querySelector('#aaOk').onclick=function(){var m=box.querySelector('#aaM').value.trim(),s=box.querySelector('#aaS1').value,b=this;
+      if(!m||!s)return erro('Preencha e-mail e senha.');
+      var nome=criar?box.querySelector('#aaNo').value.trim().replace(/\s+/g,' '):'';if(criar&&nome.length<2)return erro('Escreva seu nome.');
+      b.disabled=true;erro('');
+      (criar?auth.createUserWithEmailAndPassword(m,s).then(function(c){ls('nome',nome);return c.user.updateProfile({displayName:nome})}):auth.signInWithEmailAndPassword(m,s))
+        .catch(function(e){b.disabled=false;erro(MSG[e.code]||'Não foi possível entrar ('+(e.code||'erro')+').')})}}
 
   function aguardando(u,ped){
     tela('<h2>Pedido enviado</h2><p>A administração vai aprovar o seu acesso. Depois disso, é só abrir esta página de novo.</p>'+
@@ -58,7 +81,7 @@
 
   function pedir(u,encerrado){
     tela('<h2>'+(encerrado?'Acesso encerrado':'Pedir acesso')+'</h2><p>'+(encerrado?'O acesso desta conta foi encerrado. Se precisar, peça de novo e a administração avalia.':'Você entrou como <b>'+esc(u.email)+'</b>. Escreva seu nome para a administração saber quem é.')+'</p>'+
-      '<input id="aaN" maxlength="120" autocomplete="name" placeholder="Seu nome" value="'+esc(u.displayName||'')+'">'+
+      '<input id="aaN" maxlength="120" autocomplete="name" placeholder="Seu nome" value="'+esc(u.displayName||ls('nome')||'')+'">'+
       '<button type="button" id="aaP">Pedir acesso</button><button type="button" class="sec" id="aaS">Usar outra conta</button><p class="er" style="margin:12px 0 0"></p>');
     box.querySelector('#aaS').onclick=sair;
     box.querySelector('#aaP').onclick=function(){var nome=box.querySelector('#aaN').value.trim().replace(/\s+/g,' ');

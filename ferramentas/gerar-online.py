@@ -97,7 +97,7 @@ def ajustes(rel, t):
     if rel == 'admin/index.html':
         t = t.replace("{ic:'bussola',n:'Painel da turma online',d:'Administração da área online (dados separados do presencial)',u:'/online/admin/'}",
                       "{ic:'bussola',n:'Painel da turma presencial',d:'Administração da área presencial (dados separados do online)',u:'/admin/'}")
-        t = t.replace("  const GRUPOS=[\n", "  const GRUPOS=[\n    {t:'Turma online',itens:[\n      {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada (conta Google) e remover acessos',u:'/online/admin/acesso/'}]},\n", 1)
+        t = t.replace("  const GRUPOS=[\n", "  const GRUPOS=[\n    {t:'Turma online',itens:[\n      {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'}]},\n", 1)
         pid = projeto_online()
         if pid:
             t = t.replace('console.firebase.google.com/project/sprint-arcadia/', 'console.firebase.google.com/project/%s/' % pid)
