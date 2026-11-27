@@ -200,9 +200,10 @@ def copiar_pasta(p, todas):
 def gerar_sprint(todas):
     """O sprint online usa as imagens e sons do /sprint/ (base href) e a lista/Firebase do online."""
     t = open(os.path.join(SPRINT, 'index.html'), encoding='utf-8').read()
-    t = re.sub(r'<head>', '<head>\n<base href="/sprint/">', t, count=1)
     t = re.sub(r'src="config\.js[^"]*"', 'src="/online/sprint/config.js"', t)
     t = reescrever(t, todas)
+    # depois de reescrever: senão o base vira /online/sprint/, onde não há imagens nem sons
+    t = re.sub(r'<head>', '<head>\n<base href="/sprint/">', t, count=1)
     t = t.replace('<title>', '<title>Online · ', 1)
     t = com_acesso(t)
     # no online a conta é Google (aprovada pela administração): não troca por uma anônima
