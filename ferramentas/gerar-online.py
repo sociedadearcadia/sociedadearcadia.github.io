@@ -146,7 +146,12 @@ def ajustes(rel, t):
     if rel == 'admin/index.html':
         t = t.replace("{ic:'bussola',n:'Administração online',d:'Painel da turma online: acesso das integrantes, agenda, leitura e tudo mais',u:'/online/admin/'}",
                       "{ic:'bussola',n:'Administração presencial',d:'Painel da turma presencial (dados separados do online)',u:'/admin/'}")
-        t = t.replace("  const GRUPOS=[\n", "  const GRUPOS=[\n    {t:'Turma online',itens:[\n      {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'}]},\n", 1)
+        # turma online: o acesso das integrantes entra no processo de entrada, logo depois do formulário de ingresso
+        a = "u:'/online/ingresso/respostas/',c:1},\n"
+        assert a in t, 'admin/index.html mudou: ajuste o lugar do acesso online'
+        t = t.replace(a, a + "      {ic:'conselho',n:'Acesso das integrantes',d:'3. Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'},\n", 1)
+        t = t.replace("d:'3. Colar ou atualizar o texto do Código'", "d:'4. Colar ou atualizar o texto do Código'")
+        t = t.replace("d:'Na ordem do processo: interesse, ingresso e combinados'", "d:'Na ordem do processo: interesse, ingresso, acesso e combinados'")
         pid = projeto_online()
         if pid:
             t = t.replace('console.firebase.google.com/project/sprint-arcadia/', 'console.firebase.google.com/project/%s/' % pid)
