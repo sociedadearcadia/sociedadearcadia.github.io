@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Online · Respostas · Formulário de ingresso</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,500;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<style>
+:root{--night:#170f33;--line:rgba(200,182,240,.25);--gold:#d6b46c;--lilac:#c9b6f2;--cream:#f4e8da;--muted:#b9acd6;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--cream);font:15px/1.5 "Nunito Sans",system-ui,sans-serif;background:radial-gradient(120% 70% at 50% 0%,#3a2a78,#24184e 38%,#170f33 75%) fixed,#170f33}
+.wrap{max-width:760px;margin:0 auto;padding:max(24px,env(safe-area-inset-top)) 16px 48px;display:flex;flex-direction:column;gap:16px}
+h1{font-family:Lora,serif;font-style:italic;font-weight:500;font-size:30px;margin:0}
+.lbl{font-family:"EB Garamond",serif;text-transform:uppercase;letter-spacing:.22em;color:#e8c98a;font-size:12px;margin:0}
+.box{background:linear-gradient(180deg,rgba(43,23,72,.75),rgba(31,16,54,.85));border:1px solid rgba(214,180,108,.45);border-radius:14px;padding:18px}
+.btn{font:700 14px "Nunito Sans",sans-serif;padding:10px 16px;border-radius:999px;border:0;cursor:pointer;background:linear-gradient(180deg,#e1d2ff,var(--lilac));color:var(--night);text-decoration:none;display:inline-flex}
+.ghost{background:transparent;color:var(--cream);border:1px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.item{display:flex;flex-direction:column;gap:8px}
+.item h2{font-family:Lora,serif;font-size:20px;font-weight:500;margin:0}
+.item h3{font:700 11.5px "Nunito Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#e8c98a;margin:8px 0 0}
+.item dl{display:grid;grid-template-columns:minmax(110px,max-content) 1fr;gap:4px 12px;margin:0;font-size:14px}
+.item dt{color:var(--muted)}.item dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.item a{color:var(--lilac)}
+.tag{display:inline-block;font:700 10.5px "Nunito Sans",sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:rgba(214,180,108,.18);color:#e7c987;margin-left:6px;vertical-align:middle}
+.tag.nao{background:rgba(242,160,184,.16);color:#f2a0b8}
+.del{align-self:flex-end;font:600 12px "Nunito Sans",sans-serif;color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;background:rgba(23,15,51,.95);border:1px solid var(--gold);padding:10px 16px;border-radius:999px;transition:.3s;z-index:5}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a href="/online/admin/" style="align-self:flex-start;color:var(--lilac);font-weight:600;font-size:14px;text-decoration:none">← Painel da administração</a>
+  <div><p class="lbl">Sociedade Arcádia</p><h1>Respostas do formulário de ingresso</h1></div>
+  <div class="box" id="state"><p class="muted">Carregando…</p></div>
+  <div class="box" id="link" hidden><p style="margin:0 0 8px">Link para mandar para quem entra no clube:</p>
+    <div class="row"><code id="url" style="background:rgba(23,15,51,.8);padding:6px 10px;border-radius:8px;word-break:break-all"></code><button class="btn ghost" id="copLink">Copiar link</button></div></div>
+  <div id="list" class="wrap" style="padding:0"></div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script src="/online/config.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id),st=$('state'),list=$('list');
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+  async function copiar(t){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}toast('Copiado')}
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  const V='10.12.2';
+  try{await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`)}
+  catch(e){st.innerHTML='<p class="muted">Sem conexão agora. Recarregue a página.</p>';return}
+  // mesmo login das outras páginas de administração (app 'admin')
+  const app=firebase.initializeApp(window.ARCADIA_FIREBASE,'admin');const auth=app.auth(),db=app.firestore();
+  try{await auth.getRedirectResult()}catch(e){console.warn(e)}
+  const url=location.origin+location.pathname.replace(/respostas\/?$/,'');$('url').textContent=url;$('copLink').onclick=()=>copiar(url);
+  function login(){$('link').hidden=true;st.innerHTML='<p>Esta página é só para a administração do clube.</p><div class="row"><button class="btn" id="g">Entrar com Google</button></div>';
+    $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);else if(e.code!=='auth/popup-closed-by-user')st.insertAdjacentHTML('beforeend','<p class="muted">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
+  let rows=[],podeApagar=false;
+  const data=r=>(r.nascimento||'').split('-').reverse().join('/');
+  const idade=r=>{const p=(r.nascimento||'').split('-').map(Number);if(p.length<3)return'';const h=new Date();let a=h.getFullYear()-p[0];if(h<new Date(h.getFullYear(),p[1]-1,p[2]))a--;return a};
+  const ender=r=>{const e=r.endereco||{};return [e.rua+(e.numero?', '+e.numero:'')+(e.complemento?' - '+e.complemento:''),e.bairro,e.cidade,'CEP '+e.cep].filter(Boolean).join(' · ')+(e.referencia?'\nReferência: '+e.referencia:'')};
+  const lista=a=>(a||[]).join(', ');
+  const CONF={mensalidade:'mensalidade',custos:'custos dos encontros',respeito:'respeito e spoilers',dados:'uso dos dados'};
+  function csv(){const cols=[['Enviado',r=>r.criadoEm?r.criadoEm.toDate().toLocaleString('pt-BR'):''],['Nome',r=>r.nome],['Chamar de',r=>r.apelido],['Nascimento',data],['Idade',idade],['WhatsApp',r=>r.whatsapp],['Instagram',r=>r.instagram],['E-mail',r=>r.email],
+      ['CEP',r=>(r.endereco||{}).cep],['Rua',r=>(r.endereco||{}).rua],['Número',r=>(r.endereco||{}).numero],['Complemento',r=>(r.endereco||{}).complemento],['Bairro',r=>(r.endereco||{}).bairro],['Cidade',r=>(r.endereco||{}).cidade],['Referência',r=>(r.endereco||{}).referencia],
+      ['Gêneros',r=>lista(r.generos)],['Favoritos',r=>r.favoritos],['Última 5 estrelas',r=>r.cinco],['Livros/mês',r=>r.ritmo],['Abandona',r=>r.abandona],['Formato',r=>lista(r.formato)],['Cenas picantes',r=>r.picante],['Não lê',r=>r.evita],
+      ['Por que entrou',r=>r.motivo],['Clube vale a pena',r=>r.valer],['Conheceu por',r=>r.origem],['Encontros',r=>r.encontros],['Dias e horários',r=>lista(r.horarios)],['Alergias',r=>r.alergia],['Fotos',r=>r.imagem?'Autoriza':'Não autoriza'],['Algo mais',r=>r.extra]];
+    const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+    const out=[cols.map(c=>q(c[0])).join(';')].concat(rows.map(r=>cols.map(c=>q(c[1](r))).join(';')));
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+out.join('\n')],{type:'text/csv'}));a.download='ingresso.csv';a.click()}
+  const dd=(t,v)=>v?'<dt>'+t+'</dt><dd>'+v+'</dd>':'';
+  function render(){list.innerHTML=rows.length?rows.map((r,i)=>{const w=(r.whatsapp||'').trim(),n=w.replace(/\D/g,''),wa=w[0]==='+'?n:'55'+n;
+    return '<article class="box item" data-i="'+i+'"><p class="lbl">'+(r.criadoEm?esc(r.criadoEm.toDate().toLocaleString('pt-BR')):'')+'</p>'+
+      '<h2>'+esc(r.nome)+(r.imagem?'':'<span class="tag nao">Sem fotos</span>')+'</h2>'+
+      '<h3>Contato</h3><dl>'+dd('Chamar de',esc(r.apelido))+dd('Nascimento',esc(data(r))+' ('+idade(r)+' anos)')+
+        dd('WhatsApp','<a href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+esc(w)+'</a>')+
+        dd('Instagram','<a href="https://instagram.com/'+esc(String(r.instagram||'').replace('@',''))+'" target="_blank" rel="noopener">'+esc(r.instagram)+'</a>')+
+        dd('E-mail','<a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>')+dd('Endereço',esc(ender(r)))+'</dl>'+
+      '<div class="row"><button class="btn ghost" data-cop="end">Copiar endereço</button><button class="btn ghost" data-cop="mural">Copiar para o mural ('+esc(data(r).slice(0,5))+')</button></div>'+
+      '<h3>Leitura</h3><dl>'+dd('Gêneros',esc(lista(r.generos)))+dd('Favoritos',esc(r.favoritos))+dd('Última 5 estrelas',esc(r.cinco))+dd('Livros por mês',esc(r.ritmo))+dd('Abandona livros',esc(r.abandona))+
+        dd('Como lê',esc(lista(r.formato)))+dd('Cenas picantes',esc(r.picante))+dd('Não lê',esc(r.evita))+'</dl>'+
+      '<h3>Clube e encontros</h3><dl>'+dd('Por que entrou',esc(r.motivo))+dd('Clube vale a pena',esc(r.valer))+dd('Conheceu por',esc(r.origem))+dd('Encontros',esc(r.encontros))+
+        dd('Dias e horários',esc(lista(r.horarios)))+dd('Alergias',esc(r.alergia))+dd('Fotos e vídeos',r.imagem?'Autoriza':'<b>Prefere não aparecer</b>')+
+        dd('Confirmou',esc((r.confirmacoes||[]).map(k=>CONF[k]||k).join(', ')))+dd('Algo mais',esc(r.extra))+'</dl>'+
+      (podeApagar?'<button class="del" data-del="'+esc(r._id)+'">Apagar resposta</button>':'')+'</article>'}).join('')
+    :'<div class="box"><p class="muted" style="margin:0">Nenhuma resposta ainda.</p></div>'}
+  list.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.del){if(!confirm('Apagar esta resposta para sempre?'))return;try{await db.collection('ingressos').doc(b.dataset.del).delete();toast('Resposta apagada')}catch(x){toast('Não foi possível: '+x.code)}return}
+    const r=rows[+b.closest('[data-i]').dataset.i];if(!r)return;
+    if(b.dataset.cop==='end')copiar(r.nome+'\n'+ender(r)+'\nWhatsApp: '+r.whatsapp);
+    if(b.dataset.cop==='mural')copiar((r.apelido||r.nome)+' — '+data(r).slice(0,5))});
+  auth.onAuthStateChanged(async u=>{
+    if(!u||u.isAnonymous)return login();
+    let admin=false,conselho=false;try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+    // conselho vê e baixa; só a administração principal apaga
+    if(!admin&&u.email){try{conselho=(await db.collection('conselho').doc(u.email.toLowerCase()).get()).exists}catch(e){}}
+    podeApagar=admin;
+    if(!admin&&!conselho){$('link').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta ainda não tem acesso.</p><p class="muted">Se você faz parte do conselho, peça para a Bia incluir este e-mail na lista do conselho.</p><div class="row"><button class="btn ghost" id="out">Sair</button></div>';$('out').onclick=()=>auth.signOut();return}
+    $('link').hidden=false;
+    st.innerHTML='<div class="row"><span id="cnt" class="muted"></span><button class="btn" id="dl">Baixar planilha (CSV)</button><button class="btn ghost" id="out">Sair</button></div><p class="muted" style="margin:10px 0 0;font-size:13px">Dados pessoais: só para uso da administração. Não repasse para ninguém.</p>';
+    $('out').onclick=()=>auth.signOut();$('dl').onclick=csv;
+    db.collection('ingressos').orderBy('criadoEm','desc').onSnapshot(s=>{rows=s.docs.map(d=>Object.assign({_id:d.id},d.data()));$('cnt').textContent=rows.length+(rows.length===1?' resposta':' respostas');render()},
+      e=>{st.insertAdjacentHTML('beforeend','<p class="muted">Erro ao ler: '+esc(e.code)+'. Confira se as regras novas do Firebase já foram publicadas.</p>')})});
+})();
+</script>
+</body>
+</html>

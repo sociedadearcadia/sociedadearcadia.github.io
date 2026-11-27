@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Online · Formulário de ingresso · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<style>
+:root{--night:#170f33;--line:rgba(200,182,240,.25);--gold:#d6b46c;--lilac:#c9b6f2;--rose:#e88bd6;--cream:#f4e8da;--muted:#c3b6de;
+  --display:"Lora",Georgia,serif;--body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--night);overflow-x:hidden}
+body{margin:0;min-height:100vh;color:var(--cream);font-family:var(--body);font-size:16px;line-height:1.5;background:#2a1240;overflow-x:hidden}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:18px;
+  padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(32px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.back{align-self:flex-start;color:var(--lilac);font:600 14px var(--body);text-decoration:none;display:inline-flex;gap:6px;align-items:center;
+  background:rgba(23,15,51,.55);border:1px solid var(--line);border-radius:999px;padding:7px 14px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.card{position:relative;padding:34px 22px 26px;border:1px solid rgba(214,180,108,.75);border-radius:999px 999px 18px 18px/220px 220px 18px 18px;
+  background:radial-gradient(90% 60% at 50% 25%,rgba(59,31,99,.62),rgba(38,18,63,.72) 55%,rgba(26,11,46,.8));-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  box-shadow:inset 0 0 0 6px rgba(26,11,46,.45),inset 0 0 0 7px rgba(214,180,108,.35),0 24px 70px rgba(8,3,18,.6);animation:rise .9s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.top{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.seal{width:96px;height:96px;border-radius:50%;box-shadow:0 0 0 1px var(--gold),0 8px 26px rgba(0,0,0,.5),0 0 34px rgba(201,182,242,.35);animation:glow 5s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 1px var(--gold),0 8px 26px rgba(0,0,0,.5),0 0 60px rgba(232,139,214,.55)}}
+.lbl{font-family:"EB Garamond",Georgia,serif;text-transform:uppercase;letter-spacing:.25em;color:#e8c98a;font-size:13px;margin:6px 0 0}
+h1{font-family:var(--display);font-style:italic;font-weight:500;font-size:34px;line-height:1.1;margin:0;text-shadow:0 0 22px rgba(232,170,255,.45)}
+.facts{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.facts li{font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(23,15,51,.6);border:1px solid var(--line);color:var(--lilac)}
+.intro{margin:16px 0 4px;text-align:center;color:#e9dcf5;font-size:15px}
+form{display:flex;flex-direction:column;gap:16px;margin-top:18px}
+label{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14px;color:var(--cream)}
+label small{font-weight:400;color:var(--muted);font-size:12.5px}
+input{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.7);border:1px solid var(--line);border-radius:12px;padding:13px 14px;width:100%;min-width:0;
+  transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+input::placeholder{color:#8a7cb2}
+input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,180,108,.25),0 0 18px rgba(232,139,214,.25)}
+input[aria-invalid="true"]{border-color:#f29ab0}
+.dob{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px}
+.err{color:#ffb3c7;font-size:13px;min-height:0;margin:-6px 0 0}
+.check{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:13.5px;color:#e2d6ef}
+.check input{width:20px;height:20px;padding:0;flex:none;margin-top:1px;border-radius:6px;-webkit-appearance:auto;appearance:auto;accent-color:#c9b6f2}
+.send{font:700 16px var(--body);padding:15px 22px;border-radius:999px;border:0;cursor:pointer;color:var(--night);background:linear-gradient(180deg,#e1d2ff,var(--lilac));
+  box-shadow:0 6px 24px rgba(201,182,242,.35);display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+.send::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);animation:sweep 3.5s ease-in-out infinite}
+@keyframes sweep{60%,100%{left:130%}}
+.send:disabled{opacity:.7;cursor:wait}
+.send:focus-visible,.chip:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+fieldset{border:0;margin:0;padding:16px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:16px;min-width:0}
+legend{font-family:"EB Garamond",Georgia,serif;text-transform:uppercase;letter-spacing:.22em;color:#e8c98a;font-size:13px;padding:0 10px 0 0}
+textarea{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.7);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;resize:vertical}
+textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,180,108,.25)}
+.q{display:flex;flex-direction:column;gap:8px}
+[hidden]{display:none!important}
+.ql{font-weight:700;font-size:14px}.ql small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips[aria-invalid="true"] .chip{border-color:#f29ab0}
+.chip{font:600 14px var(--body);color:var(--cream);background:rgba(23,15,51,.6);border:1px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;transition:all .2s}
+.chip[aria-pressed="true"]{background:linear-gradient(180deg,#e1d2ff,var(--lilac));color:var(--night);border-color:transparent;box-shadow:0 0 16px rgba(232,139,214,.45)}
+.done{display:none;text-align:center;padding:10px 0 4px}
+.done.on{display:block;animation:rise .8s ease both}
+.done h2{font-family:var(--display);font-style:italic;font-weight:500;font-size:30px;margin:8px 0}
+.done p{color:#e9dcf5;margin:0 0 14px}
+.done a{color:var(--lilac);font-weight:700}
+.burst{position:fixed;left:50%;top:40%;width:0;height:0;z-index:5;pointer-events:none}
+.burst i{position:absolute;width:14px;height:14px;margin:-7px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 6px #f2a8e0);animation:pop 1.4s ease-out forwards}
+@keyframes pop{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(120deg)}}
+.foot{text-align:center;font-size:12.5px;color:var(--muted)}
+.foot a{color:inherit}
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.duas.cep{grid-template-columns:1fr 1.2fr}
+.aviso{margin:0;padding:12px 14px;border-radius:12px;border:1px dashed rgba(214,180,108,.55);background:rgba(15,8,32,.45);font-size:13.5px;color:#e9dcf5}
+.aviso b{color:#fff}
+.done .btn{display:inline-flex;margin:4px 0 10px;font:700 15px var(--body);padding:13px 20px;border-radius:999px;text-decoration:none;color:var(--night)!important;background:linear-gradient(180deg,#e1d2ff,var(--lilac))}
+.done .btn.ghost{background:rgba(23,15,51,.6);color:var(--cream)!important;border:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
+@media (min-width:1100px) and (orientation:landscape){.wrap{margin:0 max(4vw,24px) 0 auto;max-width:500px}}
+</style>
+<style>.presencial{display:none!important}</style>
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap" style="justify-content:flex-start">
+  <section class="card">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="96" height="96">
+      <p class="lbl">Bem-vinda à Sociedade</p>
+      <h1>Formulário de ingresso</h1>
+    </div>
+
+    <div id="formBox">
+      <p class="intro">Que bom ter você com a gente! Para completar a sua entrada, preciso de algumas informações sobre você. Leva cerca de 5 minutos.</p>
+      <form id="f" novalidate>
+        <input type="text" id="site" name="site" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+
+        <fieldset><legend>Sobre você</legend>
+        <label>Nome completo<input id="nome" autocomplete="name" placeholder="Seu nome completo" maxlength="120"></label>
+        <label>Como prefere ser chamada?<input id="apelido" autocomplete="nickname" maxlength="40"></label>
+        <div>
+          <label for="dia">Data de nascimento <small>O dia e o mês entram no mural de aniversário do clube.</small></label>
+          <div class="dob" style="margin-top:6px">
+            <input id="dia" inputmode="numeric" maxlength="2" placeholder="Dia" aria-label="Dia" autocomplete="bday-day">
+            <input id="mes" inputmode="numeric" maxlength="2" placeholder="Mês" aria-label="Mês" autocomplete="bday-month">
+            <input id="ano" inputmode="numeric" maxlength="4" placeholder="Ano" aria-label="Ano" autocomplete="bday-year">
+          </div>
+        </div>
+        <label>WhatsApp<input id="zap" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(67) 99999-9999"></label>
+        <label>Instagram<input id="insta" autocomplete="off" autocapitalize="off" placeholder="@seuperfil" maxlength="60"></label>
+        <label>E-mail<input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="120"></label>
+        </fieldset>
+
+        <fieldset><legend>Endereço</legend>
+        <p class="aviso">Para eu enviar sorteios, brindes e presentes do clube. <b>Só a administração vê</b> e nada é repassado ou divulgado sem a sua autorização.</p>
+        <div class="duas cep">
+          <label>CEP<input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
+          <label>Cidade / UF<input id="cidade" autocomplete="address-level2" maxlength="80" placeholder="Cidade / UF"></label>
+        </div>
+        <label>Rua<input id="rua" autocomplete="address-line1" maxlength="140"></label>
+        <div class="duas">
+          <label>Número<input id="numero" inputmode="numeric" maxlength="12"></label>
+          <label>Complemento <small>Opcional</small><input id="compl" autocomplete="address-line2" maxlength="80" placeholder="Apto, bloco, casa"></label>
+        </div>
+        <label>Bairro<input id="bairro" maxlength="80"></label>
+        <label>Ponto de referência <small>Opcional</small><input id="ref" maxlength="140"></label>
+        </fieldset>
+
+        <fieldset><legend>Sua vida como leitora</legend>
+        <div class="q"><span class="ql">Quais gêneros você mais gosta de ler? <small>Pode marcar vários</small></span>
+          <div class="chips" data-name="generos"><button type="button" class="chip">Fantasia</button><button type="button" class="chip">Romantasia</button><button type="button" class="chip">Romance</button><button type="button" class="chip">Romance de época</button><button type="button" class="chip">Thriller e suspense</button><button type="button" class="chip">Terror</button><button type="button" class="chip">True crime</button><button type="button" class="chip">Ficção científica</button><button type="button" class="chip">Clássicos</button></div>
+          <input id="outroG" maxlength="120" placeholder="Outro gênero (opcional)"></div>
+        <label>Quais são os seus livros favoritos?<textarea id="fav" rows="3" maxlength="1000"></textarea></label>
+        <label>Qual foi a última leitura que ganhou 5 estrelas de você?<input id="cinco" maxlength="160"></label>
+        <div class="q"><span class="ql">Em média, quantos livros você lê por mês?</span>
+          <div class="chips" data-name="ritmo" data-one><button type="button" class="chip">Menos de 1</button><button type="button" class="chip">1 a 2</button><button type="button" class="chip">3 a 4</button><button type="button" class="chip">5 ou mais</button></div></div>
+        <div class="q"><span class="ql">Você costuma abandonar livros?</span>
+          <div class="chips" data-name="abandona" data-one><button type="button" class="chip">Quase nunca</button><button type="button" class="chip">Às vezes</button><button type="button" class="chip">Com frequência</button></div></div>
+        <div class="q"><span class="ql">Como você lê? <small>Pode marcar vários</small></span>
+          <div class="chips" data-name="formato"><button type="button" class="chip">Livro físico</button><button type="button" class="chip">Kindle ou e-book</button><button type="button" class="chip">Audiobook</button></div></div>
+        <div class="q"><span class="ql">Cenas picantes nos livros</span>
+          <div class="chips" data-name="picante" data-one><button type="button" class="chip">Prefiro sem</button><button type="button" class="chip">Poucas, sem muitos detalhes</button><button type="button" class="chip">Tanto faz</button><button type="button" class="chip">Quanto mais, melhor</button></div></div>
+        <label>Temas que você não lê de jeito nenhum <small>Opcional. Ex.: gatilhos, violência, traição</small><textarea id="evita" rows="2" maxlength="600"></textarea></label>
+        </fieldset>
+
+        <fieldset><legend>Sobre o clube</legend>
+        <label>O que fez você querer participar do clube?<textarea id="motivo" rows="3" maxlength="1500"></textarea></label>
+        <label>Na sua opinião, o que faz um clube de leitura realmente valer a pena?<textarea id="valer" rows="3" maxlength="1500"></textarea></label>
+        <div class="q"><span class="ql">Como conheceu a Sociedade Arcádia?</span>
+          <div class="chips" data-name="origem" data-one><button type="button" class="chip">Instagram</button><button type="button" class="chip">Indicação de uma integrante</button><button type="button" class="chip">Indicação de outra pessoa</button><button type="button" class="chip">Outro</button></div></div>
+        </fieldset>
+
+        <fieldset><legend>Encontros</legend>
+        <div class="q"><span class="ql">Você acredita que vai conseguir participar da maioria dos encontros<span class="presencial"> presenciais</span>?</span>
+          <div class="chips" data-name="encontros" data-one><button type="button" class="chip">Sim</button><button type="button" class="chip">Na maioria das vezes</button><button type="button" class="chip">Não</button></div></div>
+        <div class="q"><span class="ql">Quais dias e horários são melhores para você? <small>Pode marcar vários</small></span>
+          <div class="chips" data-name="horarios"><button type="button" class="chip">Dia de semana à noite</button><button type="button" class="chip">Sábado de manhã</button><button type="button" class="chip">Sábado à tarde</button><button type="button" class="chip">Sábado à noite</button><button type="button" class="chip">Domingo de manhã</button><button type="button" class="chip">Domingo à tarde</button></div></div>
+        <label class="presencial">Alergias ou restrições alimentares <small>Opcional, para os encontros com comida</small><input id="alergia" maxlength="300"></label>
+        </fieldset>
+
+        <fieldset><legend>Fotos e vídeos</legend>
+        <div class="q"><span class="ql">Você autoriza aparecer em fotos e vídeos dos encontros nas redes do clube?</span>
+          <div class="chips" data-name="imagem" data-one><button type="button" class="chip">Sim, autorizo</button><button type="button" class="chip">Prefiro não aparecer</button></div></div>
+        </fieldset>
+
+        <fieldset><legend>Confirmações</legend>
+        <label class="check"><input type="checkbox" class="conf" data-k="mensalidade"> Estou ciente de que o clube tem contribuição mensal de R$ 19,90.</label>
+        <label class="check presencial"><input type="checkbox" class="conf" data-k="custos"> Estou ciente de que os encontros presenciais têm custos individuais, conforme o local escolhido.</label>
+        <label class="check"><input type="checkbox" class="conf" data-k="respeito"> Estou ciente de que o clube tem uma política de respeito entre as participantes e de não divulgação de spoilers nos grupos gerais.</label>
+        <label class="check"><input type="checkbox" class="conf" data-k="dados"> Concordo que os meus dados (endereço, contatos e data de nascimento) sejam usados só pela administração do clube, para contato, sorteios, brindes e presentes, e que não sejam repassados nem divulgados sem a minha autorização.</label>
+        </fieldset>
+
+        <fieldset><legend>Última, mas não menos importante</legend>
+        <label>Tem alguma coisa que você gostaria que eu soubesse sobre você? <small>Opcional</small><textarea id="extra" rows="3" maxlength="1500"></textarea></label>
+        </fieldset>
+
+        <p class="err" id="err" role="alert"></p>
+        <button type="submit" class="send" id="send">Enviar</button>
+      </form>
+    </div>
+
+    <div class="done" id="done" role="status">
+      <p class="lbl">Respostas recebidas</p>
+      <h2>Muito obrigada!</h2>
+      <p>Agora monte a sua lista de desejos: são os livros que eu posso escolher para você quando você for sorteada.</p>
+      <p><a class="btn" href="/online/desejos/">Montar minha lista de desejos</a></p>
+      <p><a class="btn ghost" href="/online/aniversarios/">Colocar minha lista da Amazon no mural</a></p>
+      <p style="font-size:13.5px">As duas páginas também ficam na Área das integrantes.</p>
+    </div>
+  </section>
+  <p class="foot">Seus dados ficam só com a administração do clube.</p>
+</main>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script>if(ARC_ORIENT()==='largo')ARC_CAM(1.02,.5,.42)</script>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id),f=$('f'),err=$('err');
+  const visivel=el=>!!(el&&el.offsetParent!==null);
+  document.querySelectorAll('.chips').forEach(g=>g.addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;
+    if(g.hasAttribute('data-one'))g.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===c?'true':'false'));
+    else c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')==='true'?'false':'true');g.removeAttribute('aria-invalid')}));
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  const pick=n=>[...document.querySelectorAll('.chips[data-name="'+n+'"] .chip[aria-pressed="true"]')].map(c=>c.textContent);
+  const chipsEl=n=>document.querySelector('.chips[data-name="'+n+'"]');
+  ['dia','mes'].forEach((id,i)=>$(id).addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'');if(e.target.value.length===2)$(['mes','ano'][i]).focus()}));
+  $('ano').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,''));
+  $('zap').addEventListener('input',e=>{if(/^\s*\+/.test(e.target.value)){e.target.value='+'+e.target.value.replace(/[^\d ]/g,'').replace(/^\s+/,'').slice(0,19);return}let d=e.target.value.replace(/\D/g,'').slice(0,11);
+    e.target.value=d.length>6?'('+d.slice(0,2)+') '+d.slice(2,d.length-4)+'-'+d.slice(-4):d.length>2?'('+d.slice(0,2)+') '+d.slice(2):d});
+  /* CEP: completa rua, bairro e cidade pelo ViaCEP (se não der, ela digita) */
+  $('cep').addEventListener('input',async e=>{let d=e.target.value.replace(/\D/g,'').slice(0,8);e.target.value=d.length>5?d.slice(0,5)+'-'+d.slice(5):d;
+    if(d.length!==8)return;
+    try{const r=await fetch('https://viacep.com.br/ws/'+d+'/json/');const j=await r.json();if(j.erro)return;
+      if(!$('rua').value)$('rua').value=j.logradouro||'';if(!$('bairro').value)$('bairro').value=j.bairro||'';
+      if(!$('cidade').value&&j.localidade)$('cidade').value=j.localidade+' / '+j.uf;$('numero').focus()}catch(x){}});
+  function bad(el,msg){el.setAttribute('aria-invalid','true');el.scrollIntoView({block:'center',behavior:'smooth'});if(el.focus)el.focus({preventScroll:true});err.textContent=msg;return false}
+  const v=id=>$(id).value.trim().replace(/\s+/g,' ');
+  function check(){f.querySelectorAll('[aria-invalid]').forEach(i=>i.removeAttribute('aria-invalid'));err.textContent='';
+    const nome=v('nome');if(nome.split(' ').length<2)return bad($('nome'),'Escreva seu nome completo.');
+    if(!v('apelido'))return bad($('apelido'),'Conte como prefere ser chamada.');
+    const d=+$('dia').value,m=+$('mes').value,y=+$('ano').value,dt=new Date(y,m-1,d);
+    if(!d||!m||y<1900||y>new Date().getFullYear()||dt.getDate()!==d||dt.getMonth()!==m-1)return bad($('dia'),'Confira a data de nascimento.');
+    const zap=$('zap').value;if(zap.replace(/\D/g,'').length<10)return bad($('zap'),'Confira o número do WhatsApp com DDD.');
+    if(!v('insta'))return bad($('insta'),'Escreva o seu Instagram.');
+    const email=v('email');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return bad($('email'),'Confira o e-mail.');
+    for(const [id,msg] of [['cep','Escreva o CEP.'],['cidade','Escreva a cidade.'],['rua','Escreva a rua.'],['numero','Escreva o número (ou "s/n").'],['bairro','Escreva o bairro.']])
+      if(!v(id))return bad($(id),msg);
+    if(!pick('generos').length&&!v('outroG'))return bad(chipsEl('generos'),'Marque pelo menos um gênero.');
+    if(!v('fav'))return bad($('fav'),'Conte seus livros favoritos.');
+    if(!v('cinco'))return bad($('cinco'),'Conte a última leitura 5 estrelas.');
+    for(const [n,msg] of [['ritmo','Escolha quantos livros você lê por mês.'],['abandona','Conte se costuma abandonar livros.'],['formato','Marque como você lê.'],['picante','Escolha uma opção sobre cenas picantes.']])
+      if(!pick(n).length)return bad(chipsEl(n),msg);
+    if(!v('motivo'))return bad($('motivo'),'Conte o que fez você querer participar.');
+    if(!v('valer'))return bad($('valer'),'Conte o que faz um clube valer a pena.');
+    for(const [n,msg] of [['origem','Conte como conheceu o clube.'],['encontros','Responda sobre os encontros.'],['horarios','Marque pelo menos um dia e horário.'],['imagem','Responda sobre fotos e vídeos.']])
+      if(!pick(n).length)return bad(chipsEl(n),msg);
+    const conf=[...document.querySelectorAll('.conf')].filter(visivel);
+    const falta=conf.find(c=>!c.checked);if(falta)return bad(falta,'Marque todas as confirmações.');
+    const pad=n=>String(n).padStart(2,'0');
+    let ig=v('insta');if(ig[0]!=='@')ig='@'+ig;
+    const generos=pick('generos');if(v('outroG'))generos.push(v('outroG').slice(0,120));
+    return {nome,apelido:v('apelido'),nascimento:y+'-'+pad(m)+'-'+pad(d),whatsapp:zap,instagram:ig,email,
+      endereco:{cep:v('cep'),rua:v('rua'),numero:v('numero'),complemento:v('compl'),bairro:v('bairro'),cidade:v('cidade'),referencia:v('ref')},
+      generos,favoritos:v('fav'),cinco:v('cinco'),ritmo:pick('ritmo')[0],abandona:pick('abandona')[0],formato:pick('formato'),picante:pick('picante')[0],evita:v('evita'),
+      motivo:$('motivo').value.trim(),valer:$('valer').value.trim(),origem:pick('origem')[0],encontros:pick('encontros')[0],horarios:pick('horarios'),
+      alergia:visivel($('alergia'))?v('alergia'):'',imagem:pick('imagem')[0]==='Sim, autorizo',confirmacoes:conf.map(c=>c.dataset.k),extra:$('extra').value.trim()}}
+  function celebrate(){const b=document.createElement('div');b.className='burst';
+    for(let i=0;i<40;i++){const s=document.createElement('i'),a=i/40*6.283,r=120+Math.random()*160;s.style.setProperty('--x',Math.cos(a)*r+'px');s.style.setProperty('--y',Math.sin(a)*r+'px');b.appendChild(s)}
+    document.body.appendChild(b);setTimeout(()=>b.remove(),1600)}
+  let fbReady=null;
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  function fb(){if(fbReady)return fbReady;const V='10.12.2';
+    fbReady=(async()=>{await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+      await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE);
+      if(!firebase.auth().currentUser)await firebase.auth().signInAnonymously();return firebase.firestore()})();
+    fbReady.catch(()=>{fbReady=null});return fbReady}
+  f.addEventListener('focusin',()=>{fb().catch(()=>{})},{once:true});
+  f.addEventListener('submit',async e=>{e.preventDefault();if($('site').value)return;const r=check();if(!r)return;
+    const btn=$('send');btn.disabled=true;btn.textContent='Enviando…';
+    try{const db=await fb();r.criadoEm=firebase.firestore.FieldValue.serverTimestamp();await db.collection('ingressos').add(r);
+      $('formBox').hidden=true;$('done').classList.add('on');celebrate();scrollTo({top:0,behavior:'smooth'})}
+    catch(x){console.warn(x);btn.disabled=false;btn.textContent='Enviar';err.textContent='Não foi possível enviar agora. Confira sua internet e tente de novo.'}});
+})();
+</script>
+</body>
+</html>
