@@ -82,7 +82,7 @@ body{margin:0;min-height:100vh;color:var(--cream);font-family:var(--body);font-s
 .scroll svg{width:22px;height:22px;animation:bob 2s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(5px)}}
 .intro.done .scroll{opacity:.9}.intro.done .skip{display:none}
-@media (orientation:landscape){#logo{top:20%!important}#f1{top:37%!important}#f2{top:47%!important}}
+@media (orientation:landscape){#logo{top:20%!important}#f1{top:37%!important}}
 .fade-in{position:fixed;inset:0;background:#000;z-index:9;pointer-events:none}
 
 /* ---------- conteúdo ---------- */
@@ -127,6 +127,10 @@ h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
 .author .ph{flex:none;width:68px;height:68px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 1px var(--gold),0 0 18px rgba(232,139,214,.35);
   display:grid;place-items:center;font-family:var(--display);font-style:italic;font-size:24px;color:var(--gold);background:radial-gradient(circle at 30% 30%,#5b2d8f,#26123f)}
 .author p{margin:0;font-size:14px}
+.cover.vazia{display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#5b2d8f,#26123f 75%);animation:none}
+.cover.vazia .ic{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:var(--gold);border:1px solid rgba(214,180,108,.55)}
+.cover.vazia .ic svg{width:28px;height:28px}
+.em-breve{margin:10px 0 0!important;font-size:14px}
 
 /* atividades */
 .acts{list-style:none;margin:0;padding:0;display:grid;gap:12px}
@@ -214,12 +218,11 @@ html{scroll-behavior:smooth}
 @media (min-width:900px){
   .wrap{max-width:940px;gap:30px}
   .wrap>#vagas,.wrap>#links,.wrap>footer{width:600px;align-self:center}
-  .wrap>.band{width:100%}
   .panel{padding:30px 34px}
   h2{font-size:30px}
-  #leitura .current{grid-template-columns:200px 1fr;gap:30px}
-  #leitura .cover{width:200px}
-  #leitura .current .t{font-size:34px}
+  #leitura .current,#leitura-online .current{grid-template-columns:200px 1fr;gap:30px}
+  #leitura .cover,#leitura-online .cover{width:200px}
+  #leitura .current .t,#leitura-online .current .t{font-size:34px}
   .acts.cards{grid-template-columns:repeat(3,1fr);gap:16px}
   .acts.cards li{grid-template-columns:1fr;gap:10px;padding:18px 16px;border:1px solid rgba(214,180,108,.28);border-radius:14px;background:rgba(23,15,51,.42);
     transition:transform .35s ease,border-color .35s,box-shadow .35s}
@@ -244,7 +247,8 @@ html{scroll-behavior:smooth}
   <div class="veu" id="veu"></div>
   <ul id="menu">
     <li><a href="#sobre">O clube</a></li>
-    <li><a href="#leitura">Leitura atual</a></li>
+    <li><a href="#leitura">Leitura atual presencial</a></li>
+    <li><a href="#leitura-online">Leitura atual online</a></li>
     <li><a href="#atividades">O que fazemos</a></li>
     <li><a href="#vagas">Vagas</a></li>
     <li><a href="/integrantes/">Área das integrantes presencial <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;vertical-align:-2px;margin-left:4px;fill:none;stroke:#e7c987;stroke-width:1.6;stroke-linecap:round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a></li>
@@ -272,12 +276,11 @@ html{scroll-behavior:smooth}
 
   <div class="lhalo" id="lhalo" aria-hidden="true"></div>
   <div class="letter" id="letter">
-    <h3>Vagas para 2027</h3>
+    <h3>Vagas abertas</h3>
     <p class="k">SOCIEDADE ARCÁDIA</p>
     <p>Lista de espera aberta</p>
-    <p>Ingresso em janeiro</p>
-    <p>Presencial em Campo Grande/MS</p>
-    <p>Online para o Brasil e o mundo</p>
+    <p>Presencial em Campo Grande/MS, a partir de janeiro</p>
+    <p>Online para o Brasil e o mundo, a partir de dezembro</p>
     <p>Para mulheres a partir de 18 anos</p>
     <p class="v">Vagas limitadas</p>
   </div>
@@ -292,7 +295,7 @@ html{scroll-behavior:smooth}
     <h1 class="sr">Sociedade Arcádia</h1><div class="letreiro3d hero3d" data-letreiro3d aria-hidden="true"></div>
     <div class="orbit" id="orbit" aria-hidden="true"></div>
   </div>
-  <div class="blk" id="f1" style="top:calc(790 / 1920 * 100%)"><p class="phr" style="font-size:max(19px,calc(62 * var(--u)))"><span class="hl">Lista de espera aberta</span><span style="font-size:.72em">Vagas presenciais e online</span><span style="font-size:.72em">Ingresso em janeiro</span></p></div>
+  <div class="blk" id="f1" style="top:calc(790 / 1920 * 100%)"><p class="phr" style="font-size:max(19px,calc(62 * var(--u)))"><span class="hl">Lista de espera aberta</span><span style="font-size:.72em">Vagas presenciais e online</span><span style="font-size:.72em">Online em dezembro, presencial em janeiro</span></p></div>
   <div class="blk cta-blk" id="f2" style="top:calc(1040 / 1920 * 100%)"><p class="lbl">Preencha o formulário de interesse</p>
     <div class="duo"><a class="btn primary" href="lista-de-espera/?m=presencial">Tenho interesse presencial</a><a class="btn primary" href="lista-de-espera/?m=online">Tenho interesse online</a></div></div>
 
@@ -309,7 +312,7 @@ html{scroll-behavior:smooth}
 
   <section class="panel reveal" id="leitura">
     <p class="eyebrow">Leitura oficial de novembro</p>
-    <h2>Leitura atual</h2>
+    <h2>Leitura atual do clube presencial</h2>
     <div class="current">
       <img class="cover" src="/capa-leitura-atual.webp" alt="Capa de Academia Arcana, de Elise Kova" width="349" height="527">
       <div>
@@ -332,12 +335,25 @@ html{scroll-behavior:smooth}
     </div>
   </section>
 
+  <section class="panel reveal" id="leitura-online">
+    <p class="eyebrow">Turma online</p>
+    <h2>Leitura atual do clube online</h2>
+    <div class="current">
+      <div class="cover vazia" aria-hidden="true"><span class="ic" data-ic="livro"></span></div>
+      <div>
+        <strong class="t">Em breve</strong>
+        <span class="by">A turma online começa em dezembro de 2026.</span>
+        <p class="muted em-breve">A primeira leitura do clube online aparece aqui assim que for escolhida.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="panel reveal" id="atividades">
     <p class="eyebrow">No clube</p>
     <h2>O que fazemos</h2>
     <ul class="acts cards">
       <li><span class="ic" data-ic="livro"></span><div><h3>Encontro do Livro do Mês</h3><p>Encontro para conversar sobre a leitura oficial do mês: presencial em Campo Grande ou online.</p></div></li>
-      <li><span class="ic" data-ic="pergunta"></span><div><h3>Quiz literário</h3><p>Nos encontros, um quiz sobre o Livro do Mês, com prêmio para quem vencer.</p></div></li>
+      <li><span class="ic" data-ic="pergunta"></span><div><h3>Quiz literário</h3><p>Um quiz ao fim de cada leitura, do Livro do Mês e das LCs, com brindes em algumas edições.</p></div></li>
       <li><span class="ic" data-ic="carta"></span><div><h3>Sorteio do mês</h3><p>Todo mês uma integrante é sorteada e ganha um livro da sua lista de desejos.</p></div></li>
       <li><span class="ic" data-ic="estante"></span><div><h3>Leituras coletivas extras</h3><p>LCs de outros gêneros, além da leitura oficial, com reuniões on-line para conversar sobre cada livro.</p></div></li>
       <li><span class="ic" data-ic="lanterna"></span><div><h3>Encontros extras</h3><p>Encontros além do Livro do Mês, sem obrigação de participar.</p></div></li>
@@ -347,13 +363,13 @@ html{scroll-behavior:smooth}
 
   <section class="panel reveal" id="vagas">
     <p class="eyebrow">Ingresso</p>
-    <h2>Vagas para 2027</h2>
+    <h2>Vagas abertas</h2>
     <div class="status"><i></i>Lista de espera aberta</div>
     <ul class="acts">
-      <li><span class="ic" data-ic="calendario"></span><div><h3>Ingresso em janeiro</h3><p>As novas integrantes entram em janeiro de 2027.</p></div></li>
-      <li><span class="ic" data-ic="bussola"></span><div><h3>Vagas presenciais</h3><p>Para quem mora em Campo Grande, MS. Os encontros são presenciais.</p></div></li>
+      <li><span class="ic" data-ic="calendario"></span><div><h3>Quando começa</h3><p>A turma online começa em dezembro de 2026. As novas integrantes presenciais entram em janeiro de 2027.</p></div></li>
+      <li><span class="ic" data-ic="bussola"></span><div><h3>Vagas presenciais</h3><p>Para quem mora em Campo Grande, MS. Os encontros são presenciais. Até 25 integrantes.</p></div></li>
       <li><span class="ic" data-ic="celular"></span><div><h3>Vagas online</h3><p>Para quem mora em qualquer lugar do Brasil ou do mundo. Os encontros são online.</p></div></li>
-      <li><span class="ic" data-ic="estrela"></span><div><h3>Para mulheres a partir de 18 anos</h3><p>Vagas limitadas.</p></div></li>
+      <li><span class="ic" data-ic="estrela"></span><div><h3>Para mulheres a partir de 18 anos</h3><p>Nas duas turmas.</p></div></li>
     </ul>
     <div class="btns"><a class="btn primary" href="lista-de-espera/?m=presencial">Tenho interesse presencial</a><a class="btn primary" href="lista-de-espera/?m=online">Tenho interesse online</a></div>
   </section>
@@ -411,7 +427,7 @@ html{scroll-behavior:smooth}
   for(let i=0;i<60;i++){const s=document.createElement('i');burst.appendChild(s);B.push({e:s,a:i/60*6.283+Math.random()*.1,r:.6+Math.random()*.6})}
   for(let i=0;i<20;i++){const s=document.createElement('i');orbit.appendChild(s);O.push({e:s,a:i/20*6.283,z:.6+Math.random()*.6})}
   const flap=document.querySelector('#env .flap'),env=$('env'),seal=$('seal'),aura=$('aura'),hl=$('hl'),hr=$('hr'),letter=$('letter'),lhalo=$('lhalo'),logo=$('logo'),lr=$('lr');
-  const flash=document.createElement('div');flash.className='flash';document.body.appendChild(flash);
+  const f1=$('f1'),f2=$('f2');const flash=document.createElement('div');flash.className='flash';document.body.appendChild(flash);
   let t=0,start=null,done=false;
   function frame(now){
     /* abertura já terminou e saiu da tela: não mexe em nada até voltar */
@@ -452,6 +468,7 @@ html{scroll-behavior:smooth}
     const gk=ss((t-23.1)/.9);logo.style.opacity=gk;logo.style.transform='translateY('+(40*U*(1-gk)-logo.offsetHeight/2)+'px)';logo.style.visibility=gk>0?'visible':'hidden';
     const rk=(t-23.55)/1.2;lr.style.opacity=rk>0&&rk<1?Math.sin(Math.PI*rk):0;lr.style.transform='scale('+(.5+rk*.8)+') rotate('+(rk*20)+'deg)';
     const ot=now/1000;for(const s of O){const a=s.a+ot*.35;s.e.style.transform='translate('+(Math.cos(a)*460*U)+'px,'+(Math.sin(a)*190*U)+'px) scale('+(s.z*(.7+.3*Math.sin(ot*3+s.a*5)))+')';s.e.style.opacity=gk*(.5+.5*Math.sin(ot*2+s.a*3))}
+    f2.style.top=(f1.offsetTop+f1.offsetHeight+Math.max(14,40*U))+'px';
     txt('f1',24.4,0);txt('f2',26.4,0);
     if(t>=34&&!done)finish();
     if(!calm)requestAnimationFrame(frame)}
