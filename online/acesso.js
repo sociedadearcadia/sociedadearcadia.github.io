@@ -29,6 +29,11 @@
     '#arcAcesso input{width:100%;font:16px "Nunito Sans",system-ui,sans-serif;color:#f3eadb;background:rgba(23,15,51,.8);border:1px solid rgba(214,180,108,.45);border-radius:12px;padding:12px 14px;margin:0 0 12px;box-sizing:border-box}'+
     '#arcAcesso button{width:100%;font:700 16px "Nunito Sans",system-ui,sans-serif;border:0;border-radius:999px;padding:14px 18px;cursor:pointer;background:linear-gradient(180deg,#e1d2ff,#c9b6f2);color:#170f33}'+
     '#arcAcesso button.sec{background:transparent;color:#c9b6f2;border:1px solid rgba(201,182,242,.5);margin-top:10px;font-weight:600;font-size:14px;padding:10px}'+
+    '#arcAcesso .casas{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}'+
+    '#arcAcesso .casas button{font:600 14px "Nunito Sans",system-ui,sans-serif;padding:11px 8px;border-radius:12px;background:rgba(23,15,51,.8);color:#f3eadb;border:1px solid rgba(214,180,108,.45);margin:0}'+
+    '#arcAcesso .casas button[aria-pressed="true"]{background:linear-gradient(180deg,#e1d2ff,#c9b6f2);color:#170f33;border-color:transparent}'+
+    '#arcAcesso .casas button.nao{grid-column:1/-1;font-size:13px}'+
+    '#arcAcesso .ct{text-align:left;font-size:14px;color:#e7c987;margin:2px 0 8px}'+
     '#arcAcesso a{color:#c9b6f2}#arcAcesso .er{color:#f2a0b8;font-size:14px}';
   var st=document.createElement('style');st.textContent=css;origAppend.call(document.head||document.documentElement,st);
   var box=document.createElement('div');box.id='arcAcesso';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
@@ -79,19 +84,38 @@
       '<button type="button" id="aaR">Já fui aprovada, verificar</button><button type="button" class="sec" id="aaS">Usar outra conta</button>');
     box.querySelector('#aaR').onclick=function(){verificar(u)};box.querySelector('#aaS').onclick=sair}
 
+  var CASAS=[['grifinoria','Grifinória'],['sonserina','Sonserina'],['corvinal','Corvinal'],['lufalufa','Lufa-Lufa']];
   function pedir(u,encerrado){
     tela('<h2>'+(encerrado?'Acesso encerrado':'Pedir acesso')+'</h2><p>'+(encerrado?'O acesso desta conta foi encerrado. Se precisar, peça de novo e a administração avalia.':'Você entrou como <b>'+esc(u.email)+'</b>. Escreva seu nome para a administração saber quem é.')+'</p>'+
-      '<input id="aaN" maxlength="120" autocomplete="name" placeholder="Seu nome" value="'+esc(u.displayName||ls('nome')||'')+'">'+
+      '<p class="ct">Seu nome, do jeito que vai aparecer no clube</p>'+
+      '<input id="aaN" maxlength="30" autocomplete="name" placeholder="Seu nome" value="'+esc((u.displayName||ls('nome')||'').slice(0,30))+'">'+
+      '<p class="ct">Sua casa de Hogwarts</p><div class="casas">'+CASAS.map(function(c){return '<button type="button" data-c="'+c[0]+'" aria-pressed="false">'+c[1]+'</button>'}).join('')+
+      '<button type="button" class="nao" data-c="" aria-pressed="false">Ainda não sei</button></div>'+
+      '<p class="ct">Link da sua lista de desejos na Amazon ou no Mercado Livre <span style="color:#cfc3e6">(os prêmios são enviados por lá)</span></p>'+
+      '<input id="aaD" type="text" inputmode="url" autocapitalize="none" spellcheck="false" maxlength="400" placeholder="Cole o link aqui">'+
       '<button type="button" id="aaP">Pedir acesso</button><button type="button" class="sec" id="aaS">Usar outra conta</button><p class="er" style="margin:12px 0 0"></p>');
-    box.querySelector('#aaS').onclick=sair;
-    box.querySelector('#aaP').onclick=function(){var nome=box.querySelector('#aaN').value.trim().replace(/\s+/g,' ');
-      if(nome.length<2)return erro('Escreva seu nome.');this.disabled=true;var b=this;
-      db.collection('pedidosAcesso').doc(u.uid).set({email:u.email,nome:nome,em:firebase.firestore.FieldValue.serverTimestamp()})
+    box.querySelector('#aaS').onclick=sair;var casa=null;
+    box.querySelectorAll('.casas button').forEach(function(b){b.onclick=function(){casa=b.dataset.c;box.querySelectorAll('.casas button').forEach(function(o){o.setAttribute('aria-pressed',o===b)})}});
+    box.querySelector('#aaP').onclick=function(){var nome=box.querySelector('#aaN').value.trim().replace(/\s+/g,' ').slice(0,30);
+      if(nome.length<2)return erro('Escreva seu nome.');if(casa===null)return erro('Escolha sua casa de Hogwarts (ou "Ainda não sei").');this.disabled=true;var b=this;
+      var des=box.querySelector('#aaD').value.trim().slice(0,400);
+      db.collection('pedidosAcesso').doc(u.uid).set({email:u.email,nome:nome,casa:casa,desejos:des,em:firebase.firestore.FieldValue.serverTimestamp()})
         .then(function(){aguardando(u,{nome:nome})}).catch(function(e){b.disabled=false;erro('Não deu para enviar ('+(e.code||'erro')+'). Tente de novo.')})}}
+
+  /* nomes das integrantes e link do Meet: a administração mantém em turma/publico. O sprint lê a lista guardada no
+     aparelho (online/sprint/config.js); se ela mudou, a página abre de novo uma vez para mostrar os nomes novos. */
+  function turma(eu){
+    return db.collection('turma').doc('publico').get().then(function(d){
+      var v=d.exists?d.data():{},nomes=(v.lista||[]).map(function(x){return x&&x.nome}).filter(Boolean),meet=v.meet||'';
+      var antes=(ls('nomes')||'')+'|'+(ls('meet')||''),depois=JSON.stringify(nomes)+'|'+meet;
+      ls('nomes',JSON.stringify(nomes));ls('meet',meet);
+      if(eu&&eu.nome&&!ls('me'))ls('me',JSON.stringify({name:String(eu.nome).slice(0,30)}));
+      if(antes!==depois){var k='arcadiaOnline:recarregou';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');location.reload();return new Promise(function(){})}}catch(e){}}
+    }).catch(function(e){console.warn('turma',e)})}
 
   function verificar(u){
     db.collection('membros').doc(u.uid).get().then(function(d){
-      if(d.exists){ls('membroOk',u.uid);box.remove();st.remove();liberar();return}
+      if(d.exists){ls('membroOk',u.uid);return turma(d.data()).then(function(){box.remove();st.remove();liberar()})}
       ls('membroOk',null);
       return db.collection('pedidosAcesso').doc(u.uid).get().then(function(p){p.exists?aguardando(u,p.data()):pedir(u,ls('foiMembro')===u.uid)})
     }).catch(function(e){console.warn(e);tela('<h2>Sem conexão</h2><p>Verifique a internet e recarregue a página.</p><button type="button" onclick="location.reload()">Recarregar</button>')})}

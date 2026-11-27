@@ -173,7 +173,9 @@ function entrar(){if(!ctxP)ctxP=(async()=>{
   const pid=ses.pid;LS.set('pid',pid);
   const [perf,dt,ge]=await Promise.all([db.collection('hgPerfis').doc(pid).get().catch(()=>null),db.collection('hgConfig').doc('datas').get().catch(()=>null),db.collection('hgConfig').doc('geral').get().catch(()=>null)]);
   const datas=Object.assign({},DATAS_PADRAO,(dt&&dt.exists)?dt.data():{}),geral=Object.assign({},GERAL_PADRAO,(ge&&ge.exists)?ge.data():{});
-  return{db,uid,pid,nome:pessoa.nome,casa:perf&&perf.exists?perf.data().casa:null,datas,geral}})();return ctxP}
+  let casa=perf&&perf.exists?perf.data().casa:null;
+  if(!casa){try{const m=await db.collection('membros').doc(uid).get(),c=m.exists?m.data().casa:'';if(c&&CASAS[c]){await db.collection('hgPerfis').doc(pid).set({nome:pessoa.nome,casa:c,em:Date.now()});casa=c}}catch(e){console.warn('casa',e)}}
+  return{db,uid,pid,nome:pessoa.nome,casa,datas,geral}})();return ctxP}
 async function sair(){try{localStorage.removeItem('hogwartsOnline:pid');localStorage.removeItem('hogwartsOnline:ses')}catch(e){}try{const c=await ctxP;await c.db.collection('hgSessoes').doc(c.uid).delete()}catch(e){}location.href='/online/integrantes/'}
 
 

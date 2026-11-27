@@ -22,6 +22,8 @@ DEST = os.path.join(RAIZ, 'online')
 PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'ideias', 'estante', 'cartas',
           'codigo', 'bingo', 'arcadiana', 'redes', 'artes', 'mensagem', 'guia', 'limpeza', 'hogwarts', 'ingresso']
 # pastas novas que outras páginas criarem entram sozinhas se estiverem listadas em integrantes/index.html
+# pastas que o online NÃO tem 
+FORA = {'sprint'}
 # arquivos de online/ feitos à mão (não são apagados nem gerados)
 PROPRIOS = {'config.js', 'sprint/config.js', 'LEIA-ME.md', 'acesso.js', 'admin/acesso/index.html'}
 TEXTO = ('.html', '.js', '.css', '.json', '.webmanifest', '.txt', '.md')
@@ -33,7 +35,7 @@ def pastas_do_menu():
         t = open(os.path.join(RAIZ, 'integrantes', 'index.html'), encoding='utf-8').read()
     except OSError:
         return []
-    return [p for p in re.findall(r"u:'/([a-z0-9-]+)/", t) if p != 'sprint']
+    return [p for p in re.findall(r"u:'/([a-z0-9-]+)/", t) if p not in FORA]
 
 
 def reescrever(t, todas):
@@ -66,8 +68,46 @@ def com_acesso(t):
     return t
 
 
+def textos_online(t):
+    """Textos do online: sem oficinas. A página de ideias vira "Ideias de atividades" (atividade online ou encontro extra)."""
+    t = t.replace("n:'Ideias de encontros',d:'Sugira oficinas e encontros extras'", "n:'Ideias de atividades',d:'Sugira desafios, competições e encontros extras'")
+    t = t.replace("n:'Ideias de encontros',d:'Aprovar ou recusar ideias'", "n:'Ideias de atividades',d:'Aprovar ou recusar ideias'")
+    t = t.replace('Ideias de encontros', 'Ideias de atividades')
+    t = t.replace('<div class="cab"><div><p class="lbl">Oficinas e encontros extras</p><h2>Ideias de atividades</h2>', '<div class="cab"><div><p class="lbl">Atividades online e encontros extras</p><h2>Ideias de atividades</h2>')
+    t = t.replace('Para sugerir uma oficina ou um encontro extra.', 'Para sugerir uma atividade online (desafio, competição, dinâmica) ou um encontro extra.')
+    t = t.replace('Marque se é <b>Oficina</b> ou <b>Encontro extra</b>.', 'Marque se é <b>Atividade online</b> ou <b>Encontro extra</b>.')
+    t = t.replace('você participa da organização do encontro.</p>', 'você participa da organização.</p>')
+    t = t.replace('<a href="/online/ideias/">encontros</a>', '<a href="/online/ideias/">atividades</a>')
+    t = t.replace('Encontros extras, oficinas e LCs não contam', 'Encontros extras e LCs não contam')
+    t = t.replace('<option>Reunião on-line</option>', '<option>Reunião online</option>')
+    return t
+
+
+def ideias_online(rel, t):
+    """Página de ideias no online: em vez de oficina, atividade online (desafio, competição...). O valor salvo continua 'oficina'."""
+    if not rel.startswith('ideias/'):
+        return t
+    R = [("TIPOS={oficina:'Oficina',extra:'Encontro extra'}", "TIPOS={oficina:'Atividade online',extra:'Encontro extra'}"),
+         ('<p class="lbl">Oficinas e encontros extras</p>', '<p class="lbl">Atividades online e encontros extras</p>'),
+         ('<span class="tag t-oficina">Oficina</span>', '<span class="tag t-oficina">Atividade online</span>'),
+         ('Tem uma ideia de <b>oficina</b> ou de <b>encontro extra</b>? Mande aqui.',
+          'Tem uma ideia de <b>atividade online</b> (desafio, competição, dinâmica) ou de <b>encontro extra</b>? Mande aqui.'),
+         ('organização do encontro', 'organização da atividade'),
+         ('Sugerir um encontro', 'Sugerir uma atividade'),
+         ('Tipo de encontro<div', 'Tipo de atividade<div'),
+         ('value="oficina" required>Oficina</label>', 'value="oficina" required>Atividade online</label>'),
+         ('Título do encontro<input', 'Título da atividade<input'),
+         ("'Marque se é oficina ou encontro extra'", "'Marque se é atividade online ou encontro extra'"),
+         ("'Escreva o título do encontro'", "'Escreva o título da atividade'"),
+         ('organização deste encontro', 'organização desta atividade')]
+    for a, b in R:
+        t = t.replace(a, b)
+    return t
+
+
 def ajustes(rel, t):
     """Ajustes que só valem para o online."""
+    t = ideias_online(rel, textos_online(t))
     if rel.endswith('.html') and '/admin/' not in '/' + rel and not rel.startswith('ingresso/respostas/'):
         t = com_acesso(t)
     if rel == 'hogwarts/hg.js':
@@ -80,6 +120,11 @@ def ajustes(rel, t):
         # turma online: sem perguntas de encontro presencial
         t = t.replace('</head>', '<style>.presencial{display:none!important}</style>\n</head>', 1)
         t = t.replace('placeholder="Campo Grande / MS"', 'placeholder="Cidade / UF"')
+    if rel == 'hogwarts/hg.js':
+        # a casa escolhida no pedido de acesso (membros/{uid}.casa) já vale no Salão: não pergunta de novo
+        a = "return{db,uid,pid,nome:pessoa.nome,casa:perf&&perf.exists?perf.data().casa:null,datas,geral}"
+        assert a in t, 'hg.js mudou: ajuste a casa do online'
+        t = t.replace(a, "let casa=perf&&perf.exists?perf.data().casa:null;\n  if(!casa){try{const m=await db.collection('membros').doc(uid).get(),c=m.exists?m.data().casa:'';if(c&&CASAS[c]){await db.collection('hgPerfis').doc(pid).set({nome:pessoa.nome,casa:c,em:Date.now()});casa=c}}catch(e){console.warn('casa',e)}}\n  return{db,uid,pid,nome:pessoa.nome,casa,datas,geral}")
     if rel == 'livros/lista-inicial.js':
         t = '/* Turma online: a lista começa vazia e cresce com as indicações das integrantes. */\nwindow.LISTA_INICIAL = [];\n'
     if rel == 'agenda/admin/index.html':
@@ -144,6 +189,12 @@ def gerar_sprint(todas):
     t = t.replace("    firebase.initializeApp(fb);\n    const cred=await firebase.auth().signInAnonymously();",
                   "    if(!firebase.apps.length)firebase.initializeApp(fb);\n    const cred={user:firebase.auth().currentUser||(await firebase.auth().signInAnonymously()).user};")
     t = t.replace('<h3>Sprint das integrantes</h3>', '<h3>Sprint das integrantes online</h3>')
+    # chamada pelo Google Meet (link salvo em /online/admin/acesso/), sem Daily
+    a = "if(SALA_MEET||/^https:\\/\\/[a-z0-9-]+\\.daily\\.co\\/[\\w-]+$/i.test(SALA)){$('salaRow').hidden=false}"
+    assert a in t, 'sprint mudou: ajuste o botão do Meet'
+    t = t.replace(a, "if(SALA_MEET){$('salaRow').hidden=false;$('salaBtn').textContent='Abrir a chamada no Google Meet'}")
+    t = t.replace("else if(!b&&$('salaBox').hidden)$('salaBtn').textContent='Entrar na sala de vídeo';", "else if(!b&&$('salaBox').hidden&&!SALA_MEET)$('salaBtn').textContent='Entrar na sala de vídeo';")
+    t = textos_online(t)
     t = t.replace('Senha do clube<input id="gateInput"', 'Senha do clube online<input id="gateInput"')
     os.makedirs(os.path.join(DEST, 'sprint'), exist_ok=True)
     open(os.path.join(DEST, 'sprint', 'index.html'), 'w', encoding='utf-8').write(t)

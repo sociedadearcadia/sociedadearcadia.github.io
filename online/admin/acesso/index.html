@@ -22,6 +22,11 @@
 .lista .ok{flex:none;font:700 13px var(--body);color:#170f33;background:linear-gradient(180deg,#e1d2ff,#c9b6f2);border:0;border-radius:999px;padding:8px 14px;cursor:pointer}
 .lista .no{flex:none;font:600 13px var(--body);color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline;padding:6px}
 .busca{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.75);border:1px solid var(--line);border-radius:999px;padding:10px 16px;width:100%;margin:0 0 12px;-webkit-appearance:none;appearance:none}
+.lista .ed{flex:none;font:600 13px var(--body);color:var(--cream);background:none;border:0;cursor:pointer;text-decoration:underline;padding:6px}
+.lista li.form{flex-direction:column;align-items:stretch}
+.campo{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted);margin:0 0 10px}
+.campo input,.campo select{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.75);border:1px solid var(--line);border-radius:12px;padding:10px 12px;-webkit-appearance:none;appearance:none}
+.lista a{color:var(--cream)}
 .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,30px);opacity:0;transition:.3s;z-index:9;background:rgba(23,15,51,.95);border:1px solid var(--gold);color:var(--cream);padding:10px 18px;border-radius:999px;font-size:14px}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -46,9 +51,16 @@
 
   <div id="area" hidden style="display:flex;flex-direction:column;gap:16px">
     <section class="panel">
+      <p class="lbl">Chamada de vídeo</p>
+      <h2>Link do Google Meet</h2>
+      <p class="muted small" style="margin:0 0 12px">Opcional. Se você colar um link do Meet aqui, o sprint online mostra um botão que abre a chamada. Pode trocar o link a cada sprint ou deixar vazio, aí o botão não aparece.</p>
+      <label class="campo">Link<input id="meet" type="text" inputmode="url" autocapitalize="none" spellcheck="false" placeholder="https://meet.google.com/abc-defg-hij"></label>
+      <div class="row" style="justify-content:flex-end"><button class="btn" type="button" id="salvaMeet">Salvar link</button></div>
+    </section>
+    <section class="panel">
       <p class="lbl">Esperando aprovação</p>
       <h2>Pedidos de acesso</h2>
-      <p class="muted small" style="margin:0 0 12px">Cada integrante entra com a conta Google ou com e-mail e senha e pede acesso. Aprove só quem faz parte da turma online.</p>
+      <p class="muted small" style="margin:0 0 12px">Cada integrante entra com a conta Google ou com e-mail e senha e pede acesso. Aprove só quem faz parte da turma online. Ao aprovar, o nome entra sozinho no sprint e a casa de Hogwarts fica guardada.</p>
       <ul class="lista" id="pedidos"></ul>
     </section>
     <section class="panel">
@@ -78,6 +90,10 @@
   const app=firebase.initializeApp(window.ARCADIA_FIREBASE,'admin');const auth=app.auth(),db=app.firestore(),FV=firebase.firestore.FieldValue;
   try{await auth.getRedirectResult()}catch(e){console.warn(e)}
   let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  const CASAS={grifinoria:'Grifinória',sonserina:'Sonserina',corvinal:'Corvinal',lufalufa:'Lufa-Lufa'};
+  const casaTx=c=>CASAS[c]||'Casa: ainda não sabe';
+  const link=u=>{u=String(u||'').trim();if(!u)return '<span>sem lista da Amazon/Mercado Livre</span>';const h=/^https?:\/\//i.test(u)?u:'https://'+u;return '<a href="'+esc(h)+'" target="_blank" rel="noopener">lista de desejos</a>'};
+  const MEET=/^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/i;
   const quando=t=>t&&t.toDate?t.toDate().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
 
   function login(){$('area').hidden=true;
@@ -87,22 +103,45 @@
         else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request')st.insertAdjacentHTML('beforeend','<p class="muted small">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
   $('sair').onclick=()=>auth.signOut();
 
-  let pedidos=[],membros=[],offs=[];
+  let pedidos=[],membros=[],offs=[],editando=null,publico=null;
+  /* lista pública da turma (nomes e casas) + link do Meet: o sprint online e o Hogwarts online leem daqui */
+  function listaPublica(){return membros.map(m=>({nome:String(m.nome||'').slice(0,30),casa:m.casa||''})).filter(x=>x.nome)}
+  async function publicar(meet){
+    if(publico===null)return;
+    const novo={lista:listaPublica(),meet:meet===undefined?(publico.meet||''):meet};
+    if(JSON.stringify(novo.lista)===JSON.stringify(publico.lista||[])&&novo.meet===publico.meet)return;
+    publico=Object.assign({},novo);
+    try{await db.collection('turma').doc('publico').set(Object.assign({em:Date.now()},novo))}catch(e){toast('Não deu para atualizar a lista da turma: '+e.code)}}
+  $('salvaMeet').onclick=async()=>{const v=$('meet').value.trim().replace(/\?.*$/,'');
+    if(v&&!MEET.test(v))return toast('Cole um link do Meet como https://meet.google.com/abc-defg-hij');
+    if(publico===null)return toast('Espere carregar e tente de novo');
+    publico.meet=null;await publicar(v);toast(v?'Link do Meet salvo':'Link do Meet apagado')};
   function desenhar(){
-    $('pedidos').innerHTML=pedidos.length?pedidos.map(p=>'<li><span class="tx"><b>'+esc(p.nome||'Sem nome')+'</b><small>'+esc(p.email)+(p.em?' · '+quando(p.em):'')+'</small></span>'+
+    $('pedidos').innerHTML=pedidos.length?pedidos.map(p=>'<li><span class="tx"><b>'+esc(p.nome||'Sem nome')+'</b><small>'+esc(p.email)+(p.em?' · '+quando(p.em):'')+'</small><small>'+esc(casaTx(p.casa))+' · '+link(p.desejos)+'</small></span>'+
       '<button type="button" class="no" data-recusar="'+esc(p._id)+'">Recusar</button><button type="button" class="ok" data-aprovar="'+esc(p._id)+'">Aprovar</button></li>').join('')
       :'<li><span class="tx"><small>Nenhum pedido agora.</small></span></li>';
     const q=$('busca').value.trim().toLowerCase();
     const vis=membros.filter(m=>!q||String(m.nome||'').toLowerCase().includes(q)||String(m.email||'').toLowerCase().includes(q));
     $('nAprov').textContent='('+membros.length+')';
-    $('membros').innerHTML=vis.length?vis.map(m=>'<li><span class="tx"><b>'+esc(m.nome||'Sem nome')+'</b><small>'+esc(m.email||'')+(m.aprovadoEm?' · desde '+quando(m.aprovadoEm):'')+'</small></span>'+
-      '<button type="button" class="no" data-remover="'+esc(m._id)+'">Remover</button></li>').join('')
+    $('membros').innerHTML=vis.length?vis.map(m=>m._id===editando?
+      '<li class="form"><label class="campo">Nome<input id="edN" maxlength="30" value="'+esc(m.nome||'')+'"></label>'+
+      '<label class="campo">Casa de Hogwarts<select id="edC"><option value="">Ainda não sabe</option>'+Object.entries(CASAS).map(([k,n])=>'<option value="'+k+'"'+(m.casa===k?' selected':'')+'>'+n+'</option>').join('')+'</select></label>'+
+      '<label class="campo">Lista de desejos (Amazon ou Mercado Livre)<input id="edD" type="text" inputmode="url" autocapitalize="none" spellcheck="false" maxlength="400" value="'+esc(m.desejos||'')+'"></label>'+
+      '<div class="row" style="justify-content:flex-end;gap:8px"><button type="button" class="no" data-cancelar="1">Cancelar</button><button type="button" class="ok" data-salvar="'+esc(m._id)+'">Salvar</button></div></li>'
+      :'<li><span class="tx"><b>'+esc(m.nome||'Sem nome')+'</b><small>'+esc(m.email||'')+(m.aprovadoEm?' · desde '+quando(m.aprovadoEm):'')+'</small><small>'+esc(casaTx(m.casa))+' · '+link(m.desejos)+'</small></span>'+
+      '<button type="button" class="ed" data-editar="'+esc(m._id)+'">Editar</button><button type="button" class="no" data-remover="'+esc(m._id)+'">Remover</button></li>').join('')
       :'<li><span class="tx"><small>'+(membros.length?'Ninguém com esse nome.':'Ninguém aprovada ainda.')+'</small></span></li>'}
   $('busca').addEventListener('input',desenhar);
 
-  document.addEventListener('click',async ev=>{const b=ev.target.closest('button[data-aprovar],button[data-recusar],button[data-remover]');if(!b)return;
+  document.addEventListener('click',async ev=>{const b=ev.target.closest('button[data-aprovar],button[data-recusar],button[data-remover],button[data-editar],button[data-cancelar],button[data-salvar]');if(!b)return;
+    if(b.dataset.editar){editando=b.dataset.editar;desenhar();return}
+    if(b.dataset.cancelar){editando=null;desenhar();return}
+    if(b.dataset.salvar){const m=membros.find(x=>x._id===b.dataset.salvar);if(!m)return;const nome=$('edN').value.trim().replace(/\s+/g,' ').slice(0,30);
+      if(nome.length<2)return toast('Escreva o nome');b.disabled=true;
+      try{await db.collection('membros').doc(m._id).update({nome,casa:$('edC').value,desejos:$('edD').value.trim().slice(0,400)});editando=null;toast('Salvo')}
+      catch(e){b.disabled=false;toast('Não deu para salvar: '+e.code)}return}
     if(b.dataset.aprovar){const p=pedidos.find(x=>x._id===b.dataset.aprovar);if(!p)return;b.disabled=true;
-      try{const bt=db.batch();bt.set(db.collection('membros').doc(p._id),{email:p.email,nome:p.nome||'',em:Date.now(),aprovadoEm:FV.serverTimestamp()});
+      try{const bt=db.batch();bt.set(db.collection('membros').doc(p._id),{email:p.email,nome:String(p.nome||'').slice(0,30),casa:CASAS[p.casa]?p.casa:'',desejos:String(p.desejos||'').slice(0,400),em:Date.now(),aprovadoEm:FV.serverTimestamp()});
         bt.delete(db.collection('pedidosAcesso').doc(p._id));await bt.commit();toast((p.nome||p.email)+' aprovada')}
       catch(e){b.disabled=false;toast('Não deu para aprovar: '+e.code)}}
     else if(b.dataset.recusar){const p=pedidos.find(x=>x._id===b.dataset.recusar);if(!p||!confirm('Recusar o pedido de '+(p.nome||p.email)+'?'))return;
@@ -117,7 +156,10 @@
     if(!admin){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas só a administração aprova acessos.</p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
     st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+'</p>';$('area').hidden=false;
     offs.push(db.collection('pedidosAcesso').onSnapshot(s=>{pedidos=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort((a,b)=>((a.em&&a.em.seconds)||0)-((b.em&&b.em.seconds)||0));desenhar()},e=>toast('Erro ao ler pedidos: '+e.code)));
-    offs.push(db.collection('membros').onSnapshot(s=>{membros=s.docs.map(d=>Object.assign({_id:d.id},d.data())).filter(m=>m.email).sort((a,b)=>String(a.nome||a.email).localeCompare(String(b.nome||b.email),'pt-BR'));desenhar()},e=>toast('Erro ao ler integrantes: '+e.code)));
+    let membrosOk=false;
+    offs.push(db.collection('turma').doc('publico').onSnapshot(d=>{const v=d.exists?d.data():{};const primeira=publico===null;publico={lista:v.lista||[],meet:v.meet||''};
+      if(primeira||document.activeElement!==$('meet'))$('meet').value=publico.meet;if(membrosOk)publicar()},e=>toast('Erro ao ler a lista da turma: '+e.code)));
+    offs.push(db.collection('membros').onSnapshot(s=>{membros=s.docs.map(d=>Object.assign({_id:d.id},d.data())).filter(m=>m.email).sort((a,b)=>String(a.nome||a.email).localeCompare(String(b.nome||b.email),'pt-BR'));membrosOk=true;desenhar();publicar()},e=>toast('Erro ao ler integrantes: '+e.code)));
   });
 })();
 </script>
