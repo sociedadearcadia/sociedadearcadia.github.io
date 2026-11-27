@@ -142,6 +142,10 @@ h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
 .status{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;padding:6px 12px;border-radius:999px;background:rgba(232,139,214,.14);border:1px solid rgba(232,139,214,.45);margin-bottom:12px}
 .status i{width:8px;height:8px;border-radius:50%;background:var(--rose);box-shadow:0 0 10px var(--rose);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.4}}
+.turma{padding:14px 0 18px;border-top:1px solid var(--line)}.turma:first-of-type{border-top:0;padding-top:0}
+.turma>p{margin:0 0 12px;font-size:15px;color:#e9dcf5}
+.status.fechada{background:rgba(214,180,108,.12);border-color:rgba(214,180,108,.5)}.status.fechada i{background:var(--gold);box-shadow:0 0 10px var(--gold);animation:none}
+#vagas .nota{margin:4px 0 0;font-size:13px;color:var(--muted)}
 
 .news{text-align:center}
 .year{font-family:var(--display);font-size:68px;line-height:1;font-weight:600;font-style:italic;margin:4px 0 10px;
@@ -250,10 +254,11 @@ html{scroll-behavior:smooth}
     <li><a href="#leitura">Leitura atual presencial</a></li>
     <li><a href="#leitura-online">Leitura atual online</a></li>
     <li><a href="#atividades">O que fazemos</a></li>
-    <li><a href="#vagas">Vagas</a></li>
+    <li><a href="#vagas">Inscrições</a></li>
     <li><a href="/integrantes/">Área das integrantes presencial <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;vertical-align:-2px;margin-left:4px;fill:none;stroke:#e7c987;stroke-width:1.6;stroke-linecap:round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a></li>
     <li><a href="/online/integrantes/">Área das integrantes online <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;vertical-align:-2px;margin-left:4px;fill:none;stroke:#e7c987;stroke-width:1.6;stroke-linecap:round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a></li>
-    <li><a class="hl" href="lista-de-espera/">Lista de espera</a></li>
+    <li><a href="lista-de-espera/?m=presencial">Lista de espera presencial</a></li>
+    <li><a class="hl" href="lista-de-espera/?m=online">Quero fazer parte (online)</a></li>
     <li><a href="/admin/">Administração <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;vertical-align:-2px;margin-left:4px;fill:none;stroke:#e7c987;stroke-width:1.6;stroke-linecap:round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a></li>
   </ul>
 </nav>
@@ -276,13 +281,12 @@ html{scroll-behavior:smooth}
 
   <div class="lhalo" id="lhalo" aria-hidden="true"></div>
   <div class="letter" id="letter">
-    <h3>Vagas abertas</h3>
-    <p class="k">SOCIEDADE ARCÁDIA</p>
-    <p>Lista de espera aberta</p>
-    <p>Presencial em Campo Grande/MS, a partir de janeiro</p>
-    <p>Online para o Brasil e o mundo, a partir de dezembro</p>
+    <h3>Inscrições abertas</h3>
+    <p class="k">SOCIEDADE ARCÁDIA ONLINE</p>
+    <p>Começa em 5 de dezembro de 2026</p>
+    <p>Para o Brasil e o mundo</p>
     <p>Para mulheres a partir de 18 anos</p>
-    <p class="v">Vagas limitadas</p>
+    <p class="v">Presencial: turma completa, lista de espera aberta</p>
   </div>
   <div class="env" id="env" aria-hidden="true">
     <div class="back"></div><div class="front"></div><div class="flap"></div>
@@ -295,9 +299,9 @@ html{scroll-behavior:smooth}
     <h1 class="sr">Sociedade Arcádia</h1><div class="letreiro3d hero3d" data-letreiro3d aria-hidden="true"></div>
     <div class="orbit" id="orbit" aria-hidden="true"></div>
   </div>
-  <div class="blk" id="f1" style="top:calc(790 / 1920 * 100%)"><p class="phr" style="font-size:max(19px,calc(62 * var(--u)))"><span class="hl">Lista de espera aberta</span><span style="font-size:.72em">Vagas presenciais e online</span><span style="font-size:.72em">Online em dezembro, presencial em janeiro</span></p></div>
-  <div class="blk cta-blk" id="f2" style="top:calc(1040 / 1920 * 100%)"><p class="lbl">Preencha o formulário de interesse</p>
-    <div class="duo"><a class="btn primary" href="lista-de-espera/?m=presencial">Tenho interesse presencial</a><a class="btn primary" href="lista-de-espera/?m=online">Tenho interesse online</a></div></div>
+  <div class="blk" id="f1" style="top:calc(790 / 1920 * 100%)"><p class="phr" style="font-size:max(19px,calc(62 * var(--u)))"><span class="hl">Inscrições online abertas</span><span style="font-size:.72em">Começa em 5 de dezembro</span><span style="font-size:.72em">Presencial: turma completa</span></p></div>
+  <div class="blk cta-blk" id="f2" style="top:calc(1040 / 1920 * 100%)"><p class="lbl">Escolha a sua turma</p>
+    <div class="duo"><a class="btn primary" href="lista-de-espera/?m=online">Quero fazer parte (online)</a><a class="btn primary" href="lista-de-espera/?m=presencial">Entrar na lista de espera (presencial)</a></div></div>
 
   <button class="skip" id="skip" type="button">Pular</button>
   <a class="scroll" href="#sobre">Conheça o clube<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
@@ -342,8 +346,8 @@ html{scroll-behavior:smooth}
       <div class="cover vazia" aria-hidden="true"><span class="ic" data-ic="livro"></span></div>
       <div>
         <strong class="t">Em breve</strong>
-        <span class="by">A turma online começa em dezembro de 2026.</span>
-        <p class="muted em-breve">A primeira leitura do clube online aparece aqui assim que for escolhida.</p>
+        <span class="by">A turma online começa em 5 de dezembro de 2026.</span>
+        <p class="muted em-breve">A primeira leitura será escolhida por votação em dezembro e aparece aqui.</p>
       </div>
     </div>
   </section>
@@ -363,15 +367,28 @@ html{scroll-behavior:smooth}
 
   <section class="panel reveal" id="vagas">
     <p class="eyebrow">Ingresso</p>
-    <h2>Vagas abertas</h2>
-    <div class="status"><i></i>Lista de espera aberta</div>
-    <ul class="acts">
-      <li><span class="ic" data-ic="calendario"></span><div><h3>Quando começa</h3><p>A turma online começa em dezembro de 2026. As novas integrantes presenciais entram em janeiro de 2027.</p></div></li>
-      <li><span class="ic" data-ic="bussola"></span><div><h3>Vagas presenciais</h3><p>Para quem mora em Campo Grande, MS. Os encontros são presenciais. Até 25 integrantes.</p></div></li>
-      <li><span class="ic" data-ic="celular"></span><div><h3>Vagas online</h3><p>Para quem mora em qualquer lugar do Brasil ou do mundo. Os encontros são online.</p></div></li>
-      <li><span class="ic" data-ic="estrela"></span><div><h3>Para mulheres a partir de 18 anos</h3><p>Nas duas turmas.</p></div></li>
-    </ul>
-    <div class="btns"><a class="btn primary" href="lista-de-espera/?m=presencial">Tenho interesse presencial</a><a class="btn primary" href="lista-de-espera/?m=online">Tenho interesse online</a></div>
+    <h2>Inscrições</h2>
+    <div class="turma">
+      <div class="status"><i></i>Online: inscrições abertas</div>
+      <p>A Sociedade Arcádia Online começa em 5 de dezembro de 2026. Para mulheres a partir de 18 anos, de qualquer lugar do Brasil ou do mundo.</p>
+      <ul class="acts">
+        <li><span class="ic" data-ic="presente"></span><div><h3>Mensalidade</h3><p>R$ 30 por mês, desde dezembro de 2026.</p></div></li>
+        <li><span class="ic" data-ic="livro"></span><div><h3>Primeira leitura</h3><p>Será escolhida por votação em dezembro.</p></div></li>
+        <li><span class="ic" data-ic="calendario"></span><div><h3>Encontros</h3><p>Online. Plataforma e horários saem na agenda do clube.</p></div></li>
+      </ul>
+      <div class="btns"><a class="btn primary" href="lista-de-espera/?m=online">Quero fazer parte</a></div>
+    </div>
+    <div class="turma">
+      <div class="status fechada"><i></i>Presencial: turma completa</div>
+      <p>As vagas da turma presencial estão preenchidas. A lista de espera permanece aberta, sem previsão de novas vagas. Comunicaremos a abertura pelos canais oficiais.</p>
+      <ul class="acts">
+        <li><span class="ic" data-ic="presente"></span><div><h3>Mensalidade</h3><p>R$ 30 a partir de janeiro de 2027.</p></div></li>
+        <li><span class="ic" data-ic="bussola"></span><div><h3>Onde</h3><p>Encontros presenciais em Campo Grande, MS.</p></div></li>
+        <li><span class="ic" data-ic="estrela"></span><div><h3>Aguardando vaga presencial?</h3><p>Você pode participar da turma online e pedir a migração quando houver vaga ou ampliação do presencial. A migração não é imediata nem garantida. Ainda não está definido se a sua posição na lista de espera presencial é mantida.</p></div></li>
+      </ul>
+      <div class="btns"><a class="btn cta" href="lista-de-espera/?m=presencial">Entrar na lista de espera</a></div>
+    </div>
+    <p class="nota">Valor, condições de adesão e cancelamento aparecem no formulário, antes de enviar. Prêmios físicos são entregues em endereços no Brasil; o envio para outros países não está garantido.</p>
   </section>
 
   <div class="band reveal" aria-hidden="true">

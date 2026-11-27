@@ -129,6 +129,7 @@ def ajustes(rel, t):
     # turma online: nada presencial e nada copiado do presencial (lista de livros e agenda começam vazias)
     if rel == 'ingresso/index.html':
         # turma online: sem perguntas de encontro presencial
+        t = t.replace('.so-online{display:none!important}\n', '', 1)
         t = t.replace('</head>', '<style>.presencial{display:none!important}</style>\n</head>', 1)
         t = t.replace('placeholder="Campo Grande / MS"', 'placeholder="Cidade / UF"')
     if rel == 'hogwarts/hg.js':
