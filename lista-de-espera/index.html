@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Lista de espera · Sociedade Arcádia</title>
-<meta name="description" content="Lista de espera da Sociedade Arcádia, clube de leitura para mulheres, presencial em Campo Grande, MS, e online. Turma online a partir de dezembro de 2026, presencial a partir de janeiro de 2027.">
+<title>Inscrições e lista de espera · Sociedade Arcádia</title>
+<meta name="description" content="Lista de espera da Sociedade Arcádia, clube de leitura para mulheres, presencial em Campo Grande, MS, e online. Turma online com inscrições abertas, começa em 5 de dezembro de 2026. Turma presencial completa, com lista de espera.">
 <meta name="theme-color" content="#170f33">
-<meta property="og:title" content="Lista de espera · Sociedade Arcádia">
-<meta property="og:description" content="Vagas abertas. Online a partir de dezembro, presencial em Campo Grande, MS, a partir de janeiro.">
+<meta property="og:title" content="Inscrições · Sociedade Arcádia">
+<meta property="og:description" content="Online: inscrições abertas, começa em 5 de dezembro de 2026. Presencial (Campo Grande, MS): turma completa, lista de espera aberta.">
 <meta property="og:image" content="https://sociedadearcadia.com.br/selo-arcadia.png">
 <link rel="icon" type="image/png" href="/selo-arcadia.png">
 <link rel="apple-touch-icon" href="/app-icone-apple.png">
@@ -75,6 +75,10 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
 .burst i{position:absolute;width:14px;height:14px;margin:-7px;background:#ffecfa;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);filter:drop-shadow(0 0 6px #f2a8e0);animation:pop 1.4s ease-out forwards}
 @keyframes pop{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(120deg)}}
 .foot{text-align:center;font-size:12.5px;color:var(--muted)}
+.migra{margin:12px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(214,180,108,.45);background:rgba(23,15,51,.55);font-size:13.5px;color:#e2d6ef}
+.migra b{color:var(--cream)}
+.cond ul{margin:0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:#e2d6ef}
+.cond b{color:var(--cream)}
 .foot a{color:inherit}
 /* Conheça nossas leituras */
 .leituras{border-radius:18px;padding:26px 18px 20px}
@@ -115,20 +119,21 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
   <section class="card">
     <div class="top">
       <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="96" height="96">
-      <p class="lbl">Vagas abertas</p>
-      <h1>Lista de espera</h1>
-      <ul class="facts"><li>Online: dezembro</li><li>Presencial: janeiro</li><li>Mulheres 18+</li><li>Vagas limitadas</li></ul>
+      <p class="lbl" id="tLbl">Inscrições</p>
+      <h1 id="tH1">Faça parte</h1>
+      <ul class="facts" id="tFacts"><li>Online: inscrições abertas</li><li>Presencial: turma completa</li><li>Mulheres 18+</li></ul>
     </div>
 
     <div id="formBox">
-      <p class="intro">Preencha para entrar na lista de espera. Quando abrirmos as vagas, entramos em contato pelo WhatsApp.</p>
+      <p class="intro" id="tIntro">Escolha a turma no formulário abaixo.</p>
+      <div class="migra" id="migra"><b>Aguardando vaga presencial?</b> Você pode participar da turma online e pedir a migração quando houver vaga ou ampliação do presencial. A migração não é imediata nem garantida. Ainda não está definido se a sua posição na lista de espera presencial é mantida.</div>
       <a class="ir" href="#leituras">Conheça nossas leituras ↓</a>
       <form id="f" novalidate>
         <input type="text" id="site" name="site" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
         <fieldset><legend>Modalidade</legend>
         <div class="q"><span class="ql">Em qual turma você tem interesse?</span>
           <div class="chips" data-name="modalidade" data-one>
-            <button type="button" class="chip" data-m="presencial">Presencial (Campo Grande, MS)</button><button type="button" class="chip" data-m="online">Online (Brasil e mundo)</button>
+            <button type="button" class="chip" data-m="online">Online (inscrições abertas)</button><button type="button" class="chip" data-m="presencial">Presencial (turma completa, lista de espera)</button>
           </div>
           <p id="mDica" style="margin:0;color:var(--muted);font-size:13px"></p></div>
         </fieldset>
@@ -188,16 +193,38 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
           </div></div>
         </fieldset>
 
-        <label class="check"><input type="checkbox" id="ok"> Autorizo o contato pelo WhatsApp sobre as vagas do clube.</label>
+        <fieldset class="cond" id="condOn" hidden><legend>Valor e condições</legend>
+          <ul>
+            <li><b>Mensalidade:</b> R$ 30 por mês, desde dezembro de 2026.</li>
+            <li><b>Como entrar:</b> cadastro, aceite destas condições e confirmação do pagamento. O acesso é liberado depois que o pagamento é confirmado.</li>
+            <li><b>Pagamento:</b> cobrança recorrente por plataforma de pagamento. Meios de pagamento, vencimento e renovação são informados na contratação. Atrasos podem ter multa e juros, informados antes, dentro dos limites legais. O acesso pode ser suspenso em caso de falta de pagamento.</li>
+            <li><b>O que não está incluído:</b> a compra dos livros (físicos ou digitais), materiais específicos e atividades extras pagas.</li>
+            <li><b>Cancelamento:</b> a qualquer momento, pelos canais oficiais do clube. As cobranças seguintes param e o acesso vai até o fim do período já pago. Direito de arrependimento de 7 dias, quando aplicável.</li>
+            <li><b>Prêmios físicos:</b> entregues em endereços no Brasil. O envio para outros países não está garantido.</li>
+            <li><b>Encontros:</b> online. Plataforma e horários saem na agenda do clube. A primeira leitura será escolhida por votação em dezembro.</li>
+          </ul>
+        </fieldset>
+        <fieldset class="cond" id="condPres" hidden><legend>Valor e condições</legend>
+          <ul>
+            <li><b>Situação:</b> turma completa. Entrar na lista de espera não garante vaga e não há previsão de novas vagas.</li>
+            <li><b>Mensalidade:</b> R$ 30 a partir de janeiro de 2027, com vencimento no dia 10, sem multa ou juros por atraso.</li>
+            <li><b>O que não está incluído:</b> a compra dos livros, alimentação, ingressos, locações e eventos extras.</li>
+            <li><b>Cancelamento:</b> a qualquer momento, pelos canais oficiais do clube. As cobranças seguintes param e o acesso vai até o fim do período já pago.</li>
+            <li><b>Prêmios físicos:</b> entregues em endereços no Brasil.</li>
+          </ul>
+        </fieldset>
+        <label class="check" id="aceiteL" hidden><input type="checkbox" id="aceite"> Li e aceito o valor e as condições de adesão e cancelamento da turma online.</label>
+        <label class="check"><input type="checkbox" id="ok"> <span id="okT">Autorizo o contato pelo WhatsApp sobre as vagas do clube.</span></label>
         <p class="err" id="err" role="alert"></p>
-        <button type="submit" class="send" id="send">Quero entrar na lista de espera</button>
+        <button type="submit" class="send" id="send">Enviar</button>
       </form>
     </div>
 
     <div class="done" id="done" role="status">
-      <p class="lbl">Inscrição recebida</p>
-      <h2>Seu nome está na lista</h2>
-      <p>Quando abrirmos as vagas de 2027, entramos em contato pelo WhatsApp.</p>
+      <p class="lbl" id="dLbl">Inscrição recebida</p>
+      <h2 id="dH2">Seu nome está na lista</h2>
+      <p id="dP">Recebemos seus dados.</p>
+      <p id="dP2" hidden></p>
       <p>Enquanto isso, acompanhe o clube no <a href="https://www.instagram.com/sociedadearcadia/" target="_blank" rel="noopener">Instagram</a>.</p>
       <p><a href="../">Voltar para o site</a></p>
     </div>
@@ -210,7 +237,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
     <ul class="livros" id="lLista" aria-live="polite"><li class="vazio">Carregando os livros…</li></ul>
     <button type="button" class="mais" id="lMais" hidden>Mostrar mais</button>
   </section>
-  <p class="foot">Seus dados são usados só para contato sobre as vagas do clube.</p>
+  <p class="foot">Seus dados são usados só para contato sobre a sua inscrição e as vagas do clube.</p>
 </main>
 
 <script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
@@ -230,7 +257,22 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
   /* modalidade: presencial (Campo Grande) ou online (Brasil e mundo) */
   const DICA={presencial:'Encontros presenciais em Campo Grande, MS.',online:'Encontros online, para quem mora em qualquer lugar do Brasil ou do mundo.'};
   const modal=()=>{const c=document.querySelector('.chips[data-name="modalidade"] .chip[aria-pressed="true"]');return c?c.dataset.m:''};
+  const TXT={
+    online:{lbl:'Inscrições abertas',h1:'Quero fazer parte',facts:['Online','Começa em 5/12/2026','R$ 30 por mês','Mulheres 18+'],
+      intro:'A Sociedade Arcádia Online começa em 5 de dezembro de 2026. Para mulheres a partir de 18 anos, de qualquer lugar do Brasil ou do mundo. Mensalidade de R$ 30 por mês, desde dezembro de 2026. A primeira leitura será escolhida por votação em dezembro.',
+      ok:'Autorizo o contato pelo WhatsApp sobre a minha inscrição.',btn:'Quero fazer parte',
+      dLbl:'Cadastro recebido',dH2:'Que bom ter você!',dP:'A administração vai falar com você pelo WhatsApp para confirmar a sua entrada e enviar o pagamento. O acesso é liberado depois que o pagamento é confirmado.',
+      dP2:'Plataforma e horários dos encontros saem na agenda do clube. A primeira leitura será escolhida por votação em dezembro.'},
+    presencial:{lbl:'Turma completa',h1:'Lista de espera presencial',facts:['Campo Grande, MS','Turma completa','Lista de espera aberta','Mulheres 18+'],
+      intro:'As vagas da turma presencial estão preenchidas. A lista de espera permanece aberta, sem previsão de novas vagas. Comunicaremos a abertura pelos canais oficiais. Mensalidade de R$ 30 a partir de janeiro de 2027.',
+      ok:'Autorizo o contato pelo WhatsApp sobre as vagas do clube.',btn:'Entrar na lista de espera',
+      dLbl:'Inscrição recebida',dH2:'Seu nome está na lista de espera',dP:'Ainda não há previsão de novas vagas na turma presencial. Comunicaremos a abertura pelos canais oficiais.',
+      dP2:'Enquanto isso, você pode participar da turma online e pedir a migração quando houver vaga ou ampliação do presencial. A migração não é imediata nem garantida.'}};
+  let txt=null;
   function aplicaModal(){const m=modal();$('ondeOn').hidden=m!=='online';$('ondePres').hidden=m==='online';$('mDica').textContent=DICA[m]||'';
+    txt=TXT[m]||null;$('condOn').hidden=m!=='online';$('condPres').hidden=m!=='presencial';$('aceiteL').hidden=m!=='online';
+    if(txt){$('tLbl').textContent=txt.lbl;$('tH1').textContent=txt.h1;$('tIntro').textContent=txt.intro;$('okT').textContent=txt.ok;$('send').textContent=txt.btn;
+      $('tFacts').innerHTML=txt.facts.map(x=>'<li>'+x+'</li>').join('');document.title=txt.h1+' · Sociedade Arcádia'}
     $('zap').placeholder=m==='online'?'DDD e número (fora do Brasil, comece com +)':'(67) 99999-9999'}
   document.querySelector('.chips[data-name="modalidade"]').addEventListener('click',()=>setTimeout(aplicaModal));
   {const m=new URLSearchParams(location.search).get('m');const c=document.querySelector('.chips[data-name="modalidade"] .chip[data-m="'+m+'"]');if(c)c.setAttribute('aria-pressed','true');aplicaModal()}
@@ -249,6 +291,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
     const onde=$('onde').value.trim().replace(/\s+/g,' ');if(md==='online'&&onde.length<2)return bad($('onde'),'Conte onde você mora.');
     for(const [n,msg] of [...(md==='online'?[]:[['cidade','Conte se você mora em Campo Grande.']]),['ritmo','Escolha quantos livros você lê por mês.'],['generos','Marque pelo menos um gênero.'],['clube','Conte se já participou de um clube.'],['origem','Conte como conheceu o clube.']])
       if(!pick(n).length)return bad(chipsEl(n),msg);
+    if(md==='online'&&!$('aceite').checked)return bad($('aceite'),'Marque que leu e aceita o valor e as condições.');
     if(!$('ok').checked)return bad($('ok'),'Marque a autorização de contato pelo WhatsApp.');
     const pad=n=>String(n).padStart(2,'0');
     let ig=$('insta').value.trim();if(ig&&ig[0]!=='@')ig='@'+ig;
@@ -269,8 +312,9 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
   f.addEventListener('submit',async e=>{e.preventDefault();if($('site').value)return;const v=check();if(!v)return;
     const btn=$('send');btn.disabled=true;btn.textContent='Enviando…';
     try{const db=await fb();v.criadoEm=firebase.firestore.FieldValue.serverTimestamp();await db.collection('interessadas').add(v);
+      if(txt){$('dLbl').textContent=txt.dLbl;$('dH2').textContent=txt.dH2;$('dP').textContent=txt.dP;$('dP2').textContent=txt.dP2;$('dP2').hidden=false}
       $('formBox').hidden=true;$('done').classList.add('on');celebrate();scrollTo({top:0,behavior:'smooth'})}
-    catch(x){console.warn(x);btn.disabled=false;btn.textContent='Quero entrar na lista de espera';err.textContent='Não foi possível enviar agora. Confira sua internet e tente de novo.'}});
+    catch(x){console.warn(x);btn.disabled=false;btn.textContent=txt?txt.btn:'Enviar';err.textContent='Não foi possível enviar agora. Confira sua internet e tente de novo.'}});
 })();
 </script>
 <script>
