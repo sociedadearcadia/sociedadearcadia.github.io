@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Salão Principal de Hogwarts · Sociedade Arcádia</title>
+<meta name="theme-color" content="#0b1730">
+<link rel="icon" type="image/png" href="/online/hogwarts/img/icone-64.png">
+<link rel="apple-touch-icon" href="/online/hogwarts/img/icone-180.png">
+<link rel="manifest" href="/online/hogwarts/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Hogwarts">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="/online/hogwarts/hg.css">
+<style>
+.banner{width:100%;aspect-ratio:1122/700;border-radius:14px;background:url("/online/hogwarts/img/trio-largo.webp") center 55%/cover;border:1px solid var(--linha)}
+.boas p+p{margin-top:10px}
+.quem{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font:600 15px var(--ui);color:var(--suave)}
+.quem .hg-ic{width:22px;height:22px}
+.quem button{background:none;border:0;color:var(--suave);text-decoration:underline;cursor:pointer;font:600 13px var(--ui)}
+.brasao{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:4px}
+.brasao .dica{font:600 12px var(--ui);color:var(--suave);letter-spacing:.04em}
+.casas4{display:flex;justify-content:center;gap:6px}.casas4 .hg-escudo{width:58px;height:58px}
+.lembrete{display:flex;gap:12px;align-items:flex-start}
+.lembrete .hg-ic{width:34px;height:34px;flex:none;color:#7a4a12}
+</style>
+</head>
+<body>
+<div class="hg-fundo" aria-hidden="true"></div>
+<main class="hg-wrap">
+  <a class="hg-voltar" href="/online/integrantes/">← Área das integrantes</a>
+  <section class="hg-painel hg-form">
+    <div class="hg-topo">
+      <p class="hg-lbl">LC Especial de Natal 2026</p>
+      <h1>Salão Principal de Hogwarts</h1>
+      <p class="hg-sub">Harry Potter e a Pedra Filosofal — LC Especial de Natal</p>
+    </div>
+    <div class="banner" role="img" aria-label="Ilustração: Harry, Rony e Hermione lendo um livro, com Hogwarts nevando ao fundo"></div>
+    <div class="brasao" id="brasao"></div>
+    <p class="quem" id="quem">Carregando…</p>
+  </section>
+  <section class="hg-perg boas" id="boas" hidden>
+    <h2 style="margin-bottom:8px">Bem-vindas ao Salão Principal!</h2>
+    <p>Nossa última LC especial de 2026 tem algumas surpresas além das páginas do livro. Aqui vocês encontram as missões, os sprints e as atividades preparadas para essa viagem.</p>
+  </section>
+  <div class="hg-cards" id="cards" hidden></div>
+</main>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script src="/online/hogwarts/hg.js"></script>
+<script>
+(async()=>{
+  const {$,esc,icone,casaIc,CASAS,janela,fmtD}=HG;HG.neve();HG.velas();HG.magia({varinha:true,vassoura:true});
+  let ctx;try{ctx=await HG.entrar()}catch(e){$('quem').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+  const quem=()=>{$('quem').innerHTML=(ctx.casa?casaIc(ctx.casa):'')+'<span>'+esc(ctx.nome)+(ctx.casa?' · '+CASAS[ctx.casa].n:'')+'</span><button type="button" id="sair">Não é você? Sair</button>';
+    $('sair').onclick=()=>{if(confirm('Sair do Salão neste aparelho? Para voltar, você vai digitar a senha e o seu código de novo.'))HG.sair()}};quem();
+  if(ctx.casa){HG.brasao3d($('brasao'),ctx.casa,{tam:Math.min(220,Math.round(innerWidth*.52))});$('brasao').insertAdjacentHTML('beforeend','<span class="dica">Toque no brasão para girar</span>')}
+  else $('brasao').innerHTML='<div class="casas4">'+Object.keys(CASAS).map(k=>HG.casaEscudo(k)).join('')+'</div><span class="dica">Informe sua casa no Chapéu Seletor para ver o seu brasão</span>';
+  const D=ctx.datas,db=ctx.db,pid=ctx.pid;
+  /* o que cada uma já fez */
+  const pega=p=>p.then(d=>d&&d.exists?d.data():null).catch(()=>null);
+  const [qOf,qCfg,sort,esp,carta,cor,...prog]=await Promise.all([pega(db.collection('hgQuestionario').doc('oficial').collection('respostas').doc(pid).get()),pega(db.collection('hgConfig').doc('questionario').get()),pega(db.collection('hgSorteio').doc(pid).get()),pega(db.collection('hgEspelho').doc(pid).get()),
+    pega(db.collection('hgCartas').doc(pid).get()),pega(db.collection('hgCoruja').doc(pid).get()),
+    ...['r1','r2','r3','r4','protecoes'].map(r=>pega(db.collection('hgProgresso').doc(pid+'_'+r).get()))]);
+  const feitas=prog.filter((p,i)=>p&&p.feito&&i<4).length,proFeito=prog[4]&&prog[4].feito,comecou=prog.some(p=>p);
+  const CARDS=[
+    {ic:'chapeu',t:'Chapéu Seletor — Missão de Hogwarts',d:'O Chapéu Seletor tem uma missão para você! Informe sua casa e descubra qual personagem deverá acompanhar durante a leitura.',
+      u:'/online/hogwarts/chapeu/',j:janela(D,'chapeu'),rot:sort?'Ver minha missão':'Participar',st:sort?['Concluído','ok']:null},
+    {ic:'livro',t:'Biblioteca de Hogwarts — Sprints',d:'Um espaço para ler na companhia das outras integrantes. Participe dos sprints coletivos ou comece uma sessão individual, no seu ritmo.',
+      u:'/online/hogwarts/biblioteca/',j:janela(D,'biblioteca'),rot:'Entrar na Biblioteca'},
+    {ic:'chave',t:'Primeiros Mistérios de Hogwarts',d:'Os mistérios de Hogwarts serão revelados aos poucos, acompanhando nosso cronograma de leitura. Escolha sua etapa e descubra o que lembra dos capítulos!',
+      u:'/online/hogwarts/misterios/',j:(()=>{const a=janela(D,'r1','misteriosFim');return a.antes?{aberta:true}:a})(),rot:comecou?'Continuar':'Participar',
+      st:feitas===4&&proFeito?['Concluído','ok']:feitas?[feitas+' de 4 rodadas'+(proFeito?' + aventura':''),'ok']:null},
+    {ic:'espelho',t:'Espelho de Ojesed — Memórias da Arcádia',d:'Uma oportunidade para guardar uma lembrança de 2026 e compartilhar o que desejamos para a próxima fase do clube.',
+      u:'/online/hogwarts/espelho/',j:janela(D,'espelho','espelhoFim'),rot:esp?'Ver ou editar':'Participar',st:esp?['Concluído','ok']:null},
+    {ic:'coruja',t:'Correio-Coruja — Cartas à Nova Hogwarts',d:'Antes da estreia da nova série, escreva suas expectativas. Depois do primeiro episódio, volte para contar o que achou!',
+      u:'/online/hogwarts/correio/',j:(()=>{const a=janela(D,'correio','correioFim'),b=D.coruja?janela(D,'coruja','corujaFim'):{antes:true};return a.antes?a:(b.aberta||a.aberta)?{aberta:true}:a})(),
+      rot:cor?'Continuar':carta?'Ver minha carta':'Participar',st:cor?['Concluído','ok']:carta?['Carta enviada','ok']:null},
+    {ic:'pergaminho',t:'Cerimônia de Encerramento — Questionário Oficial',d:'Concluiu Harry Potter e a Pedra Filosofal? Registre suas impressões sobre a história antes de encerrarmos nosso primeiro ano em Hogwarts! Prazo: '+HG.fmtDH(D.questionarioFim)+'.',
+      u:'/online/hogwarts/questionario/',j:(()=>{const a=janela(D,'questionario','questionarioFim');return a.antes&&((qCfg&&qCfg.liberadas)||[]).includes(pid)?{aberta:true}:a})(),antesTxt:'Após a leitura · '+fmtD(D.questionario),rot:qOf?'Ver':'Iniciar cerimônia',st:qOf?['Concluído','ok']:null}];
+  $('cards').innerHTML=CARDS.map(c=>{const j=c.j,bloq=!j.aberta&&!(j.fim&&c.st);
+    const tag=j.antes?`<span class="hg-tag">${esc(c.antesTxt||j.txt)}</span>`:j.fim?`<span class="hg-tag fim">Encerrado</span>`:c.st?`<span class="hg-tag ${c.st[1]}">${esc(c.st[0])}</span>`:`<span class="hg-tag">Aberto</span>`;
+    const bt=j.antes?`<span class="hg-btn peq" aria-disabled="true" style="opacity:.55">${icone('cadeado')} Em breve</span>`:`<a class="hg-btn peq" href="${c.u}">${esc(j.fim?'Ver':c.rot)}</a>`;
+    return `<article class="hg-card${bloq?' bloq':''}"><div class="cab"><span class="selo">${icone(c.ic)}</span><h3>${esc(c.t)}</h3></div><p>${esc(c.d)}</p><div class="pe">${tag}${bt}</div></article>`}).join('');
+  $('boas').hidden=false;$('cards').hidden=false;
+})();
+</script>
+</body>
+</html>

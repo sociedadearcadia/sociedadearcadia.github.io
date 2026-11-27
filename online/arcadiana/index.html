@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Arcadiana do Ano · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="/online/livros/livros.css">
+<link rel="stylesheet" href="arcadiana.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/">← Sociedade Arcádia</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Ranking anual</p>
+      <h1 id="titulo">Arcadiana do Ano</h1>
+    </div>
+    <div class="ano" id="anoBox" hidden><label for="anoSel" class="muted small" style="font-weight:600">Ano</label><select id="anoSel"></select></div>
+    <ul class="regras">
+      <li><span class="p">10</span><span>Concluir o Livro do Mês e responder a avaliação</span></li>
+      <li><span class="p">5</span><span>Presença no encontro oficial do Livro do Mês</span></li>
+      <li><span class="p">+</span><span>Pontos extras<small>Sprints especiais, Bingo, Tribunal e outras atividades, lançados pela administração.</small></span></li>
+    </ul>
+    <details class="como">
+      <summary>Como funciona</summary>
+      <p class="nota-r">Contam presença os encontros oficiais do Livro do Mês, incluindo o encontro natalino de dezembro. Encontros extras, oficinas e LCs não contam pontos de presença.</p>
+      <p class="nota-r">Os pontos do Livro do Mês entram quando você responde o questionário do mês. Não tem nota mínima. A presença é marcada pela administração depois do encontro.</p>
+      <p class="nota-r"><b>Desempate, nesta ordem:</b> mais Livros do Mês concluídos, mais encontros oficiais frequentados e, por último, sorteio.</p>
+    </details>
+  </section>
+
+  <section class="panel">
+    <p class="lbl">Seus pontos</p>
+    <h2 id="euT">Quem é você?</h2>
+    <label style="margin-bottom:12px">Seu nome<select id="nome"><option value="">Escolha seu nome</option></select></label>
+    <div class="eu" id="eu"><p class="muted small" style="margin:0">Carregando…</p></div>
+  </section>
+
+  <section class="panel">
+    <p class="lbl">Classificação</p>
+    <h2 id="rankT">Ranking</h2>
+    <ol class="rank" id="rank"><li class="muted small" style="border:0;background:none">Carregando…</li></ol>
+  </section>
+
+  <p class="foot"><a href="/online/leitura/questionario/">Questionário do mês</a> · <a href="/online/agenda/">Agenda</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const A=window.ARCADIANA,{esc,slug}=A;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  const COROA='<svg class="coroa" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>';
+
+  /* nome de quem está usando este aparelho (o mesmo das outras páginas) */
+  let eu=(()=>{const l=LS.get('arcadianaNome','')||LS.get('ideiasNome','')||LS.get('livrosNome','')||LS.get('agendaNome','')||LS.get('leituraNome','')||((LS.get('me',null)||{}).name||'');return MEMBROS.find(n=>slug(n)===slug(l))||''})();
+  $('nome').insertAdjacentHTML('beforeend',MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join(''));
+  $('nome').onchange=e=>{eu=e.target.value;LS.set('arcadianaNome',eu);desenhar()};
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const V='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);$('eu').innerHTML='<p class="muted" style="margin:0">Sem conexão agora. Verifique a internet e recarregue a página.</p>';$('rank').innerHTML='';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* ---------- dados ---------- */
+  const anoAtual=new Date().getFullYear();
+  let ano=anoAtual,offP=null,offS=null,pts=[],sorteio=[],anos=new Set([anoAtual]);
+  function ouvir(){
+    if(offP)offP();if(offS)offS();pts=[];sorteio=[];
+    offP=db.collection('pontos').where('ano','==',ano).onSnapshot(s=>{pts=s.docs.map(d=>Object.assign({_id:d.id},d.data()));desenhar()},
+      e=>{console.warn(e);$('rank').innerHTML='<li class="muted small" style="border:0;background:none">Não foi possível ler o ranking agora.</li>'});
+    offS=db.collection('arcadiana').doc(String(ano)).onSnapshot(d=>{sorteio=(d.exists&&d.data().sorteio)||[];desenhar()},e=>console.warn(e));
+  }
+  /* anos anteriores (para quem quiser ver) */
+  db.collection('arcadiana').get().then(s=>{s.docs.forEach(d=>{const n=+d.id;if(n>2000&&n<=anoAtual)anos.add(n)});
+    if(anos.size>1){$('anoSel').innerHTML=[...anos].sort((a,b)=>b-a).map(n=>'<option'+(n===ano?' selected':'')+'>'+n+'</option>').join('');$('anoBox').hidden=false}}).catch(()=>{});
+  $('anoSel').onchange=e=>{ano=+e.target.value;ouvir()};
+  ouvir();
+
+  /* ---------- desenho ---------- */
+  function desenhar(){
+    $('titulo').textContent='Arcadiana do Ano '+ano;
+    const arr=A.ranking(pts,MEMBROS,sorteio);
+    const algum=arr.some(r=>r.total>0);
+    $('rankT').textContent=ano===anoAtual?'Ranking de '+ano:'Ranking final de '+ano;
+    $('rank').innerHTML=!algum?'<li class="semnada" style="display:block">Ainda não há pontos lançados em '+ano+'.</li>':
+      arr.map(r=>{const z=r.total===0;
+        const det=[r.livros?(r.livros===1?'1 livro':r.livros+' livros'):'',r.presencas?(r.presencas===1?'1 encontro':r.presencas+' encontros'):'',r.extras?r.extras+' extras':''].filter(Boolean).join(' · ');
+        const por=r.porque?A.DESEMPATE[r.porque]:(r.empate?'empate':'');
+        return '<li class="'+(z?'zero':(r.pos<=3?'p'+r.pos:''))+(r.nome===eu?' me':'')+'">'+
+          '<span class="pos">'+(z?'–':r.pos+'º')+'</span>'+
+          '<span class="n">'+(r.pos===1&&!z?COROA:'')+esc(r.nome)+(det||por?'<small>'+esc([det,por].filter(Boolean).join(' · '))+'</small>':'')+'</span>'+
+          '<span class="v">'+r.total+'<small>pts</small></span></li>'}).join('');
+    if(!eu){$('euT').textContent='Quem é você?';$('eu').innerHTML='<p class="muted small" style="margin:0">Escolha seu nome para ver seus pontos e o histórico.</p>';return}
+    const r=arr.find(x=>x.nome===eu)||{total:0,livros:0,presencas:0,extras:0,itens:[]};
+    $('euT').textContent=eu;
+    $('eu').innerHTML='<div class="tot"><b>'+r.total+' <small style="font-size:16px">pts</small></b><span>'+(r.total>0?r.pos+'º lugar'+(r.empate?' (empatada)':''):'Sem pontos ainda')+'</span></div>'+
+      '<div class="resumo"><div><b>'+r.livros+'</b><span>Livros do Mês</span></div><div><b>'+r.presencas+'</b><span>Encontros oficiais</span></div><div><b>'+r.extras+'</b><span>Pontos extras</span></div></div>'+
+      '<p class="lbl" style="margin-top:4px">Histórico</p>'+
+      (r.itens.length?'<ul class="hpts">'+r.itens.map(p=>'<li><span class="d">'+A.dataCurta(p.data)+'</span><span class="t">'+esc(p.desc||A.TIPOS[p.tipo]||'')+'<small>'+esc(A.TIPOS[p.tipo]||'')+'</small></span><span class="p">+'+p.pts+'</span></li>').join('')+'</ul>'
+        :'<p class="semnada">Nenhum ponto lançado para você em '+ano+'.</p>');
+  }
+  desenhar();
+})();
+</script>
+</body>
+</html>

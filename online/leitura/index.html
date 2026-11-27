@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Atualização de leitura · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="leitura.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/">← Sociedade Arcádia</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl" id="mes">Livro do mês</p>
+      <h1>Atualização de leitura</h1>
+    </div>
+    <div class="book" id="book" hidden>
+      <img class="cover" id="cover" alt="" hidden>
+      <div><h2 id="titulo"></h2><p class="muted" id="autor"></p></div>
+    </div>
+    <p class="muted" id="semLivro" style="text-align:center;margin:14px 0 0">Carregando…</p>
+    <div id="media" hidden>
+      <div class="avg"><span class="muted">Média do grupo</span><b id="mediaV">0%</b></div>
+      <div class="bar"><i id="mediaB" style="width:0"></i></div>
+      <p class="muted small" id="mediaN" style="margin:6px 0 0"></p>
+      <a class="btn ghost wide" href="questionario/" style="margin-top:16px">Questionário de leitura do mês</a>
+      <a class="btn ghost wide" href="/online/estante/" style="margin-top:10px">★ Estante do clube: dê a sua nota</a>
+    </div>
+  </section>
+
+  <section class="panel" id="minha" hidden>
+    <p class="lbl">Sua leitura</p>
+    <h2>Quanto você já leu?</h2>
+    <form class="form" id="f">
+      <label>Seu nome
+        <select id="nome" required><option value="">Escolha seu nome</option></select>
+      </label>
+      <div class="field">Porcentagem lida
+        <div class="pct">
+          <button type="button" class="step" id="menos" aria-label="Diminuir 1%">−</button>
+          <input type="range" id="pct" min="0" max="100" step="1" value="0" aria-label="Porcentagem lida">
+          <button type="button" class="step" id="mais" aria-label="Aumentar 1%">+</button>
+          <output id="pctV" for="pct">0%</output>
+        </div>
+        <div class="quick" id="quick"><button type="button" data-v="0">0%</button><button type="button" data-v="25">25%</button><button type="button" data-v="50">50%</button><button type="button" data-v="75">75%</button><button type="button" data-v="100">Terminei</button></div>
+      </div>
+      <button class="btn wide" id="salvar" type="submit">Salvar minha leitura</button>
+      <button class="btn ghost wide" id="stories" type="button">✦ Gerar imagem para os stories</button>
+    </form>
+  </section>
+
+  <section class="panel" id="grupo" hidden>
+    <p class="lbl">Como está o grupo</p>
+    <h2>Leitura de cada integrante</h2>
+    <ul class="people" id="people"></ul>
+    <div class="row" style="margin-top:18px">
+      <button class="btn" id="copiar" type="button">Copiar listinha</button>
+      <a class="btn ghost" id="zap" href="#" target="_blank" rel="noopener">Mandar no WhatsApp</a>
+    </div>
+  </section>
+
+  <section class="panel" id="anteriores" hidden>
+    <p class="lbl">Meses anteriores</p>
+    <div id="histList"></div>
+  </section>
+
+  <p class="foot"><a href="questionario/">Questionário</a> · <a href="/online/agenda/">Agenda</a> · <a href="/online/sprint/">Sprint de leitura</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="/online/artes/montar/video.js"></script>
+<script src="stories.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+  const quando=ts=>{if(!ts||!ts.toDate)return'';const d=ts.toDate(),h=new Date();const dd=Math.round((new Date(h.toDateString())-new Date(d.toDateString()))/864e5);
+    return dd<=0?'hoje':dd===1?'ontem':d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})};
+
+  /* nomes */
+  const sel=$('nome');MEMBROS.forEach(n=>sel.insertAdjacentHTML('beforeend','<option>'+esc(n)+'</option>'));
+  const lembrado=LS.get('leituraNome','')||((LS.get('me',null)||{}).name||'');
+  const achado=MEMBROS.find(n=>slug(n)===slug(lembrado));if(achado)sel.value=achado;
+
+  /* controle da porcentagem */
+  const r=$('pct');
+  function setPct(v){v=Math.max(0,Math.min(100,Math.round(+v||0)));r.value=v;r.style.setProperty('--v',v+'%');$('pctV').textContent=v+'%'}
+  let mexeu=false;
+  r.addEventListener('input',()=>{mexeu=true;setPct(r.value)});
+  $('menos').onclick=()=>{mexeu=true;setPct(+r.value-1)};$('mais').onclick=()=>{mexeu=true;setPct(+r.value+1)};
+  $('quick').onclick=e=>{const b=e.target.closest('button');if(b){mexeu=true;setPct(b.dataset.v)}};
+  setPct(0);
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const V='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);$('semLivro').textContent='Sem conexão agora. Verifique a internet e recarregue a página.';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* livro do mês */
+  let livro=null,prog={},offProg=null,hist=[];
+  db.collection('leituras').orderBy('inicio','desc').limit(13).onSnapshot(s=>{
+    const docs=s.docs.map(d=>Object.assign({_id:d.id},d.data()));
+    const novo=docs[0]||null;hist=docs.slice(1);
+    if(!novo){livro=null;$('semLivro').textContent='O livro do mês ainda não foi definido.';$('semLivro').hidden=false;$('book').hidden=true;$('media').hidden=true;$('minha').hidden=true;$('grupo').hidden=true}
+    else{
+      if(!livro||livro._id!==novo._id){if(offProg)offProg();prog={};
+        offProg=db.collection('leituras').doc(novo._id).collection('progresso').onSnapshot(p=>{prog={};p.docs.forEach(d=>prog[d.id]=d.data());if(!mexeu&&sel.value){const q=prog[slug(sel.value)];setPct(q?q.pct:0)}render()},e=>console.warn(e))}
+      livro=novo;$('semLivro').hidden=true;$('book').hidden=false;$('minha').hidden=false;$('grupo').hidden=false;$('media').hidden=false;
+      $('mes').textContent='Livro do mês'+(livro.mes?' · '+livro.mes:'');
+      $('titulo').textContent=livro.titulo||'';$('autor').textContent=livro.autor||'';
+      if(livro.capa){$('cover').src=livro.capa;$('cover').alt='Capa de '+(livro.titulo||'');$('cover').hidden=false}else $('cover').hidden=true;
+      render()}
+    $('anteriores').hidden=!hist.length;renderHist();
+  },e=>{console.warn(e);$('semLivro').textContent='Não foi possível carregar agora. Tente recarregar a página.'});
+
+  sel.addEventListener('change',()=>{mexeu=false;const p=prog[slug(sel.value)];setPct(p?p.pct:0);render()});
+
+  function linhas(){return MEMBROS.map(n=>({n,p:prog[slug(n)]||null}))}
+  function render(){if(!livro)return;
+    const ls=linhas(),feitas=ls.filter(x=>x.p);
+    const media=feitas.length?Math.round(feitas.reduce((a,x)=>a+x.p.pct,0)/feitas.length):0;
+    $('mediaV').textContent=media+'%';$('mediaB').style.width=media+'%';
+    const fim=feitas.filter(x=>x.p.pct>=100).length;
+    $('mediaN').textContent=feitas.length+' de '+MEMBROS.length+' atualizaram'+(fim?' · '+fim+(fim>1?' terminaram':' terminou'):'');
+    const eu=slug(sel.value);
+    const ord=ls.slice().sort((a,b)=>(b.p?b.p.pct:-1)-(a.p?a.p.pct:-1));
+    $('people').innerHTML=ord.map(x=>{const v=x.p?x.p.pct:0;
+      return '<li class="'+(x.p?'':'none ')+(slug(x.n)===eu?'me':'')+'"><span class="n">'+esc(x.n)+(x.p?'<span class="w">'+quando(x.p.em)+'</span>':'')+'</span><span class="v">'+(x.p?v+'%'+(v>=100?' ✓':''):'—')+'</span><div class="bar"><i style="width:'+v+'%"></i></div></li>'}).join('');
+    $('zap').href='https://wa.me/?text='+encodeURIComponent(texto())}
+  function texto(){
+    const t=['📚 Atualização de leitura'+(livro.mes?' · '+livro.mes:''),(livro.titulo||'')+(livro.autor?' · '+livro.autor:''),''];
+    linhas().forEach(x=>t.push(x.n+': '+(x.p?x.p.pct+'%'+(x.p.pct>=100?' ✅':''):'')));
+    t.push('','Atualize em sociedadearcadia.com.br/online/leitura');return t.join('\n')}
+  async function copiar(s){try{await navigator.clipboard.writeText(s);return true}catch(e){
+    const ta=document.createElement('textarea');ta.value=s;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,s.length);
+    let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();return ok}}
+  $('copiar').onclick=async()=>{if(!livro)return;toast(await copiar(texto())?'Listinha copiada. É só colar no grupo.':'Não consegui copiar. Use o botão do WhatsApp.')};
+
+  $('stories').onclick=()=>{if(!livro)return;if(!sel.value){toast('Escolha seu nome primeiro');sel.focus();return}
+    window.LeituraStories.abrir({nome:sel.value,pct:+r.value,capa:livro.capa||'',titulo:livro.titulo||'',autor:livro.autor||''})};
+  $('f').onsubmit=async ev=>{ev.preventDefault();if(!livro)return;
+    if(!sel.value){toast('Escolha seu nome primeiro');sel.focus();return}
+    const b=$('salvar');b.disabled=true;
+    try{await db.collection('leituras').doc(livro._id).collection('progresso').doc(slug(sel.value)).set({nome:sel.value,pct:+r.value,em:firebase.firestore.FieldValue.serverTimestamp()});
+      LS.set('leituraNome',sel.value);toast(+r.value>=100?'Parabéns por terminar! ✨':'Leitura salva')}
+    catch(e){console.warn(e);toast('Não foi possível salvar. Tente de novo.')}
+    b.disabled=false};
+
+  /* meses anteriores */
+  const abertos={};
+  function renderHist(){$('histList').innerHTML=hist.map(h=>'<details data-id="'+esc(h._id)+'"><summary>'+esc(h.mes||'')+' · '+esc(h.titulo||'')+'</summary><div class="hist" id="h-'+esc(h._id)+'"><p class="muted small">Carregando…</p></div></details>').join('');
+    $('histList').querySelectorAll('details').forEach(d=>d.addEventListener('toggle',async()=>{if(!d.open)return;const id=d.dataset.id,box=$('h-'+id);
+      try{if(!abertos[id]){const s=await db.collection('leituras').doc(id).collection('progresso').get();abertos[id]={};s.docs.forEach(x=>abertos[id][x.id]=x.data())}
+        const ps=abertos[id],ls=MEMBROS.map(n=>({n,p:ps[slug(n)]})).filter(x=>x.p).sort((a,b)=>b.p.pct-a.p.pct);
+        const m=ls.length?Math.round(ls.reduce((a,x)=>a+x.p.pct,0)/ls.length):0;
+        box.innerHTML='<p class="muted small" style="margin:0">Média final '+m+'% · '+ls.length+' atualizaram</p><ul class="people">'+ls.map(x=>'<li><span class="n">'+esc(x.n)+'</span><span class="v">'+x.p.pct+'%</span><div class="bar"><i style="width:'+x.p.pct+'%"></i></div></li>').join('')+'</ul>'}
+      catch(e){box.innerHTML='<p class="muted small">Não foi possível carregar.</p>'}}))}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+/* Código da Sociedade Arcádia (usa /online/leitura/leitura.css) */
+.capa-cod{text-align:center}
+.capa-cod .ed{margin:6px 0 0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.capa-cod .sub{margin:10px auto 0;max-width:34ch;font:italic 500 17px/1.45 var(--display);color:var(--cream)}
+.intro-cod{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);text-align:left}
+.indice{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.indice a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(23,15,51,.55);color:var(--cream);text-decoration:none;font-size:13.5px}
+.indice a b{font:600 12px var(--body);color:var(--gold)}
+.indice a:active{background:rgba(214,180,108,.15)}
+.busca-cod{margin:14px 0 0;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(15,8,32,.55);color:var(--cream);font:16px var(--body)}
+.sec{scroll-margin-top:16px}
+.sec .cab-s{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sec .nr{font:500 30px/1 var(--display);color:var(--gold);text-shadow:0 0 14px rgba(214,180,108,.35)}
+.sec h2{margin:0;font-size:22px;line-height:1.2}
+.corpo p{margin:10px 0 0;font-size:15.5px;line-height:1.6}
+.corpo h3{margin:18px 0 0;font:600 16px var(--display);color:var(--lilac)}
+.corpo .cl{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.corpo .cl li{position:relative;padding-left:22px;font-size:15.5px;line-height:1.55}
+.corpo .cl li::before{content:'✦';position:absolute;left:0;top:1px;color:var(--gold);font-size:12px}
+.corpo .dest{padding:12px 14px;border-radius:12px;border:1px solid rgba(214,180,108,.45);background:rgba(214,180,108,.08);color:var(--cream)}
+.corpo .fecho{margin-top:18px;text-align:center;font:italic 500 18px/1.5 var(--display);color:var(--gold)}
+.corpo .tb{margin-top:12px;overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
+.corpo table{width:100%;border-collapse:collapse;font-size:14.5px}
+.corpo th{text-align:left;padding:10px 12px;font:600 11.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);background:rgba(214,180,108,.08);border-bottom:1px solid var(--line)}
+.corpo td{padding:10px 12px;vertical-align:top;border-top:1px solid rgba(200,182,240,.12);line-height:1.45}
+.corpo td:first-child{font-weight:600;color:var(--cream);width:40%}
+.topo-link{display:inline-block;margin-top:14px;font-size:13px;color:var(--lilac)}
+.nada-cod{text-align:center}
+[hidden]{display:none!important}
+.adm-ta{min-height:360px;font:14px/1.5 ui-monospace,Menlo,monospace}
+.ajuda-fmt{margin:10px 0 0;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(15,8,32,.5);font-size:13px;line-height:1.6}
+.ajuda-fmt code{color:var(--gold)}

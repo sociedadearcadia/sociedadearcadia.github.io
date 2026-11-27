@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Votação do livro do mês · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="/online/livros/livros.css">
+<link rel="stylesheet" href="votacao.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/">← Sociedade Arcádia</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Leitura oficial</p>
+      <h1>Votação do livro do mês</h1>
+    </div>
+    <div class="aviso">
+      <p>Cada integrante vota <b>uma vez</b>, no próprio nome.</p>
+      <p>O resultado não aparece aqui. O livro vencedor é revelado no encontro.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="box"><p class="muted" style="margin:0">Carregando…</p></section>
+
+  <p class="foot"><a href="/online/agenda/">Agenda</a> · <a href="/online/livros/">Livros sugeridos</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="/online/livros/comum.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const L=window.LIVROS,{esc,slug}=L,V=window.VOTACAO;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  const box=$('box');
+  const OK='<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.6L16.5 9"/></svg>';
+
+  /* nome de quem está usando este aparelho (o mesmo das outras páginas) */
+  let eu=(()=>{const l=LS.get('votacaoNome','')||LS.get('leituraNome','')||LS.get('livrosNome','')||LS.get('agendaNome','')||LS.get('ideiasNome','')||((LS.get('me',null)||{}).name||'');return MEMBROS.find(n=>slug(n)===slug(l))||''})();
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const FB='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);box.innerHTML='<p class="muted" style="margin:0">Sem conexão agora. Verifique a internet e recarregue a página.</p>';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* ---------- dados ---------- */
+  let votacoes=[],proxEncontro='',meuVoto=null,outroAparelho=false,checando=0,escolha=null,carregou=false;
+  db.collection('votacoes').onSnapshot(s=>{votacoes=s.docs.map(d=>Object.assign({_id:d.id},d.data()));carregou=true;atual(true)},
+    e=>{console.warn(e);box.innerHTML='<p class="muted" style="margin:0">Não foi possível carregar agora. Tente recarregar a página.</p>'});
+  /* próximo encontro do livro do mês, pela agenda */
+  db.collection('eventos').where('data','>=',L.hojeISO()).onSnapshot(s=>{
+    const evs=s.docs.map(d=>d.data()).filter(e=>e.tema==='livro').sort((a,b)=>a.data<b.data?-1:1);
+    proxEncontro=evs.length?evs[0].data:'';render()},e=>console.warn(e));
+
+  let vAtual=null;
+  function escolher(){
+    const agora=Date.now();
+    const aberta=votacoes.filter(v=>V.situacao(v,agora)==='aberta').sort((a,b)=>V.ms(b.abreEm)-V.ms(a.abreEm))[0];
+    if(aberta)return aberta;
+    const futura=votacoes.filter(v=>V.situacao(v,agora)==='antes').sort((a,b)=>V.ms(a.abreEm)-V.ms(b.abreEm))[0];
+    return futura||null}
+  function atual(mudou){
+    const v=escolher();
+    if(!v||!vAtual||v._id!==vAtual._id){vAtual=v;meuVoto=null;outroAparelho=false;escolha=null;checar();return}
+    vAtual=v;if(mudou)render()}
+  /* a situação muda com o relógio (abre e fecha sozinha) */
+  setInterval(()=>atual(true),30000);
+
+  const ref=()=>db.collection('votacoes').doc(vAtual._id).collection('votos').doc(slug(eu));
+  async function checar(){
+    meuVoto=null;outroAparelho=false;
+    if(!vAtual||V.situacao(vAtual)!=='aberta'||!eu){render();return}
+    const n=++checando;render();
+    try{const d=await ref().get();if(n!==checando)return;if(d.exists)meuVoto=d.data()}
+    catch(e){if(n!==checando)return;if(e.code==='permission-denied')outroAparelho=true;else console.warn(e)}
+    render()}
+
+  /* ---------- tela ---------- */
+  function fechada(msg){
+    const enc=(vAtual&&vAtual.encontro)||proxEncontro;
+    box.innerHTML='<p class="lbl">Votação</p><h2>Votação fechada</h2>'+
+      '<div class="fechado">'+L.icon('cadeado')+'<div><p>'+msg+'</p></div></div>'+
+      '<div class="encontro"><p class="lbl">Próximo encontro</p><p class="q">'+(enc?esc(V.dataLonga(enc)):'Data ainda não marcada')+'</p>'+
+      (enc?'':'<p class="muted small">A data aparece aqui assim que entrar na <a href="/online/agenda/" style="color:inherit">agenda</a>.</p>')+'</div>'}
+
+  function render(){
+    if(!carregou)return;
+    const v=vAtual;
+    if(!v)return fechada('No momento não há votação aberta. Ela abre na semana do encontro.');
+    const sit=V.situacao(v);
+    if(sit==='antes')return fechada('A votação abre em <b>'+esc(V.dataCurta(v.abre))+'</b> e vai até <b>'+esc(V.dataCurta(v.fecha))+'</b>.');
+    if(sit!=='aberta')return fechada('No momento não há votação aberta. Ela abre na semana do encontro.');
+    const ops=v.opcoes||[];
+    let h='<p class="lbl">'+esc(v.titulo||'Livro do mês')+'</p><h2>Escolha o livro</h2>'+
+      '<span class="prazo">Aberta até '+esc(V.dataCurta(v.fecha))+'</span>'+
+      '<div class="form">'+
+      '<label>Seu nome<select id="nome"><option value="">Escolha seu nome</option>'+MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label>';
+    if(eu&&meuVoto){const o=ops[meuVoto.opcao]||{};
+      h+='<div class="votou">'+OK+'<div><p><b>Voto registrado, '+esc(meuVoto.nome)+'!</b></p><p>Você votou em <b>'+esc(o.titulo||'')+'</b>. O vencedor é revelado no encontro.</p></div></div>'}
+    else if(eu&&outroAparelho){
+      h+='<div class="fechado">'+L.icon('cadeado')+'<div><p>Já existe um voto com o nome <b>'+esc(eu)+'</b>. Cada nome vota uma vez só.</p><p class="muted small" style="margin-top:6px">Se não foi você, fale com a administração.</p></div></div>'}
+    else{
+      h+='<div class="field">Livros<ul class="opcoes" id="ops">'+ops.map((o,i)=>'<li><label class="opcao g-'+L.genero(o.genero)+'"><input type="radio" name="op" value="'+i+'"'+(escolha===i?' checked':'')+'><span class="marca" aria-hidden="true"></span>'+
+        '<span class="bd"><h3>'+esc(o.titulo)+'</h3>'+(o.autor?'<p class="au">'+esc(o.autor)+'</p>':'')+(o.genero?L.tag(o.genero):'')+'</span></label></li>').join('')+'</ul></div>'+
+        '<button class="btn wide" type="button" id="votar">Votar</button>'}
+    h+='<p class="muted small" style="margin:0;text-align:center">Encontro: '+esc(V.dataLonga(v.encontro))+'</p></div>';
+    box.innerHTML=h;
+    $('nome').onchange=e=>{eu=e.target.value;LS.set('votacaoNome',eu);LS.set('leituraNome',eu);checar()};
+    const ul=$('ops');if(ul)ul.onchange=e=>{escolha=+e.target.value};
+    const b=$('votar');if(b)b.onclick=votar}
+
+  async function votar(){
+    const v=vAtual;if(!v)return;
+    if(!eu){toast('Escolha seu nome');$('nome').focus();return}
+    if(escolha==null||!(v.opcoes||[])[escolha]){toast('Escolha um dos livros');return}
+    const o=v.opcoes[escolha];
+    if(!confirm('Votar em “'+o.titulo+'” como '+eu+'?\n\nDepois não dá para mudar.'))return;
+    const b=$('votar');b.disabled=true;
+    try{await ref().set({nome:eu,opcao:escolha,uid,em:firebase.firestore.FieldValue.serverTimestamp()});
+      meuVoto={nome:eu,opcao:escolha};toast('Voto registrado ✨');render()}
+    catch(e){console.warn(e);
+      if(e.code==='permission-denied'){toast('Não foi possível votar. A votação pode ter fechado, ou esse nome já votou.');checar()}
+      else toast('Não foi possível votar. Tente de novo.');
+      b.disabled=false}}
+})();
+</script>
+</body>
+</html>

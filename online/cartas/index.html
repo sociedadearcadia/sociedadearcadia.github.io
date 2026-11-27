@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Cartas Seladas · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="/online/livros/livros.css">
+<link rel="stylesheet" href="cartas.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/online/integrantes/">← Área das integrantes</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Leitura do mês</p>
+      <h1>Cartas Seladas</h1>
+    </div>
+    <div class="aviso">
+      <p>Escreva sua teoria ou previsão sobre o livro <b>antes de terminar a leitura</b> e lacre a carta.</p>
+      <p>Ninguém lê antes da abertura, nem a administração. Todas as cartas abrem juntas no dia marcado.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="box"><p class="muted" style="margin:0">Carregando…</p></section>
+  <section class="panel" id="antP" hidden></section>
+
+  <p class="foot"><a href="/online/integrantes/">Área das integrantes</a> · <a href="/online/guia/#cartas">Como funciona</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="/online/livros/comum.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const L=window.LIVROS,{esc,slug}=L,C=window.CARTAS;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  const box=$('box');
+  const SELO='<img src="/selo-arcadia.png" alt="" width="56" height="56">';
+
+  /* nome de quem está usando este aparelho (o mesmo das outras páginas) */
+  let eu=(()=>{const l=LS.get('cartasNome','')||LS.get('votacaoNome','')||LS.get('leituraNome','')||LS.get('livrosNome','')||LS.get('agendaNome','')||((LS.get('me',null)||{}).name||'');return MEMBROS.find(n=>slug(n)===slug(l))||''})();
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const FB='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);box.innerHTML='<p class="muted" style="margin:0">Sem conexão agora. Verifique a internet e recarregue a página.</p>';return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* ---------- dados ---------- */
+  const col=db.collection('cartasSeladas');
+  let tentativas=0,rodadas=[],r=null,selos=[],cartas=[],minha=null,outroAparelho=false,checando=0,carregou=false,offS=null,offC=null,rascunho=LS.get('cartaRascunho','');
+  col.onSnapshot(s=>{rodadas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));carregou=true;escolher();antigas()},
+    e=>{console.warn(e);box.innerHTML='<p class="muted" style="margin:0">Não foi possível carregar agora. Tente recarregar a página.</p>'});
+  let sit='';
+  function escolher(){const n=C.atual(rodadas);const ns=n?C.situacao(n):'';
+    if(!n||!r||n._id!==r._id){r=n;sit=ns;ouvir();checar();return}
+    const mudou=ns!==sit;r=n;sit=ns;if(mudou){ouvir();checar()}else render()}
+  /* abre e fecha sozinha com o relógio */
+  setInterval(escolher,20000);
+  function ouvir(){if(offS){offS();offS=null}if(offC){offC();offC=null}selos=[];cartas=[];
+    if(!r)return;
+    offS=col.doc(r._id).collection('selos').onSnapshot(s=>{selos=s.docs.map(d=>Object.assign({_id:d.id},d.data()));render()},e=>console.warn(e));
+    if(C.situacao(r)==='aberta')offC=col.doc(r._id).collection('cartas').onSnapshot(s=>{tentativas=0;cartas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));render()},
+      e=>{console.warn(e);offC=null;/* o relógio do aparelho pode estar adiantado: tenta de novo */let n=0;try{n=+sessionStorage.getItem('cartasRecarga')||0}catch(x){}
+        if(Date.now()-n>60000){try{sessionStorage.setItem('cartasRecarga',Date.now())}catch(x){}setTimeout(()=>location.reload(),5000)}
+        else if(tentativas++<10)setTimeout(()=>{if(!offC&&r&&C.situacao(r)==='aberta')ouvir()},6000)})}
+  const ref=()=>col.doc(r._id).collection('cartas').doc(slug(eu));
+  async function checar(){minha=null;outroAparelho=false;
+    if(!r||!eu||C.situacao(r)==='aberta'){render();return}
+    const n=++checando;render();
+    try{const d=await ref().get();if(n!==checando)return;if(d.exists)minha=d.data()}
+    catch(e){if(n!==checando)return;if(e.code==='permission-denied')outroAparelho=true;else console.warn(e)}
+    render()}
+
+  /* ---------- tela ---------- */
+  const nomeSel=()=>'<label>Seu nome<select id="nome"><option value="">Escolha seu nome</option>'+MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label>';
+  const listaSelos=()=>selos.length?'<p class="lbl" style="margin-top:16px">Já lacraram ('+selos.length+')</p><ul class="selos">'+selos.slice().sort((a,b)=>String(a.nome).localeCompare(String(b.nome))).map(s=>'<li><img src="/selo-arcadia.png" alt="">'+esc(s.nome)+'</li>').join('')+'</ul>':'<p class="muted small" style="margin:14px 0 0">Ninguém lacrou ainda. Que tal ser a primeira?</p>';
+  const cab=()=>'<p class="lbl">'+esc(r.titulo||'Livro do mês')+'</p>';
+  function envelopes(lista,id){
+    if(!lista.length)return '<p class="muted" style="margin:0">Nenhuma carta foi lacrada nesta rodada.</p>';
+    return '<ul class="envelopes" id="'+id+'">'+lista.slice().sort((a,b)=>String(a.nome).localeCompare(String(b.nome))).map(c=>
+      '<li class="env"><button type="button" aria-expanded="false"><span class="lacre">'+SELO+'</span><span class="nm"><b>'+esc(c.nome)+'</b><small>Toque para romper o lacre</small></span></button>'+
+      '<p class="txt">'+esc(c.texto)+'</p></li>').join('')+'</ul>'}
+  function ligarEnv(el){if(!el)return;el.onclick=e=>{const b=e.target.closest('.env>button');if(!b)return;const li=b.parentNode;const ab=li.classList.toggle('aberta');
+    b.setAttribute('aria-expanded',ab);b.querySelector('small').textContent=ab?'Toque para fechar':'Toque para romper o lacre'}}
+
+  function render(){
+    if(!carregou)return;
+    if(!r){box.innerHTML='<p class="lbl">Cartas Seladas</p><h2>Nenhuma rodada aberta</h2><p class="muted" style="margin:0">Quando a administração abrir as cartas de um livro, o espaço para escrever aparece aqui.</p>';return}
+    const s=C.situacao(r);
+    const orient=r.orient?'<p class="orient">'+esc(r.orient)+'</p>':'';
+    if(s==='aberta'){
+      box.innerHTML=cab()+'<div class="topo-env"><h2 style="margin:0">As cartas foram abertas</h2>'+(cartas.length?'<button class="chip" type="button" id="todas">Abrir todas</button>':'')+'</div>'+orient+envelopes(cartas,'envs');
+      ligarEnv($('envs'));
+      const t=$('todas');if(t)t.onclick=()=>{const fechadas=[...document.querySelectorAll('#envs .env:not(.aberta)>button')];
+        (fechadas.length?fechadas:[...document.querySelectorAll('#envs .env>button')]).forEach(b=>b.click());t.textContent=fechadas.length?'Fechar todas':'Abrir todas'};
+      return}
+    if(s==='lacrada'){
+      box.innerHTML=cab()+'<div class="espera">'+SELO.replace('56','84').replace('56','84')+'<p class="q">As cartas estão lacradas</p><p class="muted" style="margin:0">Abrem em <b style="color:var(--cream)">'+esc(C.quando(r.abreEm))+'</b>.</p></div>'+orient+
+        '<div class="form" style="margin-top:12px">'+nomeSel()+(eu&&minha?minhaCarta():'')+'</div>'+listaSelos();
+      ligarNome();return}
+    /* escrita */
+    let h=cab()+'<h2>Escreva sua carta</h2><span class="prazo">Lacre até '+esc(C.curto(r.ateEm))+'</span>'+orient+'<div class="form">'+nomeSel();
+    if(eu&&minha)h+=minhaCarta();
+    else if(eu&&outroAparelho)h+='<div class="fechado">'+L.icon('cadeado')+'<div><p>Já existe uma carta lacrada com o nome <b>'+esc(eu)+'</b>, feita em outro aparelho.</p><p class="muted small" style="margin-top:6px">Se não foi você, fale com a administração.</p></div></div>';
+    else h+='<label>Sua teoria ou previsão<textarea class="carta" id="texto" maxlength="'+C.MAX+'" placeholder="Quem você acha que é o vilão? Como a história termina? Qual casal fica junto?">'+esc(rascunho)+'</textarea></label>'+
+      '<p class="conta" id="conta"></p><button class="btn wide" type="button" id="lacrar">Lacrar carta</button>'+
+      '<p class="muted small" style="margin:0;text-align:center">Depois de lacrada, não dá para mudar. As cartas abrem em '+esc(C.quando(r.abreEm))+'.</p>';
+    h+='</div>'+listaSelos();
+    box.innerHTML=h;ligarNome();
+    const tx=$('texto');if(tx){const cnt=()=>{$('conta').textContent=tx.value.length+' de '+C.MAX};cnt();
+      tx.oninput=()=>{rascunho=tx.value;LS.set('cartaRascunho',rascunho);cnt()}}
+    const b=$('lacrar');if(b)b.onclick=lacrar}
+  function minhaCarta(){return '<div class="lacrou">'+SELO+'<div><p><b>Sua carta está lacrada, '+esc(minha.nome)+'!</b></p><p>Ela abre junto com as outras em '+esc(C.quando(r.abreEm))+'.</p></div></div>'+
+    '<details class="minha"><summary>Reler minha carta</summary><p class="txt">'+esc(minha.texto)+'</p></details>'}
+  function ligarNome(){const n=$('nome');if(n)n.onchange=e=>{eu=e.target.value;LS.set('cartasNome',eu);LS.set('leituraNome',eu);checar()}}
+
+  async function lacrar(){
+    if(!eu){toast('Escolha seu nome');$('nome').focus();return}
+    const texto=$('texto').value.trim();
+    if(texto.length<3){toast('Escreva sua carta');$('texto').focus();return}
+    if(!confirm('Lacrar a carta como '+eu+'?\n\nDepois não dá para mudar.'))return;
+    const b=$('lacrar');b.disabled=true;
+    const FV=firebase.firestore.FieldValue;
+    try{const bt=db.batch();
+      bt.set(ref(),{nome:eu,texto,uid,em:FV.serverTimestamp()});
+      bt.set(col.doc(r._id).collection('selos').doc(slug(eu)),{nome:eu,em:FV.serverTimestamp()});
+      await bt.commit();
+      minha={nome:eu,texto};rascunho='';LS.set('cartaRascunho','');toast('Carta lacrada ✨');render()}
+    catch(e){console.warn(e);
+      if(e.code==='permission-denied'){toast('Não foi possível lacrar. O prazo pode ter acabado, ou esse nome já lacrou.');checar()}
+      else toast('Não foi possível lacrar. Tente de novo.');
+      b.disabled=false}}
+
+  /* rodadas anteriores, já abertas */
+  let antSel='';
+  async function antigas(){
+    const el=$('antP');const ab=rodadas.filter(x=>C.situacao(x)==='aberta'&&(!r||x._id!==r._id)).sort((a,b)=>C.ms(b.abreEm)-C.ms(a.abreEm));
+    if(!ab.length){el.hidden=true;return}
+    el.hidden=false;
+    el.innerHTML='<p class="lbl">Rodadas anteriores</p><h2>Cartas já abertas</h2><label>Livro<select id="ant"><option value="">Escolha</option>'+ab.map(x=>'<option value="'+esc(x._id)+'"'+(x._id===antSel?' selected':'')+'>'+esc(x.titulo||'Livro')+' · '+esc(C.curto(x.abreEm))+'</option>').join('')+'</select></label><div id="antBox" style="margin-top:14px"></div>';
+    $('ant').onchange=e=>{antSel=e.target.value;mostrarAnt()};if(antSel)mostrarAnt()}
+  async function mostrarAnt(){const b=$('antBox');if(!antSel){b.innerHTML='';return}
+    b.innerHTML='<p class="muted" style="margin:0">Carregando…</p>';
+    try{const s=await col.doc(antSel).collection('cartas').get();b.innerHTML=envelopes(s.docs.map(d=>d.data()),'envAnt');ligarEnv($('envAnt'))}
+    catch(e){console.warn(e);b.innerHTML='<p class="muted" style="margin:0">Não foi possível carregar.</p>'}}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+/* Questionário de leitura */
+.quiz{display:flex;flex-direction:column;gap:16px}
+.q h2{font-size:19px;margin-bottom:14px}
+.ops{display:flex;flex-direction:column;gap:8px}
+.op{flex-direction:row;align-items:flex-start;gap:12px;font-weight:600;font-size:15px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(23,15,51,.6);cursor:pointer}
+.op input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:#e88bd6}
+.op:has(input:checked){border-color:var(--gold);background:rgba(120,70,170,.45);box-shadow:0 0 14px rgba(232,139,214,.3)}
+.score{font:600 34px var(--display);margin:0 0 10px;color:#fff;text-shadow:0 0 16px rgba(232,139,214,.6)}
+.score .muted{font:400 16px var(--body)}
+.gab{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:12px;font-size:14.5px}
+.gab b{display:block;font-weight:700}
+.gab .sua,.gab .cert{display:block;color:var(--muted)}
+.gab li.ok .sua{color:#a8e6c1}
+.gab li.no .sua{color:#ffb3c7}
+.gab .cert{color:#f6d38d}

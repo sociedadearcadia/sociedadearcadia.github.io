@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Online · Administração · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<style>
+.grupo{display:flex;flex-direction:column;gap:10px}
+.grupo h2{margin:0 0 2px}
+.atalhos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.atalhos a{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--cream);padding:13px 14px;border-radius:14px;
+  background:rgba(23,15,51,.55);border:1px solid var(--line);transition:border-color .2s,background .2s}
+.atalhos a:hover,.atalhos a:focus-visible{border-color:var(--gold);background:rgba(43,23,72,.75);outline:none}
+.atalhos .ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;
+  background:radial-gradient(circle at 35% 30%,rgba(120,72,190,.55),rgba(23,15,51,.92) 70%);box-shadow:0 0 0 1px rgba(214,180,108,.55),inset 0 0 8px rgba(214,180,108,.18)}
+.atalhos .tx{display:flex;flex-direction:column;min-width:0}
+.atalhos b{font:600 16px var(--display)}
+.atalhos small{color:var(--muted);font-size:13px;line-height:1.35}
+.atalhos .seta{margin-left:auto;color:var(--lilac);flex:none}
+.busca-adm{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.75);border:1px solid var(--line);border-radius:999px;padding:11px 16px;width:100%;-webkit-appearance:none;appearance:none}
+.busca-adm:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,180,108,.25)}
+.nada{text-align:center}
+.nomes-c{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.nomes-c li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(23,15,51,.55);border:1px solid var(--line)}
+.nomes-c .tx{display:flex;flex-direction:column;min-width:0;flex:1}
+.nomes-c small{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.nomes-c button{flex:none;font:600 13px var(--body);color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline;padding:6px}
+input[type=email]{font:16px var(--body);color:var(--cream);background:rgba(23,15,51,.75);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;min-width:0;-webkit-appearance:none;appearance:none}
+input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,180,108,.25)}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,30px);opacity:0;transition:.3s;z-index:9;background:rgba(23,15,51,.95);border:1px solid var(--gold);color:var(--cream);padding:10px 18px;border-radius:999px;font-size:14px;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/">← Início do site</a>
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+      <p class="lbl">Sociedade Arcádia</p>
+      <h1>Administração · online</h1>
+    </div>
+    <div id="state" style="margin-top:14px;text-align:center"><p class="muted">Carregando…</p></div>
+  </section>
+
+  <div id="area" hidden style="display:flex;flex-direction:column;gap:16px">
+    <input class="busca-adm" type="search" id="filtro" placeholder="Procurar uma área" aria-label="Procurar uma área da administração" autocomplete="off">
+    <div id="grupos" style="display:flex;flex-direction:column;gap:16px"></div>
+    <section class="panel" id="conselhoP" hidden>
+      <p class="lbl">Só você vê</p>
+      <h2>Conselho</h2>
+      <p class="muted small" style="margin:0 0 12px">Quem está aqui entra com o próprio Google e administra: agenda, ideias, livros sugeridos, redes, artes e bingo, e vê as respostas da lista de espera. Livro do mês, votação e Arcadiana do Ano continuam só com você.</p>
+      <ul class="nomes-c" id="cLista"></ul>
+      <form class="form" id="cForm" style="margin-top:14px">
+        <label>Nome <input type="text" id="cNome" maxlength="40" autocomplete="off" placeholder="Ex.: Jéssica"></label>
+        <label>E-mail Google <small>O mesmo e-mail que ela usa para entrar com Google.</small><input type="email" id="cEmail" required autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="nome@gmail.com"></label>
+        <button class="btn" type="submit" id="cBtn">Adicionar ao conselho</button>
+      </form>
+    </section>
+    <section class="panel nada" id="nada" hidden><p class="muted" style="margin:0">Nenhuma área com esse nome.</p></section>
+    <div class="row" style="justify-content:center"><button class="btn ghost" type="button" id="sair">Sair da conta</button></div>
+  </div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/icones.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id),st=$('state');
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /* Todas as áreas de administração do site. Página nova de administração: acrescente uma linha aqui. */
+  const GRUPOS=[
+    {t:'Turma online',itens:[
+      {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'}]},
+    {t:'Outra turma',itens:[
+      {ic:'bussola',n:'Administração presencial',d:'Painel da turma presencial (dados separados do online)',u:'/admin/'}]},
+    {t:'Leitura do mês',itens:[
+      {ic:'livro',n:'Livro do mês e questionário',d:'Definir o livro, sortear, acompanhar a leitura e o questionário',u:'/online/leitura/admin/'},
+      {ic:'carta',n:'Votação do livro do mês',d:'Criar votação, ver contagem e quem votou',u:'/online/votacao/admin/'},
+      {ic:'lacre',n:'Cartas Seladas',d:'Abrir uma rodada, ver quem lacrou e abrir as cartas',u:'/online/cartas/admin/',c:1},
+      {ic:'estrela',n:'Estante do clube',d:'Nota de cada integrante para os livros do mês',u:'/online/estante/admin/'},
+      {ic:'estante',n:'Livros sugeridos e LCs',d:'Aprovar sugestões, lista oficial e LCs extras',u:'/online/livros/admin/',c:1},
+      {ic:'vassoura',n:'Limpeza da lista de livros',d:'Abrir a limpeza, ver quem marcou e os livros mais votados para sair',u:'/online/limpeza/admin/',c:1}]},
+    {t:'Encontros e jogos',itens:[
+      {ic:'calendario',n:'Agenda',d:'Adicionar encontros e ver confirmações',u:'/online/agenda/admin/',c:1},
+      {ic:'lanterna',n:'Ideias de encontros',d:'Aprovar ou recusar ideias',u:'/online/ideias/admin/',c:1},
+      {ic:'coroa',n:'Arcadiana do Ano',d:'Lançar pontos e ver o ranking',u:'/online/arcadiana/admin/'},
+      {ic:'cartela',n:'Bingo',d:'Tabela, cartelas, códigos e provas para conferir',u:'/online/bingo/admin/',c:1}]},
+    {t:'LC Especial de Natal',itens:[
+      {ic:'chama',n:'Salão Principal de Hogwarts',d:'Participantes e códigos, senha, datas, perguntas, sprints e respostas',u:'/online/hogwarts/admin/'}]},
+    {t:'Divulgação',itens:[
+      {ic:'brilho',n:'Sugestões para as redes',d:'Avaliar e marcar como publicadas',u:'/online/redes/admin/',c:1},
+      {ic:'moldura',n:'Artes do clube',d:'Adicionar ou tirar artes da galeria',u:'/online/artes/admin/',c:1},
+      {ic:'envelope',n:'Respostas da lista de espera',d:'Ver quem quer entrar no clube',u:'/lista-de-espera/respostas/',c:1}]},
+    {t:'Integrantes',itens:[
+      {ic:'balao',n:'Mensagens para a administração',d:'Elogios, reclamações e problemas (só você vê)',u:'/online/mensagem/admin/'},
+      {ic:'pergaminho',n:'Código da Sociedade Arcádia',d:'Colar ou atualizar o texto do Código',u:'/online/codigo/admin/'}]},
+    {t:'Fora do site',itens:[
+      {ic:'chama',n:'Firebase',d:'Dados, regras e quem é administradora',u:'https://console.firebase.google.com/project/arcadia-online-61481/firestore',ext:1},
+      {ic:'codigo',n:'GitHub do clube',d:'Pedidos de alteração do site (PRs)',u:'https://github.com/sociedadearcadia',ext:1}]}
+  ];
+
+  let papel='admin';
+  function desenhar(q){
+    q=(q||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+    let total=0;
+    $('grupos').innerHTML=GRUPOS.map(g=>{
+      const its=g.itens.filter(i=>(papel==='admin'||i.c)).filter(i=>!q||(i.n+' '+i.d+' '+g.t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(q));
+      total+=its.length;if(!its.length)return'';
+      return '<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p><ul class="atalhos">'+its.map(i=>
+        '<li><a href="'+esc(i.u)+'"'+(i.ext?' target="_blank" rel="noopener"':'')+'><span class="ic" aria-hidden="true">'+ARC_ICONE(i.ic)+'</span>'+
+        '<span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span><span class="seta" aria-hidden="true">'+(i.ext?'↗':'›')+'</span></a></li>').join('')+'</ul></section>'}).join('');
+    $('nada').hidden=total>0}
+  $('filtro').addEventListener('input',e=>desenhar(e.target.value));
+
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  const FBV='10.12.2';
+  try{await load(`https://www.gstatic.com/firebasejs/${FBV}/firebase-app-compat.js`);await load(`https://www.gstatic.com/firebasejs/${FBV}/firebase-auth-compat.js`);await load(`https://www.gstatic.com/firebasejs/${FBV}/firebase-firestore-compat.js`)}
+  catch(e){st.innerHTML='<p class="muted">Sem conexão agora. Recarregue a página.</p>';return}
+  // mesmo login das outras páginas de administração (app 'admin'), então entrar aqui vale para todas
+  const app=firebase.initializeApp(window.ARCADIA_FIREBASE,'admin');const auth=app.auth(),db=app.firestore();
+  try{await auth.getRedirectResult()}catch(e){console.warn(e)}
+
+  function login(){$('area').hidden=true;
+    st.innerHTML='<p>Esta parte é só para a administração do clube.</p><button class="btn" id="g">Entrar com Google</button>';
+    $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}
+      catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);
+        else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request')st.insertAdjacentHTML('beforeend','<p class="muted small">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
+  $('sair').onclick=()=>auth.signOut();
+
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  let offC=null;
+  auth.onAuthStateChanged(async u=>{
+    if(offC){offC();offC=null}
+    if(!u||u.isAnonymous)return login();
+    let admin=false,conselho=false;
+    try{admin=(await db.collection('admins').doc(u.uid).get()).exists}catch(e){}
+    if(!admin&&u.email){try{conselho=(await db.collection('conselho').doc(u.email.toLowerCase()).get()).exists}catch(e){}}
+    if(!admin&&!conselho){$('area').hidden=true;st.innerHTML='<p>Você entrou como <b>'+esc(u.email)+'</b>, mas esta conta não tem acesso à administração.</p><p class="muted small">Se você faz parte do conselho, peça para a Bia incluir este e-mail na lista do conselho.</p><button class="btn ghost" id="out">Sair</button>';$('out').onclick=()=>auth.signOut();return}
+    papel=admin?'admin':'conselho';
+    st.innerHTML='<p class="muted small" style="margin:0">Conectada como '+esc(u.email)+(admin?'':' (conselho)')+'</p>';
+    desenhar($('filtro').value);$('area').hidden=false;
+    $('conselhoP').hidden=!admin;
+    if(admin)offC=db.collection('conselho').onSnapshot(s=>{
+      const l=s.docs.map(d=>Object.assign({_id:d.id},d.data())).sort((a,b)=>String(a.nome||a._id).localeCompare(String(b.nome||b._id),'pt-BR'));
+      $('cLista').innerHTML=l.length?l.map(c=>'<li><span class="tx"><b>'+esc(c.nome||'Sem nome')+'</b><small>'+esc(c._id)+'</small></span><button type="button" data-tirar="'+esc(c._id)+'">Tirar</button></li>').join('')
+        :'<li><span class="tx"><small>Ninguém do conselho ainda.</small></span></li>'},e=>{console.warn(e);$('cLista').innerHTML='<li><span class="tx"><small>Não foi possível ler a lista ('+esc(e.code)+'). Confira se as regras novas do Firebase já foram publicadas.</small></span></li>'});
+  });
+
+  $('cForm').addEventListener('submit',async ev=>{ev.preventDefault();
+    const email=$('cEmail').value.trim().toLowerCase(),nome=$('cNome').value.trim().slice(0,40);
+    if(!/^[^@\/\s]+@[^@\/\s]+\.[^@\/\s]+$/.test(email)){toast('Confira o e-mail.');return}
+    $('cBtn').disabled=true;
+    try{await db.collection('conselho').doc(email).set({nome,em:Date.now()});$('cEmail').value='';$('cNome').value='';toast('Adicionada ao conselho.')}
+    catch(e){toast('Não foi possível adicionar: '+e.code)}
+    $('cBtn').disabled=false});
+  $('cLista').addEventListener('click',async ev=>{const b=ev.target.closest('[data-tirar]');if(!b)return;
+    const id=b.dataset.tirar;
+    if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='Confirmar';setTimeout(()=>{b.dataset.ok='';b.textContent='Tirar'},4000);return}
+    try{await db.collection('conselho').doc(id).delete();toast('Removida do conselho.')}catch(e){toast('Não foi possível tirar: '+e.code)}});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Limpeza da lista · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="/online/livros/livros.css">
+<link rel="stylesheet" href="limpeza.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/online/livros/">← Livros sugeridos</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Leitura oficial</p>
+      <h1>Limpeza da lista</h1>
+    </div>
+    <div class="aviso" id="aviso">
+      <p>Marque os livros da lista que você <b>não leria de jeito nenhum</b>.</p>
+      <p>Só a administração vê o que você marcou. As outras integrantes não veem.</p>
+      <p>Tudo fica salvo sozinho. Dá para parar e continuar outro dia.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="box"><p class="muted" style="margin:0">Carregando…</p></section>
+
+  <p class="foot"><a href="/online/livros/">Livros sugeridos</a> · <a href="/online/agenda/">Agenda</a> · <a href="admin/">Área da administração</a></p>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="/online/livros/comum.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const L=window.LIVROS,{esc,slug}=L,Z=window.LIMPEZA;
+  const LS={get(k,d){try{const v=localStorage.getItem('arcadiaOnline:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arcadiaOnline:'+k,JSON.stringify(v))}catch(e){}}};
+  const CFG=window.ARCADIA_CONFIG||{};
+  const MEMBROS=(CFG.membros||[]).map(String);
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+  const box=$('box');
+  const msg=h=>{box.innerHTML=h};
+
+  /* nome de quem está usando este aparelho (o mesmo das outras páginas) */
+  let eu=(()=>{const l=LS.get('limpezaNome','')||LS.get('livrosNome','')||LS.get('votacaoNome','')||LS.get('leituraNome','')||LS.get('agendaNome','')||((LS.get('me',null)||{}).name||'');return MEMBROS.find(n=>slug(n)===slug(l))||''})();
+
+  /* Firebase */
+  const load=src=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+  let db,uid;
+  try{
+    const FB='10.12.2';
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-app-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-auth-compat.js`);
+    await load(`https://www.gstatic.com/firebasejs/${FB}/firebase-firestore-compat.js`);
+    if(!firebase.apps.length)firebase.initializeApp(window.ARCADIA_FIREBASE||CFG.firebase);
+    const auth=firebase.auth();
+    let u=await new Promise(ok=>{const off=auth.onAuthStateChanged(x=>{off();ok(x)})});
+    if(!u)u=(await auth.signInAnonymously()).user;
+    uid=u.uid;db=firebase.firestore();
+  }catch(e){console.warn(e);msg('<p class="muted" style="margin:0">Sem conexão agora. Verifique a internet e recarregue a página.</p>');return}
+
+  /* senha do clube (a mesma do sprint) */
+  if(LS.get('membroOk','')!==uid){
+    let ok=false;try{ok=(await db.collection('membros').doc(uid).get()).exists}catch(e){}if(!ok){try{const k=JSON.parse(localStorage.getItem('arcadiaOnline:chave')||'""');if(k){await db.collection('membros').doc(uid).set({chave:k,em:Date.now()});ok=true}}catch(e){}}
+    if(!ok)await new Promise(done=>{$('gate').hidden=false;setTimeout(()=>$('gateInput').focus(),80);
+      $('gateForm').onsubmit=async ev=>{ev.preventDefault();const chave=$('gateInput').value.trim().toLowerCase();if(!chave)return;
+        $('gateBtn').disabled=true;$('gateErr').hidden=true;
+        try{await db.collection('membros').doc(uid).set({chave,em:Date.now()});try{localStorage.setItem('arcadiaOnline:chave',JSON.stringify(chave))}catch(e){}$('gate').hidden=true;done()}
+        catch(e){$('gateErr').textContent='Senha incorreta. Confira com a administração do clube.';$('gateErr').hidden=false}
+        $('gateBtn').disabled=false}});
+    LS.set('membroOk',uid)}
+
+  /* ---------- dados ---------- */
+  let limpezas=null,lz=null,livros=null;
+  let estado='',marcados=new Map(),vistos=new Set(),pronta=false,hist=[];
+  let modo=LS.get('limpezaModo','um'),filtro=LS.get('limpezaFiltro','todos'),busca='',checando=0;
+  if(!['um','lista','meus'].includes(modo))modo='um';
+  if(!['todos','romantasia','fantasia'].includes(filtro))filtro='todos';
+
+  db.collection('limpezas').onSnapshot(s=>{
+    limpezas=s.docs.map(d=>Object.assign({_id:d.id},d.data()));
+    const n=Z.atual(limpezas);const mudou=!lz||!n||n._id!==lz._id;lz=n;
+    if(mudou)checar();else render()},
+    e=>{console.warn(e);msg('<p class="muted" style="margin:0">Não foi possível carregar agora. Tente recarregar a página.</p>')});
+  db.collection('sugestoes').where('status','==','lista').onSnapshot(s=>{
+    livros=s.docs.map(d=>Object.assign({_id:d.id},d.data())).filter(l=>L.listaDe(l)==='oficial').sort(L.ordem);render()},
+    e=>{console.warn(e);msg('<p class="muted" style="margin:0">Não foi possível carregar a lista. Tente recarregar a página.</p>')});
+  /* fecha sozinha no fim do último dia */
+  setInterval(()=>{if(lz&&!Z.aberta(lz)&&estado!=='fechada')render()},30000);
+
+  const ref=()=>db.collection('limpezas').doc(lz._id).collection('escolhas').doc(slug(eu));
+  async function checar(){
+    estado='';marcados=new Map();vistos=new Set();pronta=false;hist=[];
+    if(!lz||!eu||!Z.aberta(lz)){render();return}
+    const n=++checando;estado='carregando';render();
+    try{const d=await ref().get();if(n!==checando)return;
+      if(d.exists){const v=d.data();(v.livros||[]).forEach(l=>marcados.set(l.id,l));(v.vistos||[]).forEach(id=>vistos.add(id));pronta=!!v.pronta}
+      estado='ok'}
+    catch(e){if(n!==checando)return;estado=e.code==='permission-denied'?'outro':'erro';if(estado==='erro')console.warn(e)}
+    render()}
+
+  /* salvar sozinho, um pouquinho depois de cada toque */
+  let salvarT=null,salvando=false,pendente=false,situacao='';
+  function salvar(){situacao='espera';mostrarSalvo();clearTimeout(salvarT);salvarT=setTimeout(enviar,700)}
+  async function enviar(){
+    if(salvando){pendente=true;return}
+    if(!lz||!eu||estado!=='ok')return;
+    salvando=true;situacao='salvando';mostrarSalvo();
+    if(marcados.size<(lz.min||1))pronta=false;
+    const d={nome:eu,uid,livros:[...marcados.values()].map(l=>({id:l.id,titulo:String(l.titulo||'').slice(0,120),autor:String(l.autor||'').slice(0,120),genero:L.genero(l.genero)})),
+      vistos:[...vistos].slice(0,500),pronta,em:firebase.firestore.FieldValue.serverTimestamp()};
+    try{await ref().set(d);situacao='ok'}
+    catch(e){console.warn(e);situacao='erro';
+      if(e.code==='permission-denied'){toast('Não foi possível salvar. A limpeza pode ter fechado.');checar()}
+      else toast('Não foi possível salvar. Verifique a internet.')}
+    salvando=false;mostrarSalvo();
+    if(pendente){pendente=false;enviar()}}
+  function mostrarSalvo(){const el=$('salvo');if(!el)return;
+    el.className='salvo'+(situacao==='ok'?' ok':situacao==='erro'?' erro':'');
+    el.textContent=situacao==='ok'?'Salvo ✓':situacao==='erro'?'Não salvou':situacao?'Salvando…':''}
+
+  /* ---------- tela ---------- */
+  const MIN=()=>lz.min||10,MAX=()=>lz.max||20;
+  const doFiltro=()=>(livros||[]).filter(l=>filtro==='todos'||L.genero(l.genero)===filtro);
+  const ate=()=>L.dataLonga(lz.ate);
+
+  function render(){
+    if(!limpezas||!livros)return;
+    if(!lz)return msg('<p class="lbl">Limpeza da lista</p><h2>Fechada agora</h2><div class="fechado">'+L.icon('cadeado')+'<div><p>No momento não há limpeza aberta. O aviso sai no grupo quando abrir.</p></div></div>');
+    if(!Z.aberta(lz)){estado='fechada';
+      return msg('<p class="lbl">Limpeza da lista</p><h2>Limpeza encerrada</h2><div class="fechado">'+L.icon('cadeado')+'<div><p>A limpeza da lista já fechou. Obrigada a quem participou!</p><p class="muted small" style="margin-top:6px">A administração está olhando o resultado.</p></div></div>')}
+    if(estado==='fechada')return checar();
+    let h='<p class="lbl">Aberta até '+esc(ate())+'</p><h2>Seus livros para sair</h2>'+
+      '<div class="form" style="margin-bottom:14px"><label>Seu nome<select id="nome"><option value="">Escolha seu nome</option>'+MEMBROS.map(n=>'<option'+(n===eu?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label></div>';
+    if(!eu){box.innerHTML=h+'<p class="muted small" style="margin:0">Escolha seu nome para começar. Marque de <b>'+MIN()+' a '+MAX()+' livros</b>.</p>';ligarNome();return}
+    if(estado==='carregando'){box.innerHTML=h+'<p class="muted" style="margin:0">Carregando…</p>';ligarNome();return}
+    if(estado==='outro'){box.innerHTML=h+'<div class="fechado">'+L.icon('cadeado')+'<div><p>O nome <b>'+esc(eu)+'</b> já começou a marcar em <b>outro aparelho</b>.</p>'+
+        '<p class="muted small" style="margin-top:6px">Continue pelo aparelho em que você começou. Se precisar trocar de aparelho, peça para a administração liberar e depois toque em "Conferir de novo".</p>'+
+        '<button class="btn ghost" type="button" id="denovo" style="margin-top:10px">Conferir de novo</button></div></div>';
+      ligarNome();$('denovo').onclick=checar;return}
+    if(estado==='erro'){box.innerHTML=h+'<p class="muted" style="margin:0">Não foi possível carregar agora.</p><button class="btn ghost" type="button" id="denovo" style="margin-top:10px">Tentar de novo</button>';ligarNome();$('denovo').onclick=checar;return}
+
+    const c={todos:livros.length,romantasia:0,fantasia:0};livros.forEach(l=>c[L.genero(l.genero)]++);
+    h+='<div class="contador" id="contador"></div>'+
+      '<div class="modos" role="tablist" aria-label="Como escolher">'+
+        [['um','Um por vez'],['lista','Lista toda'],['meus','Marcados']].map(([k,t])=>'<button type="button" class="chip" role="tab" data-modo="'+k+'" aria-pressed="'+(modo===k)+'" aria-selected="'+(modo===k)+'">'+t+(k==='meus'?'<b id="nMeus">'+marcados.size+'</b>':'')+'</button>').join('')+'</div>'+
+      (modo!=='meus'?'<div class="filtro" id="filtro" role="group" aria-label="Filtrar por gênero">'+[['todos','Todos'],['romantasia','Romantasia'],['fantasia','Fantasia']].map(([k,t])=>
+        '<button type="button" class="chip" data-f="'+k+'" aria-pressed="'+(filtro===k)+'">'+t+'<b>'+c[k]+'</b></button>').join('')+'</div>':'')+
+      '<div id="corpo"></div><div class="pronto" id="pronto"></div>';
+    box.innerHTML=h;ligarNome();
+    box.querySelector('.modos').onclick=e=>{const b=e.target.closest('[data-modo]');if(!b)return;modo=b.dataset.modo;LS.set('limpezaModo',modo);render()};
+    const f=$('filtro');if(f)f.onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;filtro=b.dataset.f;LS.set('limpezaFiltro',filtro);hist=[];render()};
+    contador();corpo();rodape()}
+
+  function ligarNome(){$('nome').onchange=e=>{eu=e.target.value;LS.set('limpezaNome',eu);LS.set('livrosNome',eu);checar()}}
+
+  function contador(){const el=$('contador');if(!el)return;
+    const n=marcados.size,min=MIN(),max=MAX(),vt=livros.filter(l=>vistos.has(l._id)).length;
+    el.innerHTML='<div class="l1"><span class="n">'+n+'<small>'+(n===1?'marcado':'marcados')+' · de '+min+' a '+max+'</small></span><span class="salvo" id="salvo"></span></div>'+
+      '<div class="bar"><i class="'+(n>=min?'cheio':'')+'" style="width:'+Math.min(100,n/max*100)+'%"></i></div>'+
+      '<p class="dica">'+(n<min?'Faltam <b>'+(min-n)+'</b> para o mínimo.':n<max?'Já pode terminar. Se quiser, marque até <b>'+max+'</b>.':'Você chegou ao máximo de <b>'+max+'</b>.')+
+      ' Você já olhou <b>'+vt+' de '+livros.length+'</b> livros.</p>';
+    mostrarSalvo();const nm=$('nMeus');if(nm)nm.textContent=n}
+
+  function marcar(l,sim){
+    if(sim&&!marcados.has(l._id)&&marcados.size>=MAX()){toast('Você já marcou '+MAX()+'. Para trocar, desmarque um em "Marcados".');return false}
+    if(sim)marcados.set(l._id,{id:l._id,titulo:l.titulo,autor:l.autor||'',genero:L.genero(l.genero)});else marcados.delete(l._id);
+    vistos.add(l._id);salvar();return true}
+
+  function corpo(){const el=$('corpo');if(!el)return;
+    if(modo==='um')return umPorVez(el);
+    if(modo==='lista')return listaToda(el);
+    return meus(el)}
+
+  /* ---------- um por vez (deslizar ou tocar) ---------- */
+  function umPorVez(el){
+    const ordem=Z.embaralhar(doFiltro(),slug(eu)+'|'+lz._id);
+    const fila=ordem.filter(l=>!vistos.has(l._id));
+    const l=fila[0];
+    if(!l){el.innerHTML='<div class="votou">'+L.icon('livro')+'<div><p><b>Você já olhou todos os livros'+(filtro==='todos'?'':' de '+esc(L.GEN[filtro]))+'.</b></p>'+
+        '<p>Confira os seus em "Marcados" ou procure algum em "Lista toda".</p></div></div>'+
+        (hist.length?'<div class="cartao-pe"><button class="lnk" type="button" id="voltar">← Voltar ao anterior</button><span></span></div>':'');
+      const v=$('voltar');if(v)v.onclick=voltar;return}
+    const cheio=marcados.size>=MAX();
+    el.innerHTML='<div class="pilha"><div class="cartao g-'+L.genero(l.genero)+'" id="cartao">'+
+        '<span class="selo nao">Não leria</span><span class="selo sim">Pode ficar</span>'+
+        '<span class="pos">'+(ordem.length-fila.length+1)+' de '+ordem.length+'</span>'+
+        '<h3>'+esc(l.titulo)+'</h3>'+(l.autor?'<p class="au">'+esc(l.autor)+'</p>':'')+L.tag(l.genero)+
+        (l.obs?'<p class="obs">“'+esc(l.obs)+'”</p>':'')+'</div></div>'+
+      '<div class="decidir"><button class="btn nao" type="button" id="bNao"'+(cheio?' disabled':'')+'>✕ Não leria</button><button class="btn fica" type="button" id="bFica">Pode ficar</button></div>'+
+      '<div class="cartao-pe">'+(hist.length?'<button class="lnk" type="button" id="voltar">← Voltar ao anterior</button>':'<span></span>')+'<span>'+fila.length+(fila.length===1?' livro falta':' livros faltam')+'</span></div>'+
+      (cheio?'<p class="dica-swipe">Você chegou a '+MAX()+'. Para trocar, desmarque um em "Marcados".</p>':'<p class="dica-swipe">No celular, dá para arrastar o cartão: para a esquerda não leria, para a direita pode ficar.</p>');
+    const card=$('cartao');
+    const decidir=sim=>{if(sim&&marcados.size>=MAX()){toast('Você já marcou '+MAX()+'.');voltarCartao();return}
+      card.style.transform='translateX('+(sim?-120:120)+'%) rotate('+(sim?-12:12)+'deg)';card.style.opacity='0';
+      setTimeout(()=>{if(marcar(l,sim)){hist.push(l._id);contador();corpo();rodape()}},200)};
+    $('bNao').onclick=()=>decidir(true);$('bFica').onclick=()=>decidir(false);
+    const v=$('voltar');if(v)v.onclick=voltar;
+    /* arrastar */
+    const sN=card.querySelector('.selo.nao'),sS=card.querySelector('.selo.sim');
+    let x0=null,y0=0,dx=0,horiz=null;
+    const voltarCartao=()=>{card.classList.remove('arrastando');card.style.transform='';sN.style.opacity=0;sS.style.opacity=0};
+    card.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY;dx=0;horiz=null;card.setPointerCapture&&card.setPointerCapture(e.pointerId)});
+    card.addEventListener('pointermove',e=>{if(x0==null)return;dx=e.clientX-x0;const dy=e.clientY-y0;
+      if(horiz==null&&(Math.abs(dx)>8||Math.abs(dy)>8))horiz=Math.abs(dx)>Math.abs(dy);
+      if(!horiz)return;card.classList.add('arrastando');
+      card.style.transform='translateX('+dx+'px) rotate('+(dx/18)+'deg)';
+      sN.style.opacity=Math.min(1,Math.max(0,-dx/90));sS.style.opacity=Math.min(1,Math.max(0,dx/90))});
+    const fim=()=>{if(x0==null)return;x0=null;
+      if(horiz&&Math.abs(dx)>90){card.classList.remove('arrastando');decidir(dx<0)}else voltarCartao()};
+    card.addEventListener('pointerup',fim);card.addEventListener('pointercancel',()=>{x0=null;voltarCartao()})}
+  function voltar(){const id=hist.pop();if(!id)return;vistos.delete(id);marcados.delete(id);salvar();contador();corpo();rodape()}
+
+  /* ---------- lista toda (procurar e marcar) ---------- */
+  function listaToda(el){
+    el.innerHTML='<div class="busca">'+L.icon('busca')+'<input type="text" id="busca" placeholder="Procurar título ou autora" aria-label="Procurar na lista" autocomplete="off" value="'+esc(busca)+'"></div><ul class="marcar" id="marcar"></ul>';
+    const desenhar=()=>{const q=L.chave(busca);
+      const ls=doFiltro().filter(l=>!q||L.chave(l.titulo+' '+(l.autor||'')).includes(q));
+      $('marcar').innerHTML=ls.length?ls.map(l=>'<li><label class="g-'+L.genero(l.genero)+'"><input type="checkbox" data-id="'+esc(l._id)+'"'+(marcados.has(l._id)?' checked':'')+'><span class="cx" aria-hidden="true">✕</span>'+
+        '<span class="bd"><span class="t">'+esc(l.titulo)+'</span>'+(l.autor?'<span class="a">'+esc(l.autor)+'</span>':'')+'</span>'+(vistos.has(l._id)&&!marcados.has(l._id)?'<span class="vi">já olhou</span>':'')+'</label></li>').join('')
+        :'<li class="vazio muted small">Nenhum livro encontrado.</li>'};
+    desenhar();
+    $('busca').oninput=e=>{busca=e.target.value;desenhar()};
+    $('marcar').onchange=e=>{const i=e.target;if(!i.dataset.id)return;const l=livros.find(x=>x._id===i.dataset.id);if(!l)return;
+      if(!marcar(l,i.checked)){i.checked=false;return}
+      const vi=i.parentNode.querySelector('.vi');if(vi)vi.remove();contador();rodape()}}
+
+  /* ---------- marcados ---------- */
+  function meus(el){
+    const ls=[...marcados.values()].sort(L.ordem);const ids=new Set(livros.map(l=>l._id));
+    el.innerHTML=ls.length?'<p class="muted small" style="margin:0 0 10px">Toque em um livro para desmarcar.</p><ul class="marcar" id="marcar">'+ls.map(l=>'<li><label class="g-'+L.genero(l.genero)+'"><input type="checkbox" data-id="'+esc(l.id)+'" checked><span class="cx" aria-hidden="true">✕</span>'+
+        '<span class="bd"><span class="t">'+esc(l.titulo)+'</span>'+(l.autor?'<span class="a">'+esc(l.autor)+'</span>':'')+(ids.has(l.id)?'':'<span class="a">Já saiu da lista</span>')+'</span></label></li>').join('')+'</ul>'
+      :'<p class="muted" style="margin:0">Você ainda não marcou nenhum livro. Comece por "Um por vez".</p>';
+    const ul=$('marcar');if(ul)ul.onchange=e=>{const i=e.target;if(!i.dataset.id)return;
+      if(i.checked){const l=livros.find(x=>x._id===i.dataset.id);if(!l||!marcar(l,true)){i.checked=false;return}}
+      else{marcados.delete(i.dataset.id);salvar()}
+      contador();rodape()}}
+
+  /* ---------- terminar ---------- */
+  function rodape(){const el=$('pronto');if(!el)return;const n=marcados.size;
+    if(n<MIN()){pronta=false;el.innerHTML='<p class="muted small">Quando chegar a '+MIN()+' livros, aparece aqui o botão para terminar. Até lá, o que você marcou já fica salvo.</p>';return}
+    if(pronta){el.innerHTML='<div class="votou"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.6L16.5 9"/></svg><div><p><b>Pronto, '+esc(eu)+'! Sua lista foi entregue.</b></p><p>Você ainda pode mudar até '+esc(ate())+'.</p></div></div>';return}
+    el.innerHTML='<p class="muted small">Você marcou '+n+' livros. Se já terminou, avise a administração tocando aqui:</p><button class="btn wide" type="button" id="terminar">Terminei</button>';
+    $('terminar').onclick=()=>{pronta=true;salvar();rodape();toast('Lista entregue ✨')}}
+})();
+</script>
+</body>
+</html>

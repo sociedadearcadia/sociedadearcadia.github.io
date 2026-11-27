@@ -26,6 +26,10 @@ code{background:rgba(23,15,51,.8);padding:3px 8px;border-radius:6px;word-break:b
 .item dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:0;font-size:14px}
 .item dt{color:var(--muted)}.item dd{margin:0;overflow-wrap:anywhere}
 .item a{color:var(--lilac)}
+.filtro{display:flex;gap:8px;flex-wrap:wrap}.filtro button{font:600 13px "Nunito Sans",sans-serif;color:var(--cream);background:rgba(23,15,51,.6);border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.filtro button[aria-pressed="true"]{background:var(--lilac);color:#170f33;border-color:transparent}
+.tag{display:inline-block;font:700 10.5px "Nunito Sans",sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:rgba(214,180,108,.18);color:#e7c987;margin-left:6px}
+.tag.on{background:rgba(201,182,242,.2);color:#c9b6f2}
 .del{align-self:flex-end;font:600 12px "Nunito Sans",sans-serif;color:#f2a0b8;background:none;border:0;cursor:pointer;text-decoration:underline}
 </style>
 </head>
@@ -48,20 +52,24 @@ code{background:rgba(23,15,51,.8);padding:3px 8px;border-radius:6px;word-break:b
   try{await auth.getRedirectResult()}catch(e){console.warn(e)}
   function login(){st.innerHTML='<p>Esta página é só para a administração do clube.</p><div class="row"><button class="btn" id="g">Entrar com Google</button></div>';
     $('g').onclick=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')auth.signInWithRedirect(p);else st.insertAdjacentHTML('beforeend','<p class="muted">Não foi possível entrar: '+esc(e.code)+'</p>')}}}
-  let rows=[],podeApagar=false;
-  function csv(){const cols=['criadoEm','nome','nascimento','whatsapp','instagram','cidade','ritmo','generos','favoritos','clube','expectativas','origem'];
+  let rows=[],podeApagar=false,filtro='todas';
+  /* respostas antigas (antes de existir o online) são do presencial */
+  const mod=r=>r.modalidade==='online'?'online':'presencial';
+  const vis=()=>filtro==='todas'?rows:rows.filter(r=>mod(r)===filtro);
+  function csv(){const cols=['criadoEm','modalidade','nome','nascimento','whatsapp','instagram','cidade','ritmo','generos','favoritos','clube','expectativas','origem'];
     const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
-    const out=[cols.join(';')].concat(rows.map(r=>cols.map(c=>q(c==='generos'?(r.generos||[]).join(', '):c==='criadoEm'?(r.criadoEm?r.criadoEm.toDate().toLocaleString('pt-BR'):''):r[c])).join(';')));
+    const out=[cols.join(';')].concat(vis().map(r=>cols.map(c=>q(c==='generos'?(r.generos||[]).join(', '):c==='criadoEm'?(r.criadoEm?r.criadoEm.toDate().toLocaleString('pt-BR'):''):c==='modalidade'?mod(r):r[c])).join(';')));
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+out.join('\n')],{type:'text/csv'}));a.download='lista-de-espera.csv';a.click()}
-  function render(){list.innerHTML=rows.map((r,i)=>{const n=(r.whatsapp||'').replace(/\D/g,'');
-    return '<article class="box item"><p class="lbl">#'+(rows.length-i)+' · '+(r.criadoEm?esc(r.criadoEm.toDate().toLocaleString('pt-BR')):'')+'</p><h2>'+esc(r.nome)+'</h2><dl>'+
+  function render(){const vs=vis();list.innerHTML=(rows.length?'<div class="filtro">'+[['todas','Todas'],['presencial','Presencial'],['online','Online']].map(([k,n])=>'<button data-f="'+k+'" aria-pressed="'+(filtro===k)+'">'+n+' ('+(k==='todas'?rows.length:rows.filter(r=>mod(r)===k).length)+')</button>').join('')+'</div>':'')+vs.map((r,i)=>{const on=mod(r)==='online',w=(r.whatsapp||'').trim(),n=w.replace(/\D/g,''),wa=w[0]==='+'?n:'55'+n;
+    return '<article class="box item"><p class="lbl">#'+(vs.length-i)+' · '+(r.criadoEm?esc(r.criadoEm.toDate().toLocaleString('pt-BR')):'')+'</p><h2>'+esc(r.nome)+'<span class="tag'+(on?' on':'')+'">'+(on?'Online':'Presencial')+'</span></h2><dl>'+
       '<dt>Nascimento</dt><dd>'+esc((r.nascimento||'').split('-').reverse().join('/'))+'</dd>'+
-      '<dt>WhatsApp</dt><dd><a href="https://wa.me/55'+n+'" target="_blank" rel="noopener">'+esc(r.whatsapp)+'</a></dd>'+
+      '<dt>WhatsApp</dt><dd><a href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+esc(r.whatsapp)+'</a></dd>'+
       (r.instagram?'<dt>Instagram</dt><dd><a href="https://instagram.com/'+esc(r.instagram.replace('@',''))+'" target="_blank" rel="noopener">'+esc(r.instagram)+'</a></dd>':'')+
-      '<dt>Campo Grande</dt><dd>'+esc(r.cidade)+'</dd><dt>Livros/mês</dt><dd>'+esc(r.ritmo)+'</dd><dt>Gêneros</dt><dd>'+esc((r.generos||[]).join(', '))+'</dd>'+
+      '<dt>'+(on?'Mora em':'Campo Grande')+'</dt><dd>'+esc(r.cidade)+'</dd><dt>Livros/mês</dt><dd>'+esc(r.ritmo)+'</dd><dt>Gêneros</dt><dd>'+esc((r.generos||[]).join(', '))+'</dd>'+
       (r.favoritos?'<dt>Favoritos</dt><dd>'+esc(r.favoritos)+'</dd>':'')+'<dt>Já fez clube</dt><dd>'+esc(r.clube)+'</dd>'+
       (r.expectativas?'<dt>Espera</dt><dd>'+esc(r.expectativas)+'</dd>':'')+'<dt>Conheceu por</dt><dd>'+esc(r.origem)+'</dd></dl>'+
       (podeApagar?'<button class="del" data-id="'+esc(r._id)+'">Apagar resposta</button>':'')+'</article>'}).join('');
+    list.querySelectorAll('.filtro button').forEach(b=>b.onclick=()=>{filtro=b.dataset.f;render()});
     list.querySelectorAll('.del').forEach(b=>b.onclick=async()=>{if(!confirm('Apagar esta resposta para sempre?'))return;await db.collection('interessadas').doc(b.dataset.id).delete()})}
   auth.onAuthStateChanged(async u=>{
     if(!u||u.isAnonymous)return login();
