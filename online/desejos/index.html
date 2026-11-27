@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online · Minha lista de desejos · Sociedade Arcádia</title>
+<meta name="theme-color" content="#170f33">
+<link rel="icon" type="image/png" href="/selo-arcadia.png">
+<link rel="apple-touch-icon" href="/app-icone-apple.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcádia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fx.css">
+<link rel="stylesheet" href="/online/leitura/leitura.css">
+<link rel="stylesheet" href="desejos.css">
+</head>
+<body>
+<div class="scene" id="scene" aria-hidden="true" style="background-image:none"><div class="art" id="art"></div></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="petals" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="/online/integrantes/">← Área das integrantes</a>
+
+  <section class="panel arch">
+    <div class="top">
+      <img class="seal" src="/selo-arcadia.png" alt="Selo da Sociedade Arcádia" width="72" height="72">
+      <p class="lbl">Presentes</p>
+      <h1>Minha lista de desejos</h1>
+    </div>
+    <p class="muted intro">Os livros que você sonha em ter na estante. Se você for sorteada e preferir outro livro em vez do livro do mês, a Bia escolhe por aqui. Só você e a Bia veem a sua lista. Mude quando quiser.</p>
+  </section>
+
+  <section class="panel" id="acessoP">
+    <div id="acesso"><p class="muted" style="text-align:center">Carregando…</p></div>
+  </section>
+
+  <div id="lista" hidden style="display:flex;flex-direction:column;gap:16px">
+    <section class="panel">
+      <div class="ola"><p>Lista de <b id="quem"></b></p>
+        <div class="links-mini"><button type="button" id="bCodigo">Trocar código</button><button type="button" id="bSair">Sair deste aparelho</button></div></div>
+      <form class="form" id="fCodigo" hidden style="margin-top:14px">
+        <label>Novo código de 4 números<input type="password" id="nc1" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" class="pin" placeholder="••••"></label>
+        <label>Repita o novo código<input type="password" id="nc2" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" class="pin" placeholder="••••"></label>
+        <p class="err" id="ncErr" hidden></p>
+        <div class="btns"><button class="btn ghost" type="button" id="ncCancelar">Cancelar</button><button class="btn" type="submit" id="ncBtn">Salvar código</button></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <p class="lbl">Livros <span class="cont" id="cLivros"></span></p>
+      <h2>Livros que eu quero</h2>
+      <p class="muted small" style="margin:-6px 0 14px">Para cada livro, diga se tanto faz a edição, se quer capa comum ou se quer capa dura.</p>
+      <form class="form" id="fLivro" autocomplete="off">
+        <label>Título<input type="text" id="lT" maxlength="160" required></label>
+        <label>Autora ou autor <small>(se souber)</small><input type="text" id="lA" maxlength="120"></label>
+        <div class="field">Edição
+          <div class="opcoes" role="radiogroup">
+            <label><input type="radio" name="lEd" value="qualquer" checked>Qualquer edição</label>
+            <label><input type="radio" name="lEd" value="comum">Capa comum</label>
+            <label><input type="radio" name="lEd" value="dura">Capa dura</label>
+          </div>
+        </div>
+        <label>Observação <small>(opcional, ex.: "só o volume 2", "a edição da Seguinte")</small><input type="text" id="lO" maxlength="300"></label>
+        <label class="check"><input type="checkbox" id="lP">Quero muito</label>
+        <div class="btns"><button class="btn ghost" type="button" id="lCancelar" hidden>Cancelar</button><button class="btn" type="submit" id="lBtn">Adicionar livro</button></div>
+      </form>
+      <details style="margin-top:14px">
+        <summary>Colar vários livros de uma vez</summary>
+        <form class="form" id="fVarios" style="margin-top:10px">
+          <label>Um livro por linha <small>(Título - Autora). Todos entram como "Qualquer edição"; depois dá para mudar em cada um.</small>
+            <textarea id="vT" rows="6" placeholder="Quarta Asa - Rebecca Yarros&#10;Corte de espinhos e rosas - Sarah J. Maas"></textarea></label>
+          <button class="btn ghost wide" type="submit">Adicionar à lista</button>
+        </form>
+      </details>
+      <ul class="itens" id="uLivros" style="margin-top:16px"></ul>
+    </section>
+
+    <section class="panel">
+      <p class="lbl">Especiais <span class="cont" id="cEsp"></span></p>
+      <h2>Edições de colecionador, de luxo e boxes</h2>
+      <p class="muted small" style="margin:-6px 0 14px">Coloque aqui só o que você quer nessa versão especial.</p>
+      <form class="form" id="fEsp" autocomplete="off">
+        <div class="field">Tipo
+          <div class="opcoes" role="radiogroup">
+            <label><input type="radio" name="eTipo" value="colecionador" checked>Colecionador</label>
+            <label><input type="radio" name="eTipo" value="luxo">Luxo</label>
+            <label><input type="radio" name="eTipo" value="box">Box</label>
+          </div>
+        </div>
+        <label>Título <small>(do livro ou do box)</small><input type="text" id="eT" maxlength="160" required></label>
+        <label>Autora, editora ou loja <small>(se souber)</small><input type="text" id="eA" maxlength="120"></label>
+        <label>Link <small>(opcional)</small><input type="text" autocapitalize="off" autocorrect="off" spellcheck="false" id="eL" maxlength="600" inputmode="url" placeholder="https://"></label>
+        <label>Observação <small>(opcional)</small><input type="text" id="eO" maxlength="300"></label>
+        <label class="check"><input type="checkbox" id="eP">Quero muito</label>
+        <div class="btns"><button class="btn ghost" type="button" id="eCancelar" hidden>Cancelar</button><button class="btn" type="submit" id="eBtn">Adicionar</button></div>
+      </form>
+      <ul class="itens" id="uEsp" style="margin-top:16px"></ul>
+    </section>
+
+    <section class="panel">
+      <p class="lbl">Recado</p>
+      <h2>Mais alguma coisa?</h2>
+      <form class="form" id="fRecado">
+        <label>Algo que ajude na hora de comprar <small>(livros que você já tem, autoras favoritas, o que não gosta)</small>
+          <textarea id="rT" maxlength="2000" rows="4"></textarea></label>
+        <button class="btn ghost wide" type="submit" id="rBtn">Salvar recado</button>
+      </form>
+    </section>
+    <p class="salvo" id="salvo"></p>
+    <p class="foot"><a href="/online/aniversarios/">Mural de aniversário</a> · <a href="/online/integrantes/">Área das integrantes</a> · <a href="/online/guia/#desejos">Guia</a></p>
+  </div>
+</main>
+
+<div class="gate" id="gate" hidden>
+  <form class="panel arch" id="gateForm">
+    <img class="seal" src="/selo-arcadia.png" alt="" width="72" height="72">
+    <p class="lbl" style="margin-top:14px">Só para integrantes</p>
+    <h2 style="margin-top:6px">Senha do clube</h2>
+    <p class="muted small">É a mesma senha do sprint. Você só precisa digitar uma vez neste aparelho.</p>
+    <div class="form">
+      <input type="password" id="gateInput" autocomplete="current-password" maxlength="60" aria-label="Senha do clube" required>
+      <p class="err" id="gateErr" hidden></p>
+      <button class="btn wide" type="submit" id="gateBtn">Entrar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.ARC_SET={largo:'banner',alto:'frame'}</script>
+<script src="/fx.js"></script>
+<script src="/online/config.js"></script>
+<script src="/online/acesso.js"></script>
+<script src="/online/sprint/config.js"></script>
+<script src="/icones.js"></script>
+<script src="comum.js"></script>
+<script>
+(async function(){
+  const $=id=>document.getElementById(id);
+  const D=window.DESEJOS,{esc,slug,link,site,EDICAO,TIPO}=D;
+  let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3000)}
+
+  let db,uid;
+  try{({db,uid}=await D.conectar())}catch(e){console.warn(e);$('acesso').innerHTML='<p class="muted">Sem conexão agora. Verifique a internet e recarregue a página.</p>';return}
+  const FV=firebase.firestore.FieldValue;
+
+  let nome='',dados={livros:[],especiais:[],recado:''},ref=null,editL=-1,editE=-1;
+  const ctl=D.acesso($('acesso'),db,uid,(n,d)=>{
+    nome=n;ref=db.collection('desejos').doc(slug(n));
+    dados={livros:Array.isArray(d.livros)?d.livros:[],especiais:Array.isArray(d.especiais)?d.especiais:[],recado:d.recado||''};
+    $('quem').textContent=n;$('rT').value=dados.recado;
+    $('acessoP').hidden=true;$('lista').hidden=false;
+    marcarSalvo(d.em);desenhar()});
+
+  function marcarSalvo(em){const t=em&&em.toDate?em.toDate():null;
+    $('salvo').textContent=t?'Última alteração: '+t.toLocaleDateString('pt-BR')+' às '+t.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):''}
+
+  async function salvar(msg){
+    try{await ref.update({livros:dados.livros,especiais:dados.especiais,recado:dados.recado,em:FV.serverTimestamp()});
+      marcarSalvo({toDate:()=>new Date()});if(msg)toast(msg);return true}
+    catch(e){console.warn(e);
+      if(e.code==='permission-denied'){toast('Este aparelho perdeu o acesso. Digite o código de novo.');setTimeout(()=>location.reload(),1800)}
+      else toast('Não foi possível salvar. Confira a internet e tente de novo.');return false}}
+
+  const tags=x=>{const t=[];if(x.ed)t.push('<span class="tg '+esc(x.ed)+'">'+esc(EDICAO[x.ed]||x.ed)+'</span>');
+    if(x.tipo)t.push('<span class="tg '+esc(x.tipo)+'">'+esc(TIPO[x.tipo]||x.tipo)+'</span>');
+    if(x.p)t.push('<span class="tg prio">Quero muito</span>');return t.length?'<p class="tags">'+t.join('')+'</p>':''};
+  function itemHtml(x,i,esp){const u=link(x.link);
+    return '<li class="item'+(esp?' esp':'')+((esp?editE:editL)===i?' editando':'')+'" data-i="'+i+'"><span class="lomb" aria-hidden="true"></span><div class="bd">'+
+      '<h3>'+esc(x.t)+'</h3>'+(x.a?'<p class="au">'+esc(x.a)+'</p>':'')+tags(x)+
+      (x.obs?'<p class="obs">'+esc(x.obs)+'</p>':'')+(u?'<a class="lk" href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(site(u)||'Abrir link')+' ↗</a>':'')+
+      '</div><div class="acoes"><button type="button" data-ed>Editar</button><button type="button" class="tirar" data-del>Tirar</button></div></li>'}
+  function desenhar(){
+    const L=dados.livros,E=dados.especiais;
+    $('cLivros').textContent=L.length?'· '+L.length:'';$('cEsp').textContent=E.length?'· '+E.length:'';
+    $('uLivros').innerHTML=L.length?L.map((x,i)=>itemHtml(x,i,0)).join(''):'<li class="muted small vazio">Nenhum livro ainda. Comece pelo formulário acima.</li>';
+    $('uEsp').innerHTML=E.length?E.map((x,i)=>itemHtml(x,i,1)).join(''):'<li class="muted small vazio">Nada aqui ainda.</li>'}
+  const radio=(n,v)=>{const r=document.querySelector('input[name="'+n+'"][value="'+v+'"]');if(r)r.checked=true};
+  const valRadio=n=>(document.querySelector('input[name="'+n+'"]:checked')||{}).value;
+
+  /* ---- livros ---- */
+  function limparL(){$('fLivro').reset();radio('lEd','qualquer');editL=-1;$('lBtn').textContent='Adicionar livro';$('lCancelar').hidden=true;desenhar()}
+  $('fLivro').onsubmit=async ev=>{ev.preventDefault();
+    const x={t:$('lT').value.trim().slice(0,160),a:$('lA').value.trim().slice(0,120),ed:valRadio('lEd')||'qualquer',obs:$('lO').value.trim().slice(0,300)};
+    if($('lP').checked)x.p=true;if(!x.t)return;
+    if(editL<0&&dados.livros.some(y=>slug(y.t)===slug(x.t))&&!confirm('"'+x.t+'" já está na sua lista. Adicionar de novo?'))return;
+    const antes=dados.livros.slice();
+    if(editL>=0)dados.livros[editL]=x;else{if(dados.livros.length>=200){toast('A lista chegou ao limite de 200 livros.');return}dados.livros.unshift(x)}
+    $('lBtn').disabled=true;
+    if(await salvar(editL>=0?'Livro alterado':'Livro adicionado ✨'))limparL();else{dados.livros=antes;desenhar()}
+    $('lBtn').disabled=false;$('lT').focus()};
+  $('lCancelar').onclick=limparL;
+  $('uLivros').onclick=async e=>{const li=e.target.closest('[data-i]');if(!li)return;const i=+li.dataset.i,x=dados.livros[i];if(!x)return;
+    if(e.target.closest('[data-ed]')){editL=i;$('lT').value=x.t||'';$('lA').value=x.a||'';radio('lEd',x.ed||'qualquer');$('lO').value=x.obs||'';$('lP').checked=!!x.p;
+      $('lBtn').textContent='Salvar alteração';$('lCancelar').hidden=false;desenhar();$('fLivro').scrollIntoView({behavior:'smooth',block:'start'});return}
+    if(e.target.closest('[data-del]')){if(!confirm('Tirar "'+x.t+'" da sua lista?'))return;
+      const antes=dados.livros.slice();dados.livros.splice(i,1);if(editL===i)limparL();else if(editL>i)editL--;desenhar();
+      if(!(await salvar('Livro tirado da lista'))){dados.livros=antes;desenhar()}}};
+  $('fVarios').onsubmit=async ev=>{ev.preventDefault();
+    const linhas=$('vT').value.split(/\n+/).map(s=>s.trim().replace(/^[-•*\d.)\s]+(?=\S)/,'')).filter(Boolean);
+    if(!linhas.length)return;
+    const novos=[];linhas.forEach(l=>{const m=l.split(/\s+[-–—]\s+/);const t=(m.shift()||'').trim().slice(0,160),a=m.join(' - ').trim().slice(0,120);
+      if(t&&!dados.livros.some(y=>slug(y.t)===slug(t))&&!novos.some(y=>slug(y.t)===slug(t)))novos.push({t,a,ed:'qualquer',obs:''})});
+    if(!novos.length){toast('Esses livros já estão na sua lista.');return}
+    if(dados.livros.length+novos.length>200){toast('Passaria do limite de 200 livros.');return}
+    const antes=dados.livros.slice();dados.livros=novos.concat(dados.livros);
+    if(await salvar(novos.length+(novos.length===1?' livro adicionado':' livros adicionados'))){$('vT').value='';desenhar()}else dados.livros=antes};
+
+  /* ---- especiais ---- */
+  function limparE(){$('fEsp').reset();radio('eTipo','colecionador');editE=-1;$('eBtn').textContent='Adicionar';$('eCancelar').hidden=true;desenhar()}
+  $('fEsp').onsubmit=async ev=>{ev.preventDefault();
+    const bruto=$('eL').value.trim(),u=link(bruto);
+    if(bruto&&!u){toast('Confira o link (começa com https://)');$('eL').focus();return}
+    const x={t:$('eT').value.trim().slice(0,160),a:$('eA').value.trim().slice(0,120),tipo:valRadio('eTipo')||'colecionador',link:u.slice(0,600),obs:$('eO').value.trim().slice(0,300)};
+    if($('eP').checked)x.p=true;if(!x.t)return;
+    const antes=dados.especiais.slice();
+    if(editE>=0)dados.especiais[editE]=x;else{if(dados.especiais.length>=100){toast('Chegou ao limite de 100 itens.');return}dados.especiais.unshift(x)}
+    $('eBtn').disabled=true;
+    if(await salvar(editE>=0?'Alteração salva':'Adicionado ✨'))limparE();else{dados.especiais=antes;desenhar()}
+    $('eBtn').disabled=false};
+  $('eCancelar').onclick=limparE;
+  $('uEsp').onclick=async e=>{const li=e.target.closest('[data-i]');if(!li||e.target.closest('a'))return;const i=+li.dataset.i,x=dados.especiais[i];if(!x)return;
+    if(e.target.closest('[data-ed]')){editE=i;radio('eTipo',x.tipo||'colecionador');$('eT').value=x.t||'';$('eA').value=x.a||'';$('eL').value=x.link||'';$('eO').value=x.obs||'';$('eP').checked=!!x.p;
+      $('eBtn').textContent='Salvar alteração';$('eCancelar').hidden=false;desenhar();$('fEsp').scrollIntoView({behavior:'smooth',block:'start'});return}
+    if(e.target.closest('[data-del]')){if(!confirm('Tirar "'+x.t+'" da sua lista?'))return;
+      const antes=dados.especiais.slice();dados.especiais.splice(i,1);if(editE===i)limparE();else if(editE>i)editE--;desenhar();
+      if(!(await salvar('Tirado da lista'))){dados.especiais=antes;desenhar()}}};
+
+  /* ---- recado ---- */
+  $('fRecado').onsubmit=async ev=>{ev.preventDefault();const antes=dados.recado;dados.recado=$('rT').value.trim().slice(0,2000);
+    $('rBtn').disabled=true;if(!(await salvar('Recado salvo')))dados.recado=antes;$('rBtn').disabled=false};
+
+  /* ---- código e sair ---- */
+  $('bSair').onclick=async()=>{$('lista').hidden=true;$('acessoP').hidden=false;await ctl.sair()};
+  $('bCodigo').onclick=()=>{$('fCodigo').hidden=!$('fCodigo').hidden;if(!$('fCodigo').hidden)$('nc1').focus()};
+  $('ncCancelar').onclick=()=>{$('fCodigo').reset();$('fCodigo').hidden=true};
+  $('fCodigo').onsubmit=async ev=>{ev.preventDefault();const a=$('nc1').value.trim(),b=$('nc2').value.trim(),err=$('ncErr');err.hidden=true;
+    if(!/^\d{4}$/.test(a)){err.textContent='O código precisa ter 4 números.';err.hidden=false;return}
+    if(a!==b){err.textContent='Os dois códigos não são iguais.';err.hidden=false;return}
+    $('ncBtn').disabled=true;
+    try{await ctl.trocar(a);$('fCodigo').reset();$('fCodigo').hidden=true;toast('Código trocado. Use o novo nos outros aparelhos.')}
+    catch(e){console.warn(e);err.textContent='Não foi possível trocar agora.';err.hidden=false}
+    $('ncBtn').disabled=false};
+})();
+</script>
+</body>
+</html>
