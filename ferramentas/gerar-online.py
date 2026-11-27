@@ -22,7 +22,7 @@ DEST = os.path.join(RAIZ, 'online')
 PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'estante', 'cartas',
           'codigo', 'bingo', 'arcadiana', 'redes', 'artes', 'mensagem', 'guia', 'limpeza', 'hogwarts']
 # pastas novas que outras páginas criarem entram sozinhas se estiverem listadas em integrantes/index.html
-# pastas que o online NÃO tem (Bia, 2026-11-26: no online não há oficinas nem encontros extras)
+# pastas que o online NÃO tem (Bia, 2026-11-26: no online não há oficinas; encontros extras entram direto na agenda)
 FORA = {'sprint', 'ideias'}
 # arquivos de online/ feitos à mão (não são apagados nem gerados)
 PROPRIOS = {'config.js', 'sprint/config.js', 'LEIA-ME.md', 'acesso.js', 'admin/acesso/index.html'}
@@ -78,8 +78,7 @@ def sem_ideias(t):
                   '<a href="/online/livros/">livros</a> e <a href="/online/redes/">redes sociais</a>')
     t = t.replace('Livros sugeridos, Ideias de encontros e Sugestões para as redes', 'Livros sugeridos e Sugestões para as redes')
     t = t.replace('administra: agenda, ideias, livros sugeridos', 'administra: agenda, livros sugeridos')
-    t = t.replace('Encontros extras, oficinas e LCs não contam', 'Outros eventos online e LCs não contam')
-    t = t.replace('<option>Encontro extra</option>', '').replace('Ex.: Encontro oficial, Encontro extra', 'Ex.: Encontro oficial, Encontro especial')
+    t = t.replace('Encontros extras, oficinas e LCs não contam', 'Encontros extras e LCs não contam')
     t = t.replace('<option>Reunião on-line</option>', '<option>Reunião online</option>')
     return t
 
