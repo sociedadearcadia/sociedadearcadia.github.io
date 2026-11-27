@@ -19,11 +19,11 @@ SPRINT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(os.
 DEST = os.path.join(RAIZ, 'online')
 
 # páginas das integrantes que ganham cópia online (uma pasta nova de integrantes: inclua aqui)
-PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'estante', 'cartas',
+PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'ideias', 'estante', 'cartas',
           'codigo', 'bingo', 'arcadiana', 'redes', 'artes', 'mensagem', 'guia', 'limpeza', 'hogwarts']
 # pastas novas que outras páginas criarem entram sozinhas se estiverem listadas em integrantes/index.html
-# pastas que o online NÃO tem (Bia, 2026-11-26: no online não há oficinas; encontros extras entram direto na agenda)
-FORA = {'sprint', 'ideias'}
+# pastas que o online NÃO tem 
+FORA = {'sprint'}
 # arquivos de online/ feitos à mão (não são apagados nem gerados)
 PROPRIOS = {'config.js', 'sprint/config.js', 'LEIA-ME.md', 'acesso.js', 'admin/acesso/index.html'}
 TEXTO = ('.html', '.js', '.css', '.json', '.webmanifest', '.txt', '.md')
@@ -68,24 +68,46 @@ def com_acesso(t):
     return t
 
 
-def sem_ideias(t):
-    """Tira a página de ideias de oficinas/encontros extras (o online não tem)."""
-    t = re.sub(r"\n[ \t]*\{ic:'lanterna',n:'Ideias de encontros'[^\n\]]*?\},(?=\n)", '', t)
-    t = re.sub(r",\n[ \t]*\{ic:'lanterna',n:'Ideias de encontros'[^\n\]]*?\}(?=\]\})", '', t)
-    t = re.sub(r'\n  <section class="panel secao" id="ideias".*?</section>\n', '\n', t, count=1, flags=re.S)
-    t = t.replace(' · <a href="/ideias/">Ideias de encontros</a>', '')
-    t = t.replace('<a href="/online/livros/">livros</a>, <a href="/ideias/">encontros</a> e <a href="/online/redes/">redes sociais</a>',
-                  '<a href="/online/livros/">livros</a> e <a href="/online/redes/">redes sociais</a>')
-    t = t.replace('Livros sugeridos, Ideias de encontros e Sugestões para as redes', 'Livros sugeridos e Sugestões para as redes')
-    t = t.replace('administra: agenda, ideias, livros sugeridos', 'administra: agenda, livros sugeridos')
+def textos_online(t):
+    """Textos do online: sem oficinas. A página de ideias vira "Ideias de atividades" (atividade online ou encontro extra)."""
+    t = t.replace("n:'Ideias de encontros',d:'Sugira oficinas e encontros extras'", "n:'Ideias de atividades',d:'Sugira desafios, competições e encontros extras'")
+    t = t.replace("n:'Ideias de encontros',d:'Aprovar ou recusar ideias'", "n:'Ideias de atividades',d:'Aprovar ou recusar ideias'")
+    t = t.replace('Ideias de encontros', 'Ideias de atividades')
+    t = t.replace('<div class="cab"><div><p class="lbl">Oficinas e encontros extras</p><h2>Ideias de atividades</h2>', '<div class="cab"><div><p class="lbl">Atividades online e encontros extras</p><h2>Ideias de atividades</h2>')
+    t = t.replace('Para sugerir uma oficina ou um encontro extra.', 'Para sugerir uma atividade online (desafio, competição, dinâmica) ou um encontro extra.')
+    t = t.replace('Marque se é <b>Oficina</b> ou <b>Encontro extra</b>.', 'Marque se é <b>Atividade online</b> ou <b>Encontro extra</b>.')
+    t = t.replace('você participa da organização do encontro.</p>', 'você participa da organização.</p>')
+    t = t.replace('<a href="/online/ideias/">encontros</a>', '<a href="/online/ideias/">atividades</a>')
     t = t.replace('Encontros extras, oficinas e LCs não contam', 'Encontros extras e LCs não contam')
     t = t.replace('<option>Reunião on-line</option>', '<option>Reunião online</option>')
     return t
 
 
+def ideias_online(rel, t):
+    """Página de ideias no online: em vez de oficina, atividade online (desafio, competição...). O valor salvo continua 'oficina'."""
+    if not rel.startswith('ideias/'):
+        return t
+    R = [("TIPOS={oficina:'Oficina',extra:'Encontro extra'}", "TIPOS={oficina:'Atividade online',extra:'Encontro extra'}"),
+         ('<p class="lbl">Oficinas e encontros extras</p>', '<p class="lbl">Atividades online e encontros extras</p>'),
+         ('<span class="tag t-oficina">Oficina</span>', '<span class="tag t-oficina">Atividade online</span>'),
+         ('Tem uma ideia de <b>oficina</b> ou de <b>encontro extra</b>? Mande aqui.',
+          'Tem uma ideia de <b>atividade online</b> (desafio, competição, dinâmica) ou de <b>encontro extra</b>? Mande aqui.'),
+         ('organização do encontro', 'organização da atividade'),
+         ('Sugerir um encontro', 'Sugerir uma atividade'),
+         ('Tipo de encontro<div', 'Tipo de atividade<div'),
+         ('value="oficina" required>Oficina</label>', 'value="oficina" required>Atividade online</label>'),
+         ('Título do encontro<input', 'Título da atividade<input'),
+         ("'Marque se é oficina ou encontro extra'", "'Marque se é atividade online ou encontro extra'"),
+         ("'Escreva o título do encontro'", "'Escreva o título da atividade'"),
+         ('organização deste encontro', 'organização desta atividade')]
+    for a, b in R:
+        t = t.replace(a, b)
+    return t
+
+
 def ajustes(rel, t):
     """Ajustes que só valem para o online."""
-    t = sem_ideias(t)
+    t = ideias_online(rel, textos_online(t))
     if rel.endswith('.html') and '/admin/' not in '/' + rel:
         t = com_acesso(t)
     if rel == 'hogwarts/hg.js':
@@ -168,7 +190,7 @@ def gerar_sprint(todas):
     assert a in t, 'sprint mudou: ajuste o botão do Meet'
     t = t.replace(a, "if(SALA_MEET){$('salaRow').hidden=false;$('salaBtn').textContent='Abrir a chamada no Google Meet'}")
     t = t.replace("else if(!b&&$('salaBox').hidden)$('salaBtn').textContent='Entrar na sala de vídeo';", "else if(!b&&$('salaBox').hidden&&!SALA_MEET)$('salaBtn').textContent='Entrar na sala de vídeo';")
-    t = sem_ideias(t)
+    t = textos_online(t)
     t = t.replace('Senha do clube<input id="gateInput"', 'Senha do clube online<input id="gateInput"')
     os.makedirs(os.path.join(DEST, 'sprint'), exist_ok=True)
     open(os.path.join(DEST, 'sprint', 'index.html'), 'w', encoding='utf-8').write(t)
