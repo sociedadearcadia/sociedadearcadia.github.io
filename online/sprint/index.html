@@ -1367,7 +1367,7 @@ function usoMostra(n){usoAtual=n;const el=$('salaUso'),fo=$('salaUsoFora');if(n=
   const tx=`Uso da sala em ${new Date().toLocaleDateString('pt-BR',{month:'long'})}: ~${n.toLocaleString('pt-BR')} de ${SALA_LIMITE.toLocaleString('pt-BR')} min gratuitos (${pc}%)`;
   el.textContent=tx;fo.textContent=tx;el.style.color=fo.style.color=pc>=90?'#ff8a9a':pc>=75?'var(--gold)':'';
   const b=salaBloq();$('salaBtn').disabled=b&&$('salaBox').hidden;if(b&&$('salaBox').hidden)$('salaBtn').textContent='Sala indisponível: limite do mês';
-  else if(!b&&$('salaBox').hidden)$('salaBtn').textContent='Entrar na sala de vídeo';
+  else if(!b&&$('salaBox').hidden&&!SALA_MEET)$('salaBtn').textContent='Entrar na sala de vídeo';
   if(b&&!$('salaBox').hidden){salaFecha();$('salaBtn').disabled=true;$('salaBtn').textContent='Sala indisponível: limite do mês';
     aviso('Sala fechada','Chegamos ao limite de minutos gratuitos do mês. A sala volta no dia 1º. O sprint coletivo e o chat continuam funcionando.','Entendi')}}
 $('salaAjuste').onclick=async()=>{if(!admDb)return;const v=prompt('Quantos minutos o painel do Daily mostra em Usage neste mês?',usoAtual||0);if(v==null)return;
@@ -1380,7 +1380,7 @@ document.addEventListener('visibilitychange',()=>{if(usoDesde)usoConta()});
 /* sala de vídeo (Daily) */
 const SALA=(window.ARCADIA_CONFIG&&window.ARCADIA_CONFIG.sala)||'';
 const SALA_MEET=/^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/i.test(SALA);
-if(SALA_MEET||/^https:\/\/[a-z0-9-]+\.daily\.co\/[\w-]+$/i.test(SALA)){$('salaRow').hidden=false}
+if(SALA_MEET){$('salaRow').hidden=false;$('salaBtn').textContent='Abrir a chamada no Google Meet'}
 /* sala com as cores do site (biblioteca do Daily); se ela não carregar, abre a sala simples como antes */
 let call=null,dailyP=null;
 const SALA_TEMA={accent:'#8a63c9',accentText:'#ffffff',background:'#efe7fb',backgroundAccent:'#ddd0f3',baseText:'#2b1a4f',border:'#c9b6f2',

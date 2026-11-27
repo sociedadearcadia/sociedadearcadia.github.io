@@ -19,9 +19,11 @@ SPRINT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(os.
 DEST = os.path.join(RAIZ, 'online')
 
 # páginas das integrantes que ganham cópia online (uma pasta nova de integrantes: inclua aqui)
-PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'ideias', 'estante', 'cartas',
+PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'estante', 'cartas',
           'codigo', 'bingo', 'arcadiana', 'redes', 'artes', 'mensagem', 'guia', 'limpeza', 'hogwarts']
 # pastas novas que outras páginas criarem entram sozinhas se estiverem listadas em integrantes/index.html
+# pastas que o online NÃO tem (Bia, 2026-11-26: no online não há oficinas nem encontros extras)
+FORA = {'sprint', 'ideias'}
 # arquivos de online/ feitos à mão (não são apagados nem gerados)
 PROPRIOS = {'config.js', 'sprint/config.js', 'LEIA-ME.md', 'acesso.js', 'admin/acesso/index.html'}
 TEXTO = ('.html', '.js', '.css', '.json', '.webmanifest', '.txt', '.md')
@@ -33,7 +35,7 @@ def pastas_do_menu():
         t = open(os.path.join(RAIZ, 'integrantes', 'index.html'), encoding='utf-8').read()
     except OSError:
         return []
-    return [p for p in re.findall(r"u:'/([a-z0-9-]+)/", t) if p != 'sprint']
+    return [p for p in re.findall(r"u:'/([a-z0-9-]+)/", t) if p not in FORA]
 
 
 def reescrever(t, todas):
@@ -66,8 +68,25 @@ def com_acesso(t):
     return t
 
 
+def sem_ideias(t):
+    """Tira a página de ideias de oficinas/encontros extras (o online não tem)."""
+    t = re.sub(r"\n[ \t]*\{ic:'lanterna',n:'Ideias de encontros'[^\n\]]*?\},(?=\n)", '', t)
+    t = re.sub(r",\n[ \t]*\{ic:'lanterna',n:'Ideias de encontros'[^\n\]]*?\}(?=\]\})", '', t)
+    t = re.sub(r'\n  <section class="panel secao" id="ideias".*?</section>\n', '\n', t, count=1, flags=re.S)
+    t = t.replace(' · <a href="/ideias/">Ideias de encontros</a>', '')
+    t = t.replace('<a href="/online/livros/">livros</a>, <a href="/ideias/">encontros</a> e <a href="/online/redes/">redes sociais</a>',
+                  '<a href="/online/livros/">livros</a> e <a href="/online/redes/">redes sociais</a>')
+    t = t.replace('Livros sugeridos, Ideias de encontros e Sugestões para as redes', 'Livros sugeridos e Sugestões para as redes')
+    t = t.replace('administra: agenda, ideias, livros sugeridos', 'administra: agenda, livros sugeridos')
+    t = t.replace('Encontros extras, oficinas e LCs não contam', 'Outros eventos online e LCs não contam')
+    t = t.replace('<option>Encontro extra</option>', '').replace('Ex.: Encontro oficial, Encontro extra', 'Ex.: Encontro oficial, Encontro especial')
+    t = t.replace('<option>Reunião on-line</option>', '<option>Reunião online</option>')
+    return t
+
+
 def ajustes(rel, t):
     """Ajustes que só valem para o online."""
+    t = sem_ideias(t)
     if rel.endswith('.html') and '/admin/' not in '/' + rel:
         t = com_acesso(t)
     if rel == 'hogwarts/hg.js':
@@ -76,6 +95,11 @@ def ajustes(rel, t):
         t = t.replace("if(!a&&ini==='coruja')return{antes:true,txt:'Em breve',aberta:false};",
                       "if(!a)return{antes:true,txt:'Em breve',aberta:false};")
     # turma online: nada presencial e nada copiado do presencial (lista de livros e agenda começam vazias)
+    if rel == 'hogwarts/hg.js':
+        # a casa escolhida no pedido de acesso (membros/{uid}.casa) já vale no Salão: não pergunta de novo
+        a = "return{db,uid,pid,nome:pessoa.nome,casa:perf&&perf.exists?perf.data().casa:null,datas,geral}"
+        assert a in t, 'hg.js mudou: ajuste a casa do online'
+        t = t.replace(a, "let casa=perf&&perf.exists?perf.data().casa:null;\n  if(!casa){try{const m=await db.collection('membros').doc(uid).get(),c=m.exists?m.data().casa:'';if(c&&CASAS[c]){await db.collection('hgPerfis').doc(pid).set({nome:pessoa.nome,casa:c,em:Date.now()});casa=c}}catch(e){console.warn('casa',e)}}\n  return{db,uid,pid,nome:pessoa.nome,casa,datas,geral}")
     if rel == 'livros/lista-inicial.js':
         t = '/* Turma online: a lista começa vazia e cresce com as indicações das integrantes. */\nwindow.LISTA_INICIAL = [];\n'
     if rel == 'agenda/admin/index.html':
@@ -140,6 +164,12 @@ def gerar_sprint(todas):
     t = t.replace("    firebase.initializeApp(fb);\n    const cred=await firebase.auth().signInAnonymously();",
                   "    if(!firebase.apps.length)firebase.initializeApp(fb);\n    const cred={user:firebase.auth().currentUser||(await firebase.auth().signInAnonymously()).user};")
     t = t.replace('<h3>Sprint das integrantes</h3>', '<h3>Sprint das integrantes online</h3>')
+    # chamada pelo Google Meet (link salvo em /online/admin/acesso/), sem Daily
+    a = "if(SALA_MEET||/^https:\\/\\/[a-z0-9-]+\\.daily\\.co\\/[\\w-]+$/i.test(SALA)){$('salaRow').hidden=false}"
+    assert a in t, 'sprint mudou: ajuste o botão do Meet'
+    t = t.replace(a, "if(SALA_MEET){$('salaRow').hidden=false;$('salaBtn').textContent='Abrir a chamada no Google Meet'}")
+    t = t.replace("else if(!b&&$('salaBox').hidden)$('salaBtn').textContent='Entrar na sala de vídeo';", "else if(!b&&$('salaBox').hidden&&!SALA_MEET)$('salaBtn').textContent='Entrar na sala de vídeo';")
+    t = sem_ideias(t)
     t = t.replace('Senha do clube<input id="gateInput"', 'Senha do clube online<input id="gateInput"')
     os.makedirs(os.path.join(DEST, 'sprint'), exist_ok=True)
     open(os.path.join(DEST, 'sprint', 'index.html'), 'w', encoding='utf-8').write(t)
