@@ -1143,21 +1143,33 @@ async function hgHistEnvia(docs){if(hgHistFeito||!db||!uid||!docs.length)return;
     let b=db.batch(),n=0;for(const d of docs){const v=d.data();if(ids.has('hgl-'+d.id)||ts.has(Math.round(+v.t||0)))continue;
       b.set(ref.doc('hgl-'+d.id),hgHistDoc(v));if(++n%400===0){await b.commit();b=db.batch()}}
     if(n%400)await b.commit()}catch(err){hgHistFeito=false;console.warn('historico geral',err)}}
-let writing=Promise.resolve();
-function pushShared(e){if(!db||!uid||!me)return;writing=writing.then(async()=>{
-  /* soma em cima do que está no banco (outro aparelho da mesma pessoa pode ter salvo antes) */
-  try{const ref=db.collection('hgLeitoras').doc(PID);await db.runTransaction(async tx=>{const d=await tx.get(ref);const base=d.exists?(d.data()||{}):{};
-    const doc={nome:me.name,min:Math.min(100000,(+base.min||0)+e.min),sprints:(+base.sprints||0)+1,livro:String(e.book||base.livro||'').slice(0,80),atualizado:new Date().toISOString()};
-    tx.set(ref,doc);mine=doc})}catch(err){console.warn('ranking',err)}
-  /* soma também no ranking geral do sprint (só nesta direção: o geral nunca entra na Biblioteca) */
-  try{const ref=db.collection('leitoras').doc(uid);await db.runTransaction(async tx=>{const d=await tx.get(ref);const b=d.exists?(d.data()||{}):{};
-    const mins=Object.assign({},b.min||{});const k=monthKey(e.t||Date.now());mins[k]=(+mins[k]||0)+e.min;
-    tx.set(ref,{nome:String(b.nome||me.name).slice(0,30),min:mins,paginas:b.paginas||{},livro:String(b.livro||e.book||'').slice(0,80),sprints:(+b.sprints||0)+1,atualizado:new Date().toISOString()})})}
-  catch(err){console.warn('ranking geral',err)}
-  /* histórico da Biblioteca (hgLog) e, com o mesmo id, em "Seus sprints" do sprint geral, pelo nome */
-  const lref=db.collection('hgLog').doc();
-  try{await lref.set({pid:PID,t:Math.round(e.t),min:Math.max(1,Math.min(720,Math.round(e.min))),livro:String(e.book||'').slice(0,80),pags:Math.max(0,Math.round(+e.pages||0)),coletivo:!!e.coletivo})}catch(err){console.warn('historico',err)}
-  try{const k=hgHistKey();if(k)await db.collection('historico').doc(k).collection('s').doc('hgl-'+lref.id).set(hgHistDoc({t:e.t,min:e.min,livro:e.book,pags:e.pages}))}catch(err){console.warn('historico geral',err)}}).catch(()=>{})}
+/* ranking: cada sprint salvo entra numa fila guardada no aparelho e só sai dela quando o ranking confirmou.
+   Sem internet, tenta de novo quando a conexão volta (ou na próxima vez que o sprint abrir). */
+let writing=Promise.resolve(),rankEnviando=false;
+function rankFila(){const f=LS.get('rankFila',[]);return Array.isArray(f)?f:[]}
+function rankTira(id){LS.set('rankFila',rankFila().filter(x=>x.id!==id))}
+function rankMarca(id,k){LS.set('rankFila',rankFila().map(x=>x.id===id?Object.assign(x,{[k]:1}):x))}
+function pushShared(e){if(!me)return;if(!e.id)e.id=Math.round(+e.t||Date.now())+'-'+Math.random().toString(36).slice(2,8);const f=rankFila();
+  if(!f.some(x=>x.id===e.id)){f.push({id:e.id,t:e.t,min:e.min,pages:e.pages||0,book:e.book||'',coletivo:!!e.coletivo,nome:me.name});LS.set('rankFila',f.slice(-300))}rankEnvia()}
+async function rankEnvia(){if(rankEnviando||!db||!uid||!me)return;rankEnviando=true;
+  try{for(const e of rankFila()){if(e.nome!==me.name)continue;
+    /* cada parte marca quando deu certo: se a internet cair no meio, a próxima tentativa só faz o que faltou */
+    try{if(!e.hg){const ref=db.collection('hgLeitoras').doc(PID);await db.runTransaction(async tx=>{const d=await tx.get(ref);const base=d.exists?(d.data()||{}):{};
+        const doc={nome:me.name,min:Math.min(100000,(+base.min||0)+e.min),sprints:(+base.sprints||0)+1,livro:String(e.book||base.livro||'').slice(0,80),atualizado:new Date().toISOString()};
+        tx.set(ref,doc);mine=doc});rankMarca(e.id,'hg')}
+      /* soma também no ranking geral do sprint (só nesta direção: o geral nunca entra na Biblioteca) */
+      if(!e.geral){const ref=db.collection('leitoras').doc(uid);await db.runTransaction(async tx=>{const d=await tx.get(ref);const b=d.exists?(d.data()||{}):{};
+        const ult=Array.isArray(b.ult)?b.ult.slice(-149):[];if(ult.includes(e.id))return;
+        const mins=Object.assign({},b.min||{});const k=monthKey(e.t||Date.now());mins[k]=(+mins[k]||0)+e.min;
+        tx.set(ref,{nome:String(b.nome||me.name).slice(0,30),min:mins,paginas:b.paginas||{},livro:String(b.livro||e.book||'').slice(0,80),sprints:(+b.sprints||0)+1,atualizado:new Date().toISOString(),ult:ult.concat(e.id)})});rankMarca(e.id,'geral')}
+      /* histórico da Biblioteca (hgLog) e, com o mesmo id, em "Seus sprints" do sprint geral, pelo nome */
+      let logId=(rankFila().find(x=>x.id===e.id)||{}).logId;if(!logId){logId=db.collection('hgLog').doc().id;LS.set('rankFila',rankFila().map(x=>x.id===e.id?Object.assign(x,{logId}):x))}
+      if(!e.log){try{await db.collection('hgLog').doc(logId).set({pid:PID,t:Math.round(e.t),min:Math.max(1,Math.min(720,Math.round(e.min))),livro:String(e.book||'').slice(0,80),pags:Math.max(0,Math.round(+e.pages||0)),coletivo:!!e.coletivo})}
+        catch(err){if(err&&err.code!=='permission-denied')throw err}/* já existia (a resposta da vez anterior se perdeu) */rankMarca(e.id,'log')}
+      {const k=hgHistKey();if(k)await db.collection('historico').doc(k).collection('s').doc('hgl-'+logId).set(hgHistDoc({t:e.t,min:e.min,livro:e.book,pags:e.pages}))}
+      rankTira(e.id)}catch(err){console.warn('ranking',err);break}}}
+  finally{rankEnviando=false}}
+addEventListener('online',()=>rankEnvia());
 async function syncName(){}
 
 /* player do Spotify dentro do sprint: a playlist que a leitora colar (fica no aparelho) ou a do clube */
@@ -1187,7 +1199,7 @@ setTimeout(async()=>{
   /* histórico: vem do banco, então aparece em qualquer aparelho */
   db.collection('hgLog').where('pid','==',PID).onSnapshot(q=>{hgHistEnvia(q.docs);const l=q.docs.map(d=>{const v=d.data();return{t:v.t,min:v.min,book:v.livro||'',pages:v.pags||0,coletivo:!!v.coletivo}}).sort((a,b)=>a.t-b.t);
     if(l.length||!log.length){log=l;LS.set('log',log);drawGrim()}},e=>console.warn('historico',e));
-  rankRender();grupoInit();onlineInit();admInit();usoWatch();chatLiga();agendaInit();salaConfig();figCarrega().then(()=>chatDesenha());if(!$('salaBox').hidden&&!usoDesde)usoLiga();
+  rankRender();rankEnvia();grupoInit();onlineInit();admInit();usoWatch();chatLiga();agendaInit();salaConfig();figCarrega().then(()=>chatDesenha());if(!$('salaBox').hidden&&!usoDesde)usoLiga();
 },0);
 
 /* ---------- plano de fundo ---------- */
@@ -1248,7 +1260,7 @@ $('idleGo').onclick=()=>{$('idleDlg').hidden=true;start()};
 ['pointerdown','keydown','touchstart'].forEach(t=>addEventListener(t,()=>lastTouch=Date.now(),{passive:true}));
 addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||[...document.querySelectorAll('.scrim')].some(s=>!s.hidden))return;
   if(e.code==='Space'){e.preventDefault();if(grupoOn())return;endAt?pause():start()}else if(e.key==='r'||e.key==='R'){$('resetBtn').click()}});
-function volta(){{const a=LS.get('aba','');if(abaFora||(a&&a!==ABA)){location.reload();return}}if(ac)audio();const p=perdido;perdido=0;if(grupoJoined)grupoSync();if(endAt){lock(true);step()}
+function volta(){{const a=LS.get('aba','');if(abaFora||(a&&a!==ABA)){location.reload();return}}rankEnvia();if(ac)audio();const p=perdido;perdido=0;if(grupoJoined)grupoSync();if(endAt){lock(true);step()}
   if(p&&Date.now()-p<120000&&!perdido)setTimeout(()=>chime(),300)}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')volta();else salva()});
 addEventListener('pagehide',salva);addEventListener('pageshow',e=>{if(e.persisted)volta()});
