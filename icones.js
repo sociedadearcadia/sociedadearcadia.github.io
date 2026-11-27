@@ -28,7 +28,8 @@
     adicionar:'<rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M12 8.5v7M8.5 12h7"/>',
     presente:'<rect x="3.5" y="8.5" width="17" height="4" rx=".8"/><path d="M5 12.5v8h14v-8"/><path d="M12 8.5v12"/><path d="M12 8.5c-1.1-2.7-3.5-4.5-5.1-3.5-1.3.9-.4 3.5 5.1 3.5zM12 8.5c1.1-2.7 3.5-4.5 5.1-3.5 1.3.9.4 3.5-5.1 3.5z"/><path d="M20 2.2l.4 1.1 1.1.4-1.1.4-.4 1.1-.4-1.1-1.1-.4 1.1-.4z" class="f"/>',
     bolo:'<path d="M3.5 20.5h17"/><path d="M5 20.5V14a1.5 1.5 0 0 1 1.5-1.5h11A1.5 1.5 0 0 1 19 14v6.5"/><path d="M5 16.2c1.2 1 2.3 1 3.5 0s2.3-1 3.5 0 2.3 1 3.5 0 2.3-1 3.5 0"/><path d="M12 12.5V9.2M8 12.5v-2M16 12.5v-2"/><path d="M12 4.3c.9 1 1.3 1.8 1.3 2.5a1.3 1.3 0 0 1-2.6 0c0-.7.4-1.5 1.3-2.5z" class="f"/>',
-    pontos:'<circle cx="6" cy="12" r="1.3" class="f"/><circle cx="12" cy="12" r="1.3" class="f"/><circle cx="18" cy="12" r="1.3" class="f"/>'
+    pontos:'<circle cx="6" cy="12" r="1.3" class="f"/><circle cx="12" cy="12" r="1.3" class="f"/><circle cx="18" cy="12" r="1.3" class="f"/>',
+    grafico:'<path d="M3.5 20.5h17"/><rect x="5" y="12" width="3.2" height="8.5" rx=".8"/><rect x="10.4" y="7.5" width="3.2" height="13" rx=".8"/><rect x="15.8" y="10" width="3.2" height="10.5" rx=".8"/><path d="M19.5 2.6l.4 1.1 1.1.4-1.1.4-.4 1.1-.4-1.1-1.1-.4 1.1-.4z" class="f"/>'
   };
   window.ARC_ICONE=k=>'<svg class="arc-ic" viewBox="0 0 24 24" aria-hidden="true">'+(P[k]||P.brilho)+'</svg>';
 })();

@@ -94,33 +94,36 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
 
   /* Todas as áreas de administração do site. Página nova de administração: acrescente uma linha aqui. */
   const GRUPOS=[
-    {t:'Turma online',itens:[
-      {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'}]},
-    {t:'Outra turma',itens:[
-      {ic:'bussola',n:'Administração presencial',d:'Painel da turma presencial (dados separados do online)',u:'/admin/'}]},
-    {t:'Leitura do mês',itens:[
-      {ic:'livro',n:'Livro do mês e questionário',d:'Definir o livro, sortear, acompanhar a leitura e o questionário',u:'/online/leitura/admin/'},
-      {ic:'carta',n:'Votação do livro do mês',d:'Criar votação, ver contagem e quem votou',u:'/online/votacao/admin/'},
-      {ic:'lacre',n:'Cartas Seladas',d:'Abrir uma rodada, ver quem lacrou e abrir as cartas',u:'/online/cartas/admin/',c:1},
-      {ic:'estrela',n:'Estante do clube',d:'Nota de cada integrante para os livros do mês',u:'/online/estante/admin/'},
+    {t:'Entrada no clube',d:'Na ordem do processo: interesse, ingresso, acesso e combinados',itens:[
+      {ic:'envelope',n:'Respostas da lista de espera',d:'1. Quem tem interesse em entrar no clube',u:'/lista-de-espera/respostas/',c:1},
+      {ic:'envelope',n:'Formulário de ingresso',d:'2. Link para quem entra e as respostas (endereço, contatos, leitura)',u:'/online/ingresso/respostas/',c:1},
+      {ic:'conselho',n:'Acesso das integrantes',d:'3. Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'},
+      {ic:'pergaminho',n:'Código da Sociedade Arcádia',d:'4. Colar ou atualizar o texto do Código',u:'/online/codigo/admin/'}]},
+    {t:'Integrantes',itens:[
+      {ic:'grafico',n:'Participação das integrantes',d:'Visitas, sprint, leitura, votos e presença de cada uma (só você vê)',u:'/online/admin/participacao/'},
+      {ic:'balao',n:'Mensagens para a administração',d:'Elogios, reclamações e problemas (só você vê)',u:'/online/mensagem/admin/'},
+      {ic:'presente',n:'Listas de desejos e aniversários',d:'Lista de cada integrante (só você vê), datas do mural e códigos',u:'/online/desejos/admin/'}]},
+    {t:'Escolha do livro do mês',d:'Na ordem: lista de livros, limpeza, sorteio e votação',itens:[
       {ic:'estante',n:'Livros sugeridos e LCs',d:'Aprovar sugestões, lista oficial e LCs extras',u:'/online/livros/admin/',c:1},
-      {ic:'vassoura',n:'Limpeza da lista de livros',d:'Abrir a limpeza, ver quem marcou e os livros mais votados para sair',u:'/online/limpeza/admin/',c:1}]},
-    {t:'Encontros e jogos',itens:[
+      {ic:'vassoura',n:'Limpeza da lista de livros',d:'Abrir a limpeza, ver quem marcou e os livros mais votados para sair',u:'/online/limpeza/admin/',c:1},
+      {ic:'carta',n:'Votação do livro do mês',d:'Criar votação, ver contagem e quem votou',u:'/online/votacao/admin/'}]},
+    {t:'Leitura do mês',d:'Durante e depois da leitura',itens:[
+      {ic:'livro',n:'Livro do mês e questionário',d:'Definir o livro, sortear, acompanhar a leitura e o questionário',u:'/online/leitura/admin/'},
+      {ic:'lacre',n:'Cartas Seladas',d:'Abrir uma rodada, ver quem lacrou e abrir as cartas',u:'/online/cartas/admin/',c:1},
+      {ic:'estrela',n:'Estante do clube',d:'Nota de cada integrante para os livros do mês',u:'/online/estante/admin/'}]},
+    {t:'Encontros',itens:[
       {ic:'calendario',n:'Agenda',d:'Adicionar encontros e ver confirmações',u:'/online/agenda/admin/',c:1},
-      {ic:'lanterna',n:'Ideias de atividades',d:'Aprovar ou recusar ideias',u:'/online/ideias/admin/',c:1},
-      {ic:'coroa',n:'Arcadiana do Ano',d:'Lançar pontos e ver o ranking',u:'/online/arcadiana/admin/'},
-      {ic:'cartela',n:'Bingo',d:'Tabela, cartelas, códigos e provas para conferir',u:'/online/bingo/admin/',c:1}]},
+      {ic:'lanterna',n:'Ideias de atividades',d:'Aprovar ou recusar ideias',u:'/online/ideias/admin/',c:1}]},
+    {t:'Jogos e pontos',itens:[
+      {ic:'cartela',n:'Bingo',d:'Tabela, cartelas, códigos e provas para conferir',u:'/online/bingo/admin/',c:1},
+      {ic:'coroa',n:'Arcadiana do Ano',d:'Lançar pontos e ver o ranking',u:'/online/arcadiana/admin/'}]},
     {t:'LC Especial de Natal',itens:[
       {ic:'chama',n:'Salão Principal de Hogwarts',d:'Participantes e códigos, senha, datas, perguntas, sprints e respostas',u:'/online/hogwarts/admin/'}]},
     {t:'Divulgação',itens:[
       {ic:'brilho',n:'Sugestões para as redes',d:'Avaliar e marcar como publicadas',u:'/online/redes/admin/',c:1},
-      {ic:'moldura',n:'Artes do clube',d:'Adicionar ou tirar artes da galeria',u:'/online/artes/admin/',c:1},
-      {ic:'envelope',n:'Respostas da lista de espera',d:'Ver quem quer entrar no clube',u:'/lista-de-espera/respostas/',c:1}]},
-    {t:'Integrantes',itens:[
-      {ic:'balao',n:'Mensagens para a administração',d:'Elogios, reclamações e problemas (só você vê)',u:'/online/mensagem/admin/'},
-      {ic:'pergaminho',n:'Código da Sociedade Arcádia',d:'Colar ou atualizar o texto do Código',u:'/online/codigo/admin/'},
-      {ic:'envelope',n:'Formulário de ingresso',d:'Link para quem entra no clube e as respostas (endereço, contatos, leitura)',u:'/online/ingresso/respostas/',c:1},
-      {ic:'presente',n:'Listas de desejos e aniversários',d:'Lista de cada integrante (só você vê), datas do mural e códigos',u:'/online/desejos/admin/'}]},
+      {ic:'moldura',n:'Artes do clube',d:'Adicionar ou tirar artes da galeria',u:'/online/artes/admin/',c:1}]},
+    {t:'Outra turma',itens:[
+      {ic:'bussola',n:'Administração presencial',d:'Painel da turma presencial (dados separados do online)',u:'/admin/'}]},
     {t:'Fora do site',itens:[
       {ic:'chama',n:'Firebase',d:'Dados, regras e quem é administradora',u:'https://console.firebase.google.com/project/arcadia-online-61481/firestore',ext:1},
       {ic:'codigo',n:'GitHub do clube',d:'Pedidos de alteração do site (PRs)',u:'https://github.com/sociedadearcadia',ext:1}]}
@@ -133,7 +136,7 @@ input[type=email]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3
     $('grupos').innerHTML=GRUPOS.map(g=>{
       const its=g.itens.filter(i=>(papel==='admin'||i.c)).filter(i=>!q||(i.n+' '+i.d+' '+g.t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(q));
       total+=its.length;if(!its.length)return'';
-      return '<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p><ul class="atalhos">'+its.map(i=>
+      return '<section class="panel grupo"><p class="lbl">'+esc(g.t)+'</p>'+(g.d?'<p class="muted small" style="margin:-4px 0 2px">'+esc(g.d)+'</p>':'')+'<ul class="atalhos">'+its.map(i=>
         '<li><a href="'+esc(i.u)+'"'+(i.ext?' target="_blank" rel="noopener"':'')+'><span class="ic" aria-hidden="true">'+ARC_ICONE(i.ic)+'</span>'+
         '<span class="tx"><b>'+esc(i.n)+'</b><small>'+esc(i.d)+'</small></span><span class="seta" aria-hidden="true">'+(i.ext?'↗':'›')+'</span></a></li>').join('')+'</ul></section>'}).join('');
     $('nada').hidden=total>0}
