@@ -95,8 +95,8 @@ def ajustes(rel, t):
     if rel == 'hogwarts/admin/index.html':
         t = re.sub(r"\n  if\(!\(await lista\('hgEncontros'\)\)\.length\)\{[^\n]*", '', t, count=1)
     if rel == 'admin/index.html':
-        t = t.replace("{ic:'bussola',n:'Painel da turma online',d:'Administração da área online (dados separados do presencial)',u:'/online/admin/'}",
-                      "{ic:'bussola',n:'Painel da turma presencial',d:'Administração da área presencial (dados separados do online)',u:'/admin/'}")
+        t = t.replace("{ic:'bussola',n:'Administração online',d:'Painel da turma online: acesso das integrantes, agenda, leitura e tudo mais',u:'/online/admin/'}",
+                      "{ic:'bussola',n:'Administração presencial',d:'Painel da turma presencial (dados separados do online)',u:'/admin/'}")
         t = t.replace("  const GRUPOS=[\n", "  const GRUPOS=[\n    {t:'Turma online',itens:[\n      {ic:'conselho',n:'Acesso das integrantes',d:'Aprovar pedidos de entrada e remover acessos',u:'/online/admin/acesso/'}]},\n", 1)
         pid = projeto_online()
         if pid:
