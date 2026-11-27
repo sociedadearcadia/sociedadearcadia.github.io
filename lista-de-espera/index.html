@@ -126,7 +126,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
 
     <div id="formBox">
       <p class="intro" id="tIntro">Escolha a turma no formulário abaixo.</p>
-      <div class="migra" id="migra"><b>Aguardando vaga presencial?</b> Você pode participar da turma online e pedir a migração quando houver vaga ou ampliação do presencial. A migração não é imediata nem garantida. Ainda não está definido se a sua posição na lista de espera presencial é mantida.</div>
+      <div class="migra" id="migra"><b>Aguardando vaga presencial?</b> Você pode participar da turma online e pedir a migração quando houver vaga ou ampliação do presencial. A migração não é imediata nem garantida. Quem entra no online continua na lista de espera presencial, na mesma posição.</div>
       <a class="ir" href="#leituras">Conheça nossas leituras ↓</a>
       <form id="f" novalidate>
         <input type="text" id="site" name="site" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
@@ -200,7 +200,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
             <li><b>Pagamento:</b> cobrança recorrente por plataforma de pagamento. Meios de pagamento, vencimento e renovação são informados na contratação. Atrasos podem ter multa e juros, informados antes, dentro dos limites legais. O acesso pode ser suspenso em caso de falta de pagamento.</li>
             <li><b>O que não está incluído:</b> a compra dos livros (físicos ou digitais), materiais específicos e atividades extras pagas.</li>
             <li><b>Cancelamento:</b> a qualquer momento, pelos canais oficiais do clube. As cobranças seguintes param e o acesso vai até o fim do período já pago. Direito de arrependimento de 7 dias, quando aplicável.</li>
-            <li><b>Prêmios físicos:</b> entregues em endereços no Brasil. O envio para outros países não está garantido.</li>
+            <li><b>Prêmios físicos:</b> entrega garantida em endereços no Brasil. Para quem mora fora, a entrega é combinada caso a caso e não é garantida.</li>
             <li><b>Encontros:</b> online. Plataforma e horários saem na agenda do clube. A primeira leitura será escolhida por votação em dezembro.</li>
           </ul>
         </fieldset>
@@ -267,7 +267,7 @@ textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(2
       intro:'As vagas da turma presencial estão preenchidas. A lista de espera permanece aberta, sem previsão de novas vagas. Comunicaremos a abertura pelos canais oficiais. Mensalidade de R$ 30 a partir de janeiro de 2027.',
       ok:'Autorizo o contato pelo WhatsApp sobre as vagas do clube.',btn:'Entrar na lista de espera',
       dLbl:'Inscrição recebida',dH2:'Seu nome está na lista de espera',dP:'Ainda não há previsão de novas vagas na turma presencial. Comunicaremos a abertura pelos canais oficiais.',
-      dP2:'Enquanto isso, você pode participar da turma online e pedir a migração quando houver vaga ou ampliação do presencial. A migração não é imediata nem garantida.'}};
+      dP2:'Enquanto isso, você pode participar da turma online e pedir a migração quando houver vaga ou ampliação do presencial. Você continua na lista de espera presencial, na mesma posição. A migração não é imediata nem garantida.'}};
   let txt=null;
   function aplicaModal(){const m=modal();$('ondeOn').hidden=m!=='online';$('ondePres').hidden=m==='online';$('mDica').textContent=DICA[m]||'';
     txt=TXT[m]||null;$('condOn').hidden=m!=='online';$('condPres').hidden=m!=='presencial';$('aceiteL').hidden=m!=='online';
