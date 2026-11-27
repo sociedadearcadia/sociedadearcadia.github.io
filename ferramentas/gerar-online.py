@@ -20,7 +20,7 @@ DEST = os.path.join(RAIZ, 'online')
 
 # páginas das integrantes que ganham cópia online (uma pasta nova de integrantes: inclua aqui)
 PASTAS = ['integrantes', 'admin', 'leitura', 'agenda', 'livros', 'votacao', 'ideias', 'estante', 'cartas',
-          'codigo', 'bingo', 'arcadiana', 'redes', 'artes', 'mensagem', 'guia', 'limpeza', 'hogwarts']
+          'codigo', 'bingo', 'arcadiana', 'redes', 'artes', 'mensagem', 'guia', 'limpeza', 'hogwarts', 'ingresso']
 # pastas novas que outras páginas criarem entram sozinhas se estiverem listadas em integrantes/index.html
 # arquivos de online/ feitos à mão (não são apagados nem gerados)
 PROPRIOS = {'config.js', 'sprint/config.js', 'LEIA-ME.md', 'acesso.js', 'admin/acesso/index.html'}
@@ -68,7 +68,7 @@ def com_acesso(t):
 
 def ajustes(rel, t):
     """Ajustes que só valem para o online."""
-    if rel.endswith('.html') and '/admin/' not in '/' + rel:
+    if rel.endswith('.html') and '/admin/' not in '/' + rel and not rel.startswith('ingresso/respostas/'):
         t = com_acesso(t)
     if rel == 'hogwarts/hg.js':
         # sem datas do presencial: tudo começa fechado ("Em breve") até a administração salvar as datas
@@ -76,6 +76,10 @@ def ajustes(rel, t):
         t = t.replace("if(!a&&ini==='coruja')return{antes:true,txt:'Em breve',aberta:false};",
                       "if(!a)return{antes:true,txt:'Em breve',aberta:false};")
     # turma online: nada presencial e nada copiado do presencial (lista de livros e agenda começam vazias)
+    if rel == 'ingresso/index.html':
+        # turma online: sem perguntas de encontro presencial
+        t = t.replace('</head>', '<style>.presencial{display:none!important}</style>\n</head>', 1)
+        t = t.replace('placeholder="Campo Grande / MS"', 'placeholder="Cidade / UF"')
     if rel == 'livros/lista-inicial.js':
         t = '/* Turma online: a lista começa vazia e cresce com as indicações das integrantes. */\nwindow.LISTA_INICIAL = [];\n'
     if rel == 'agenda/admin/index.html':
